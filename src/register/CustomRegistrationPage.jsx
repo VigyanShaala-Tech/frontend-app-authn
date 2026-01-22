@@ -586,7 +586,7 @@ const CustomRegistrationPage = ({ handleInstitutionLogin, institutionLogin }) =>
               )}
 
               {otpState.otpVerified && (
-                <div className="alert alert-success mb-4">formatMessage(messages['registration.phone.verified.success'])</div>
+                <div className="alert alert-success mb-4">{formatMessage(messages['registration.phone.verified.success'])}</div>
               )}
 
               {otpState.serverMessage && !otpState.otpVerified && (
