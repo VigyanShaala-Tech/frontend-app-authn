@@ -222,6 +222,11 @@ const messages = defineMessages({
     defaultMessage: 'Mentor',
     description: 'Option label in user role dropdown',
   },
+  'registration.user.role.required.error': {
+    id: 'registration.user.role.required.error',
+    defaultMessage: 'Please select a user role',
+    description: 'Error message when user role is not selected (required field)',
+  },
 
   'registration.phone.number.label': {
     id: 'registration.phone.number.label',
@@ -331,6 +336,32 @@ const messages = defineMessages({
     id: 'creating.account.message',
     defaultMessage: 'Creating your account...',
     description: 'Loading text during registration submission',
+  },
+  'empty.confirm_password.field.error': {
+    id: 'empty.confirm_password.field.error',
+    defaultMessage: 'Please confirm your password',
+    description: 'Error message when confirm password field is empty',
+  },
+
+  'registration.terms.required.error': {
+    id: 'registration.terms.required.error',
+    defaultMessage: 'You must agree to the Terms of Service',
+    description: 'Error when Terms of Service checkbox is not checked',
+  },
+  'registration.password.required.error': {
+    id: 'registration.password.required.error',
+    defaultMessage: 'Enter a password',
+    description: 'Clear error when password field is completely empty',
+  },
+  'registration.network.error': {
+    id: 'registration.network.error',
+    defaultMessage: 'A network error occurred. Please check your internet connection and try again.',
+    description: 'Generic network error shown during OTP send/verify failures',
+  },
+  'registration.otp.verification.pending': {
+    id: 'registration.otp.verification.pending',
+    defaultMessage: 'Please verify your phone number before continuing.',
+    description: 'Alternative friendlier message for phone verification step',
   },
 });
 
