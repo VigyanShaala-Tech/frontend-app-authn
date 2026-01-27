@@ -227,7 +227,7 @@ const messages = defineMessages({
   // OTP Login Tab - fields, buttons, states
   'login.otp.phone.label': {
     id: 'login.otp.phone.label',
-    defaultMessage: 'Mobile Number',
+    defaultMessage: 'Phone Number',
     description: 'Label for phone number input in OTP login tab',
   },
   'login.otp.phone.placeholder': {
@@ -297,7 +297,7 @@ const messages = defineMessages({
   },
   'login.otp.phone.required': {
     id: 'login.otp.phone.required',
-    defaultMessage: 'Please enter your mobile number',
+    defaultMessage: 'Please enter your phone number',
     description: 'Error when phone number is empty before sending OTP',
   },
   'login.otp.success': {
@@ -331,7 +331,7 @@ const messages = defineMessages({
   },
   'login.otp.phone.required': {
     id: 'login.otp.phone.required',
-    defaultMessage: 'Please enter your mobile number',
+    defaultMessage: 'Please enter your phone number',
     description: 'Error when phone number is empty before sending OTP',
   },
   'login.otp.phone.invalid': {
