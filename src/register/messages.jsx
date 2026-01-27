@@ -400,6 +400,11 @@ const messages = defineMessages({
     id: 'registration.field.required.generic',
     defaultMessage: 'This field is required',
   },
+  'registration.user.role.select.placeholder': {
+    id: 'registration.user.role.select.placeholder',
+    defaultMessage: 'Select your role',
+    description: 'Placeholder for user role select field',
+  },
 });
 
 export default messages;

@@ -533,6 +533,7 @@ const CustomRegistrationPage = ({ handleInstitutionLogin, institutionLogin }) =>
                   isInvalid={!!errors.user_role}
                   required
                 >
+                  <option value="" disabled>{formatMessage(messages['registration.user.role.select.placeholder'])}</option>
                   <option value="student">{formatMessage(messages['registration.user.role.option.student'])}</option>
                   <option value="mentor">{formatMessage(messages['registration.user.role.option.mentor'])}</option>
                 </Form.Control>
