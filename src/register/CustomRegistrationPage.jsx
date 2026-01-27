@@ -146,7 +146,7 @@ const CustomRegistrationPage = ({ handleInstitutionLogin, institutionLogin }) =>
       const data = await res.json();
       if (!res.ok || !data.success) {
         // Handle backend message exactly
-        const backendMessage = data.message || 'Failed to send OTP';
+        const backendMessage = data.message || formatMessage(messages['registration.otp.send.failed']);
         // Check if field-specific error (e.g., {errors: {phone_number: "msg"}})
         if (data.errors && typeof data.errors === 'object') {
           setErrors((prev) => ({ ...prev, ...data.errors }));
@@ -164,7 +164,7 @@ const CustomRegistrationPage = ({ handleInstitutionLogin, institutionLogin }) =>
         verificationKey: data.verification_key,
         resendIn: data.resend_after_seconds || 30,
         expiresIn: data.expires_in_seconds || 300,
-        serverMessage: 'OTP sent',
+        serverMessage: formatMessage(messages['registration.otp.sent.success']),
       }));
     } catch {
       setOtpState((prev) => ({ ...prev, sending: false, serverMessage: formatMessage(messages['registration.network.error']) }));
@@ -182,7 +182,7 @@ const CustomRegistrationPage = ({ handleInstitutionLogin, institutionLogin }) =>
       });
       const data = await res.json();
       if (!res.ok || !data.success) {
-        const backendMessage = data.message || 'Failed to resend OTP';
+        const backendMessage = data.message || formatMessage(messages['registration.otp.resend.failed']);
         if (data.errors && typeof data.errors === 'object') {
           setErrors((prev) => ({ ...prev, ...data.errors }));
         } else {
@@ -198,7 +198,7 @@ const CustomRegistrationPage = ({ handleInstitutionLogin, institutionLogin }) =>
         otpVerified: false,
         verificationKey: data.verification_key,
         resendIn: data.resend_after_seconds || 30,
-        serverMessage: 'OTP resent',
+        serverMessage: formatMessage(messages['registration.otp.resent.success']),
       }));
     } catch {
       setOtpState((prev) => ({ ...prev, resending: false, serverMessage: formatMessage(messages['registration.network.error']) }));
@@ -225,7 +225,7 @@ const CustomRegistrationPage = ({ handleInstitutionLogin, institutionLogin }) =>
       });
       const data = await res.json();
       if (!res.ok || !data.success) {
-        const backendMessage = data.message || 'Invalid OTP';
+        const backendMessage = data.message || formatMessage(messages['registration.otp.invalid']);
         if (data.errors && typeof data.errors === 'object') {
           setErrors((prev) => ({ ...prev, ...data.errors }));
         } else {
@@ -238,7 +238,7 @@ const CustomRegistrationPage = ({ handleInstitutionLogin, institutionLogin }) =>
         ...prev,
         verifying: false,
         otpVerified: true,
-        serverMessage: 'Phone verified!',
+        serverMessage: formatMessage(messages['registration.phone.verified.internal']),
       }));
     } catch {
       setOtpState((prev) => ({ ...prev, verifying: false, serverMessage: formatMessage(messages['registration.network.error']) }));
@@ -321,8 +321,8 @@ const CustomRegistrationPage = ({ handleInstitutionLogin, institutionLogin }) =>
       });
     }
     // Immediate empty check for worst case (show error on change if empty)
-    if (!value && ['name', 'email', 'password', 'confirm_password', 'phone_number'].includes(name)) {
-      setErrors((prev) => ({ ...prev, [name]: formatMessage(messages[`empty.${name}.field.error`]) || 'This field is required' }));
+    if (!value && ['name', 'email', 'password', 'confirm_password'].includes(name)) {
+      setErrors((prev) => ({ ...prev, [name]: formatMessage(messages[`empty.${name}.field.error`] || messages['registration.field.required.generic'] )}));
     }
     if (name === 'user_role' && !value) {
       setErrors((prev) => ({ ...prev, user_role: formatMessage(messages['registration.user.role.required.error']) }));
@@ -345,50 +345,63 @@ const CustomRegistrationPage = ({ handleInstitutionLogin, institutionLogin }) =>
 
   const registerUser = () => {
     const totalRegistrationTime = (Date.now() - formStartTime) / 1000;
+    const phoneProvided = !!(formFields.phone_number?.trim());
+    //  Client-side field validation
+    const customErrors = {};
 
-    // 1. Check all compulsory fields first
-    let customErrors = {};
     if (!formFields.name?.trim()) {
       customErrors.name = formatMessage(messages['empty.name.field.error']);
     }
+
     if (!formFields.email?.trim()) {
       customErrors.email = formatMessage(messages['empty.email.field.error']);
     }
+
     if (!formFields.user_role) {
       customErrors.user_role = formatMessage(messages['registration.user.role.required.error']);
     }
-    if (!formFields.phone_number?.trim()) {
-      customErrors.phone_number = formatMessage(messages['registration.phone.number.required.error']);
-    }
+
     if (!formFields.password?.trim()) {
       customErrors.password = formatMessage(messages['empty.password.field.error']);
     }
+
     if (!formFields.confirm_password?.trim()) {
-      customErrors.confirm_password = formatMessage(messages['registration.passwords.do.not.match']); // Reuse or create new
+      customErrors.confirm_password = formatMessage(messages['empty.confirm_password.field.error']);
     }
-    if (!formFields.terms_of_service) {
-      customErrors.terms_of_service = formatMessage(messages['registration.terms.required.error']);
-    }
+
     if (formFields.password !== formFields.confirm_password) {
       customErrors.confirm_password = formatMessage(messages['registration.passwords.do.not.match']);
     }
 
-    // Standard Open edX validations (name format, email format, password strength, etc.)
-    let payloadForValidation = {
+    if (!formFields.terms_of_service) {
+      customErrors.terms_of_service = formatMessage(messages['registration.terms.required.error']);
+    }
+
+    // Phone number format check only when provided
+    if (phoneProvided && formFields.phone_number.trim().length < 8) {
+      customErrors.phone_number = formatMessage(messages['registration.phone.number.invalid.error']);
+    }
+
+    const payloadForValidation = {
       name: (formFields.name || '').trim(),
       email: (formFields.email || '').trim(),
       username: (formFields.email || '').trim(),
       password: formFields.password || '',
       user_role: formFields.user_role || '',
-      phone_number: (formFields.phone_number || '').trim(),
+      phone_number: phoneProvided ? (formFields.phone_number || '').trim() : null,
       terms_of_service: formFields.terms_of_service,
     };
+
     if (currentProvider) {
       delete payloadForValidation.password;
       payloadForValidation.social_auth_provider = currentProvider;
     }
 
-    const { isValid: standardIsValid, fieldErrors: standardErrors, emailSuggestion } = isFormValid(
+    const { 
+      isValid: standardIsValid, 
+      fieldErrors: standardErrors, 
+      emailSuggestion 
+    } = isFormValid(
       payloadForValidation,
       registrationEmbedded ? temporaryErrors : errors,
       configurableFormFields,
@@ -396,42 +409,39 @@ const CustomRegistrationPage = ({ handleInstitutionLogin, institutionLogin }) =>
       formatMessage
     );
 
-    // Merge all errors
     const allFieldErrors = { ...standardErrors, ...customErrors };
     setErrors((prev) => ({ ...prev, ...allFieldErrors }));
-
     dispatch(setEmailSuggestionInStore(emailSuggestion));
 
-    const hasErrors = !standardIsValid || Object.keys(customErrors).length > 0;
-
-    if (hasErrors) {
+    if (!standardIsValid || Object.keys(customErrors).length > 0) {
       setErrorCode((prev) => ({ type: FORM_SUBMISSION_ERROR, count: prev.count + 1 }));
       return;
     }
-
-    // 2. Only now check phone verification
-    if (!otpState.otpVerified) {
+    //  Phone verification check (only if phone was provided)
+    if (phoneProvided && !otpState.otpVerified) {
       setOtpState((prev) => ({
         ...prev,
         serverMessage: formatMessage(messages['registration.verify.phone.first']),
       }));
       return;
     }
-
-    // Proceed with payload preparation and dispatch
+    // Build final payload
     let payload = {
       name: (formFields.name || '').trim(),
       email: (formFields.email || '').trim(),
       username: (formFields.email || '').trim(),
       password: formFields.password || '',
       user_role: formFields.user_role || '',
-      phone_number: (formFields.phone_number || '').trim(),
       terms_of_service: formFields.terms_of_service,
+      phone_number: phoneProvided ? (formFields.phone_number || '').trim() : null,
+      verification_key: phoneProvided ? (otpState.verificationKey || null) : null,
     };
+
     if (currentProvider) {
       delete payload.password;
       payload.social_auth_provider = currentProvider;
     }
+
     const finalPayload = prepareRegistrationPayload(
       payload,
       configurableFormFields,
@@ -439,8 +449,9 @@ const CustomRegistrationPage = ({ handleInstitutionLogin, institutionLogin }) =>
       totalRegistrationTime,
       queryParams
     );
+
     delete finalPayload.confirm_password;
-    finalPayload.verification_key = otpState.verificationKey || undefined;
+    //  Dispatch registration
     dispatch(registerNewUser(finalPayload));
   };
 
@@ -467,7 +478,9 @@ const CustomRegistrationPage = ({ handleInstitutionLogin, institutionLogin }) =>
           <div className="mw-xs mt-5 text-center p-4 bg-light border rounded">
             <h4 className="text-success mb-3">{formatMessage(messages['registration.success.title'])}</h4>
             <div className="alert alert-success mb-4">
-              {formatMessage(messages['registration.success.check.email'], { email: formFields.email })}
+              {formatMessage(messages['registration.success.check.email.before'])} 
+              <strong>{formFields.email}</strong> 
+              {formatMessage(messages['registration.success.check.email.after'])}
             </div>
           </div>
         ) : submitState === 'pending' || (autoSubmitRegForm && !errorCode.type) ? (
@@ -530,13 +543,13 @@ const CustomRegistrationPage = ({ handleInstitutionLogin, institutionLogin }) =>
                   <div className="flex-grow-1 position-relative">
                     <Form.Control
                       name="phone_number"
-                      type="text"
+                      type="tel"
                       value={formFields.phone_number || ''}
                       onChange={handleOnChange}
                       floatingLabel={formatMessage(messages['registration.phone.number.label'])}
                       placeholder={formatMessage(messages['registration.phone.number.placeholder'])}
                       isInvalid={!!errors.phone_number}
-                      required
+                      // required
                     />
                     {/* Error message below input, full width */}
                     {errors.phone_number && (

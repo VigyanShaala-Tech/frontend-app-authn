@@ -326,9 +326,14 @@ const messages = defineMessages({
     defaultMessage: 'Registration Successful!',
     description: 'Title of success message block',
   },
-  'registration.success.check.email': {
-    id: 'registration.success.check.email',
-    defaultMessage: 'Please check your email <strong>{formFields.email}</strong> and click the activation link to verify your account.',
+  'registration.success.check.email.before': {
+    id: 'registration.success.check.email.before',
+    defaultMessage: 'Please check your email ',
+    description: 'Success message after registration',
+  },
+  'registration.success.check.email.after': {
+    id: 'registration.success.check.email.after',
+    defaultMessage: ' and click the activation link to verify your account.',
     description: 'Success message after registration',
   },
 
@@ -362,6 +367,38 @@ const messages = defineMessages({
     id: 'registration.otp.verification.pending',
     defaultMessage: 'Please verify your phone number before continuing.',
     description: 'Alternative friendlier message for phone verification step',
+  },
+  'registration.otp.send.failed': {
+    id: 'registration.otp.send.failed',
+    defaultMessage: 'Failed to send OTP',
+  },
+  'registration.otp.resend.failed': {
+    id: 'registration.otp.resend.failed',
+    defaultMessage: 'Failed to resend OTP',
+  },
+  'registration.otp.invalid': {
+    id: 'registration.otp.invalid',
+    defaultMessage: 'Invalid OTP',
+  },
+  'registration.otp.sent.success': {
+    id: 'registration.otp.sent.success',
+    defaultMessage: 'OTP sent successfully',
+  },
+  'registration.otp.resent.success': {
+    id: 'registration.otp.resent.success',
+    defaultMessage: 'OTP resent successfully',
+  },
+  'registration.phone.verified.internal': {
+    id: 'registration.phone.verified.internal',
+    defaultMessage: 'Phone verified!',
+  },
+  'registration.phone.number.invalid.error': {
+    id: 'registration.phone.number.invalid.error',
+    defaultMessage: 'Please enter a valid phone number',
+  },
+  'registration.field.required.generic': {
+    id: 'registration.field.required.generic',
+    defaultMessage: 'This field is required',
   },
 });
 

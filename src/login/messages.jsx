@@ -206,6 +206,186 @@ const messages = defineMessages({
         + '{lineBreak}{lineBreak}Error Details:{lineBreak}{errorMessage}',
     description: 'Error message third party authentication pipeline fails',
   },
+
+  // Tab titles
+  'login.tab.username': {
+    id: 'login.tab.username',
+    defaultMessage: 'Email / Username',
+    description: 'Title of the traditional username or email + password login tab',
+  },
+  'login.tab.otp': {
+    id: 'login.tab.otp',
+    defaultMessage: 'Mobile OTP',
+    description: 'Title of the phone number + OTP login tab',
+  },
+  'login.tab.google': {
+    id: 'login.tab.google',
+    defaultMessage: 'Google',
+    description: 'Title of the Google / social login tab',
+  },
+
+  // OTP Login Tab - fields, buttons, states
+  'login.otp.phone.label': {
+    id: 'login.otp.phone.label',
+    defaultMessage: 'Mobile Number',
+    description: 'Label for phone number input in OTP login tab',
+  },
+  'login.otp.phone.placeholder': {
+    id: 'login.otp.phone.placeholder',
+    defaultMessage: '+91 9876543210',
+    description: 'Placeholder text for mobile number input in OTP login',
+  },
+  'login.otp.send.button': {
+    id: 'login.otp.send.button',
+    defaultMessage: 'Send OTP',
+    description: 'Button label to request OTP for login',
+  },
+  'login.otp.resend.button': {
+    id: 'login.otp.resend.button',
+    defaultMessage: 'Resend OTP',
+    description: 'Button label to resend OTP',
+  },
+  'login.otp.resend.countdown': {
+    id: 'login.otp.resend.countdown',
+    defaultMessage: 'Resend in {seconds}s',
+    description: 'Resend button text with countdown timer',
+  },
+  'login.otp.enter.label': {
+    id: 'login.otp.enter.label',
+    defaultMessage: 'Enter OTP',
+    description: 'Label above the OTP code input field',
+  },
+  'login.otp.placeholder': {
+    id: 'login.otp.placeholder',
+    defaultMessage: 'Enter 6-digit code',
+    description: 'Placeholder for OTP input field',
+  },
+  'login.otp.verify.button': {
+    id: 'login.otp.verify.button',
+    defaultMessage: 'Verify & Sign In',
+    description: 'Button to verify OTP and complete login',
+  },
+  'login.otp.sending': {
+    id: 'login.otp.sending',
+    defaultMessage: 'Sending...',
+    description: 'Loading state while sending OTP',
+  },
+  'login.otp.resending': {
+    id: 'login.otp.resending',
+    defaultMessage: 'Resending...',
+    description: 'Loading state while resending OTP',
+  },
+  'login.otp.verifying': {
+    id: 'login.otp.verifying',
+    defaultMessage: 'Verifying...',
+    description: 'Loading state while verifying OTP',
+  },
+  'login.otp.required': {
+    id: 'login.otp.required',
+    defaultMessage: 'Please enter the OTP code',
+    description: 'Error when OTP field is empty',
+  },
+  'login.otp.invalid': {
+    id: 'login.otp.invalid',
+    defaultMessage: 'Invalid OTP. Please check and try again.',
+    description: 'Error when OTP verification fails',
+  },
+  'login.otp.expired': {
+    id: 'login.otp.expired',
+    defaultMessage: 'This OTP has expired. Please request a new one.',
+    description: 'Message when OTP is no longer valid',
+  },
+  'login.otp.phone.required': {
+    id: 'login.otp.phone.required',
+    defaultMessage: 'Please enter your mobile number',
+    description: 'Error when phone number is empty before sending OTP',
+  },
+  'login.otp.success': {
+    id: 'login.otp.success',
+    defaultMessage: 'Login successful!',
+    description: 'Success message after OTP verification (optional - can be short-lived)',
+  },
+
+  // Google Login Tab
+  'login.google.button': {
+    id: 'login.google.button',
+    defaultMessage: 'Sign in with Google',
+    description: 'Button label for Google OAuth login',
+  },
+  'login.google.not.configured': {
+    id: 'login.google.not.configured',
+    defaultMessage: 'Google sign-in is not available right now.',
+    description: 'Message shown when Google provider is not configured/enabled',
+  },
+
+  // General / shared login messages (improvements & fallbacks)
+  'login.network.error': {
+    id: 'login.network.error',
+    defaultMessage: 'Please check your internet connection and try again.',
+    description: 'Generic network failure message for OTP / any API call',
+  },
+  'login.phone.invalid.format': {
+    id: 'login.phone.invalid.format',
+    defaultMessage: 'Please enter a valid phone number (e.g. +919876543210)',
+    description: 'Client-side validation error for phone format (optional)',
+  },
+  'login.otp.phone.required': {
+    id: 'login.otp.phone.required',
+    defaultMessage: 'Please enter your mobile number',
+    description: 'Error when phone number is empty before sending OTP',
+  },
+  'login.otp.phone.invalid': {
+    id: 'login.otp.phone.invalid',
+    defaultMessage: 'Please enter a valid phone number',
+    description: 'Client-side validation for phone number format',
+  },
+  'login.otp.code.required': {
+    id: 'login.otp.code.required',
+    defaultMessage: 'Please enter the OTP code',
+    description: 'Error when OTP input is empty',
+  },
+  'login.otp.code.invalid': {
+    id: 'login.otp.code.invalid',
+    defaultMessage: 'Invalid OTP code. Please try again.',
+    description: 'Shown when backend returns invalid OTP',
+  },
+
+  // General OTP flow messages (keep in alert style)
+  'login.otp.network.error': {
+    id: 'login.otp.network.error',
+    defaultMessage: 'Network error. Please try again later.',
+    description: 'Generic network failure during OTP flow',
+  },
+  'login.otp.send.failed': {
+    id: 'login.otp.send.failed',
+    defaultMessage: 'Failed to send OTP. Please try again.',
+    description: 'Generic failure message when sending OTP',
+  },
+  'login.otp.sent.success': {
+    id: 'login.otp.sent.success',
+    defaultMessage: 'OTP sent successfully!',
+    description: 'Success message when OTP is sent',
+  },
+  'login.otp.resend.failed': {
+    id: 'login.otp.resend.failed',
+    defaultMessage: 'Failed to resend OTP. Please try again.',
+    description: 'Generic failure message when resending OTP',
+  },
+   'login.otp.resent.success': {
+    id: 'login.otp.resent.success',
+    defaultMessage: 'OTP resent successfully!',
+    description: 'Success message when OTP is resent',
+  },
+  'login.otp.session.expired': {
+    id: 'login.otp.session.expired',
+    defaultMessage: 'Your session has expired. Please request a new OTP.',
+    description: 'Message shown when session expires during OTP flow',
+  },
+  'login.failed.after.verification': {
+    id: 'login.failed.after.verification',
+    defaultMessage: 'Login failed after verification. Please try again.',
+    description: 'Message shown when login fails after OTP verification',
+  },
 });
 
 export default messages;
