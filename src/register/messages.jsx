@@ -394,7 +394,7 @@ const messages = defineMessages({
   },
   'registration.phone.number.invalid.error': {
     id: 'registration.phone.number.invalid.error',
-    defaultMessage: 'Please enter a valid phone number',
+    defaultMessage: 'Please enter a valid phone number or register without phone number',
   },
   'registration.field.required.generic': {
     id: 'registration.field.required.generic',

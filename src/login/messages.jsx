@@ -210,7 +210,7 @@ const messages = defineMessages({
   // Tab titles
   'login.tab.username': {
     id: 'login.tab.username',
-    defaultMessage: 'Email / Username',
+    defaultMessage: 'Email',
     description: 'Title of the traditional username or email + password login tab',
   },
   'login.tab.otp': {

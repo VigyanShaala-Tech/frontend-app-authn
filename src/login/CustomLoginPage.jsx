@@ -42,6 +42,11 @@ import {
 } from '../data/utils';
 import ResetPasswordSuccess from '../reset-password/ResetPasswordSuccess';
 import { loginRequestSuccess } from './data/actions';
+import { PhoneInput } from 'react-international-phone';
+import 'react-international-phone/style.css';
+import { parsePhoneNumberFromString } from 'libphonenumber-js';
+import classNames from 'classnames';
+import './customlogin.scss';
 
 const CustomLoginPage = (props) => {
   const {
@@ -91,6 +96,7 @@ const CustomLoginPage = (props) => {
     serverMessage: '',
   });
   const otpApiBase = `${getConfig().LMS_BASE_URL}`;
+  const [isPhoneValid, setIsPhoneValid] = useState(false);
 
   useEffect(() => {
     sendPageEvent('login_and_registration', 'login');
@@ -199,39 +205,6 @@ const CustomLoginPage = (props) => {
     sendTrackEvent('edx.bi.password-reset_form.toggled', { category: 'user-engagement' });
   };
 
-  // const sendOtp = async () => {
-  //   const { phone } = otpState;
-  //   if (!phone.trim()) {
-  //     setOtpState((prev) => ({ ...prev, serverMessage: 'Phone number is required.' }));
-  //     return;
-  //   }
-  //   setOtpState((prev) => ({ ...prev, sending: true, serverMessage: '' }));
-  //   try {
-  //     const res = await fetch(`${otpApiBase}/otp/login/send/`, {
-  //       method: 'POST',
-  //       headers: { 'Content-Type': 'application/json' },
-  //       credentials: 'include',
-  //       body: JSON.stringify({ contact_identifier: phone }),
-  //     });
-  //     const data = await res.json();
-  //     if (!res.ok || !data.success) {
-  //       setOtpState((prev) => ({ ...prev, sending: false, serverMessage: data.message || 'Failed to send OTP.' }));
-  //       return;
-  //     }
-  //     setOtpState((prev) => ({
-  //       ...prev,
-  //       sending: false,
-  //       otpSent: true,
-  //       verificationKey: data.verification_key,
-  //       resendIn: data.resend_after_seconds || 30,
-  //       expiresIn: data.expires_in_seconds || 300,
-  //       serverMessage: 'OTP sent successfully.',
-  //     }));
-  //   } catch {
-  //     setOtpState((prev) => ({ ...prev, sending: false, serverMessage: 'Network error.' }));
-  //   }
-  // };
-
   const sendOtp = async () => {
     const phone = otpState.phone.trim();
     if (!phone) {
@@ -259,7 +232,7 @@ const CustomLoginPage = (props) => {
         } else {
           setOtpState(prev => ({
             ...prev,
-            serverMessage: data.message || formatMessage(messages['login.otp.send.failed']),
+            serverMessage: data?.message || formatMessage(messages['login.network.error']),
           }));
         }
         return;
@@ -271,13 +244,13 @@ const CustomLoginPage = (props) => {
         otpSent: true,
         verificationKey: data.verification_key,
         resendIn: data.resend_after_seconds || 30,
-        serverMessage: data.message || formatMessage(messages['login.otp.sent.success']),
+        serverMessage: data?.message || formatMessage(messages['login.otp.sent.success']),
       }));
     } catch {
       setOtpState(prev => ({
         ...prev,
         sending: false,
-        serverMessage: data.message || formatMessage(messages['login.network.error']),
+        serverMessage: data?.message || formatMessage(messages['login.network.error']),
       }));
     }
   };
@@ -315,7 +288,7 @@ const CustomLoginPage = (props) => {
           // General / non-field error
           setOtpState((prev) => ({
             ...prev,
-            serverMessage: data.message || formatMessage(messages['login.otp.resend.failed']),
+            serverMessage: data?.message || formatMessage(messages['login.otp.resend.failed']),
           }));
         }
         setOtpState((prev) => ({ ...prev, resending: false }));
@@ -329,14 +302,14 @@ const CustomLoginPage = (props) => {
         otpSent: true,
         verificationKey: data.verification_key || prev.verificationKey,
         resendIn: data.resend_after_seconds || 30,
-        serverMessage: data.message || formatMessage(messages['login.otp.resent.success']),
+        serverMessage: data?.message || formatMessage(messages['login.otp.resent.success']),
       }));
 
     } catch (err) {
       setOtpState((prev) => ({
         ...prev,
         resending: false,
-        serverMessage: data.message || formatMessage(messages['login.network.error']),
+        serverMessage: data?.message || formatMessage(messages['login.network.error']),
       }));
     }
   };
@@ -387,7 +360,7 @@ const CustomLoginPage = (props) => {
         } else {
           setOtpState((prev) => ({
             ...prev,
-            serverMessage: verifyData.message || formatMessage(messages['login.otp.invalid']),
+            serverMessage: verifyData?.message || formatMessage(messages['login.otp.invalid']),
           }));
         }
         setOtpState((prev) => ({ ...prev, verifying: false }));
@@ -414,7 +387,7 @@ const CustomLoginPage = (props) => {
         } else {
           setOtpState((prev) => ({
             ...prev,
-            serverMessage: loginData.message || formatMessage(messages['login.failed.after.verification']) ,
+            serverMessage: loginData?.message || formatMessage(messages['login.failed.after.verification']) ,
           }));
         }
         setOtpState((prev) => ({ ...prev, verifying: false }));
@@ -425,7 +398,7 @@ const CustomLoginPage = (props) => {
         ...prev,
         verifying: false,
         otpVerified: true,
-        serverMessage: loginData.message || formatMessage(messages['login.otp.success']),
+        serverMessage: loginData?.message || formatMessage(messages['login.otp.success']),
       }));
 
       // Trigger Redux success action + redirect
@@ -438,7 +411,7 @@ const CustomLoginPage = (props) => {
       setOtpState((prev) => ({
         ...prev,
         verifying: false,
-        serverMessage: verifyData.message || formatMessage(messages['login.network.error']),
+        serverMessage: verifyData?.message || formatMessage(messages['login.network.error']),
       }));
     }
   };
@@ -469,9 +442,6 @@ const CustomLoginPage = (props) => {
     );
   }
 
-  // Find Google provider (assume id is 'google-oauth2')
-  const googleProvider = providers.find(p => p.id === 'google-oauth2') || secondaryProviders.find(p => p.id === 'google-oauth2');
-
   return (
     <>
       <Helmet>
@@ -499,7 +469,9 @@ const CustomLoginPage = (props) => {
         <h3 className="mb-3">{formatMessage(messages['sign.in.button'])}</h3>
         <Tabs activeKey={activeTab} onSelect={(k) => setActiveTab(k)} id="login-tabs" className="mb-4">
           <Tab eventKey="username" title={formatMessage(messages['login.tab.username'])}>
+
             <Form id="sign-in-form" name="sign-in-form">
+
               <FormGroup
                 name="emailOrUsername"
                 value={formFields.emailOrUsername}
@@ -509,6 +481,7 @@ const CustomLoginPage = (props) => {
                 errorMessage={errors.emailOrUsername}
                 floatingLabel={formatMessage(messages['login.user.identity.label'])}
               />
+
               <PasswordField
                 name="password"
                 value={formFields.password}
@@ -520,6 +493,7 @@ const CustomLoginPage = (props) => {
                 errorMessage={errors.password}
                 floatingLabel={formatMessage(messages['login.password.label'])}
               />
+
               <StatefulButton
                 name="sign-in"
                 id="sign-in"
@@ -528,45 +502,65 @@ const CustomLoginPage = (props) => {
                 className="login-button-width"
                 state={submitState}
                 labels={{
-                    default: formatMessage(messages['sign.in.button']),
-                    pending: formatMessage(messages['sign.in.button']) + '...',
+                  default: formatMessage(messages['sign.in.button']),
+                  pending: formatMessage(messages['sign.in.button']) + '...',
                 }}
                 onClick={handleUsernameSubmit}
-                onMouseDown={(event) => event.preventDefault()}
+                onMouseDown={(e) => e.preventDefault()}
               />
+
               <Link
                 id="forgot-password"
-                name="forgot-password"
                 className="btn btn-link font-weight-500 text-body"
                 to={updatePathWithQueryParams(RESET_PAGE)}
                 onClick={trackForgotPasswordLinkClick}
               >
                 {formatMessage(messages['forgot.password'])}
               </Link>
-              {/* Hide ThirdPartyAuth in username tab since we have separate tabs */}
+
+              {/* ─── This is the most important line ─── */}
+              <ThirdPartyAuth
+                currentProvider={currentProvider}
+                providers={providers}
+                secondaryProviders={secondaryProviders}
+                handleInstitutionLogin={handleInstitutionLogin}
+                thirdPartyAuthApiStatus={thirdPartyAuthApiStatus}
+                isLoginPage
+              />
+
             </Form>
+
           </Tab>
           <Tab eventKey="otp" title={formatMessage(messages['login.tab.otp'])}>
             <Form noValidate>
               {/* Phone Number Field */}
               <Form.Group className="mb-4">
-                <Form.Control
-                  type="tel"
-                  name="phone"
+                <PhoneInput
+                  defaultCountry={'in'}    
                   value={otpState.phone}
-                  onChange={(e) => {
-                    setOtpState(prev => ({ ...prev, phone: e.target.value }));
-                    // Clear field error when typing
+                  onChange={(value) => {
+                    setOtpState(prev => ({ ...prev, phone: value }));
                     setErrors(prev => ({ ...prev, phone: '' }));
-                  }}
-                  onFocus={() => setErrors(prev => ({ ...prev, phone: '' }))}
-                  isInvalid={!!errors.phone}
-                  placeholder={formatMessage(messages['login.otp.phone.placeholder'])}
-                  floatingLabel={formatMessage(messages['login.otp.phone.label'])}
+
+                    const phoneNumber = parsePhoneNumberFromString(value);
+                    setIsPhoneValid(phoneNumber?.isValid() ?? false);
+                  }} 
+                  name="phone_number"
+                  inputClass={classNames('form-control', { 'is-invalid': !!errors.phone })}
+                  countrySelectorClass="form-select"
+                  enableSearch={true}
+                  placeholder={formatMessage(messages['login.otp.phone.label'])}
+                  style={{ width: '100% !important' }}
+                  isInvalid={!!errors.phone || (!isPhoneValid && otpState.phone.trim())}
                 />
                 {errors.phone && (
                   <Form.Text className="text-danger">
                     {errors.phone}
+                  </Form.Text>
+                )}
+                {!errors.phone && !isPhoneValid && otpState.phone.trim() && (
+                  <Form.Text className="text-danger">
+                    {formatMessage(messages['login.otp.phone.invalid'])}
                   </Form.Text>
                 )}
               </Form.Group>
@@ -586,7 +580,7 @@ const CustomLoginPage = (props) => {
                     ? formatMessage(messages['login.otp.sending'])
                     : formatMessage(messages['login.otp.resending']),
                 }}
-                disabled={otpState.sending || otpState.resending || (otpState.otpSent && otpState.resendIn > 0)}
+                disabled={otpState.sending || otpState.resending || (otpState.otpSent && otpState.resendIn > 0) || !isPhoneValid}
                 onClick={otpState.otpSent ? resendOtp : sendOtp}
               />
 
@@ -635,22 +629,6 @@ const CustomLoginPage = (props) => {
                 </div>
               )}
             </Form>
-          </Tab>
-          <Tab eventKey="google" title={formatMessage(messages['login.tab.google'])}>
-            {googleProvider ? (
-            <StatefulButton
-                variant="brand"
-                className="w-100"
-                labels={{
-                default: formatMessage(messages['login.google.button']),
-                }}
-                onClick={() => window.location.href = getConfig().LMS_BASE_URL + googleProvider.loginUrl}
-            />
-            ) : (
-            <div className="alert alert-info mt-3">
-                {formatMessage(messages['login.google.not.configured'])}
-            </div>
-            )}
           </Tab>
         </Tabs>
       </div>

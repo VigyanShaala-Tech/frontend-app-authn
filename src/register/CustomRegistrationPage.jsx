@@ -39,7 +39,10 @@ import {
   isHostAvailableInQueryParams,
   setCookie,
 } from '../data/utils';
-
+import { PhoneInput } from 'react-international-phone';
+import 'react-international-phone/style.css';
+import { parsePhoneNumberFromString } from 'libphonenumber-js';
+import './customregistration.scss';
 const CustomRegistrationPage = ({ handleInstitutionLogin, institutionLogin }) => {
   const { formatMessage } = useIntl();
   const dispatch = useDispatch();
@@ -118,6 +121,10 @@ const CustomRegistrationPage = ({ handleInstitutionLogin, institutionLogin }) =>
     ? formatMessage(messages['create.account.cta.button'], { label: cta })
     : formatMessage(messages['create.account.for.free.button']);
   const otpApiBase = `${getConfig().LMS_BASE_URL}`;
+  const [isPhoneValid, setIsPhoneValid] = useState(false);
+  const [selectedCountry, setSelectedCountry] = useState("in");       // iso2 code
+  const [nationalNumber, setNationalNumber] = useState("");           // digits only, without +91
+  const [isPhoneTouched, setIsPhoneTouched] = useState(false);        // user typed something?
 
   useEffect(() => {
     if (otpState.resendIn <= 0) return;
@@ -332,6 +339,55 @@ const CustomRegistrationPage = ({ handleInstitutionLogin, institutionLogin }) =>
     }
   };
 
+  const handlePhoneChange = (value) => {
+    const phoneNumber = parsePhoneNumberFromString(value);
+
+    let isValid = false;
+    let country = selectedCountry;
+    let national = '';
+
+    if (phoneNumber) {
+      isValid = phoneNumber.isValid();
+      country = phoneNumber.country?.toLowerCase() || selectedCountry;
+      national = phoneNumber.nationalNumber || '';
+    } else if (value && value.startsWith('+')) {
+      // Partial input like "+9" or "+"
+      national = value.replace(/^\+\d*/, '').trim(); // remove dial code prefix
+    }
+
+    setSelectedCountry(country);
+    setNationalNumber(national);
+    setIsPhoneValid(isValid);
+    setIsPhoneTouched(national.length > 0);
+    setFormFields((prev) => ({ ...prev, phone_number: value }));
+
+    // Reset OTP if phone changes
+    setOtpState({
+      sending: false,
+      verifying: false,
+      resending: false,
+      otpSent: false,
+      otpVerified: false,
+      otpCode: '',
+      verificationKey: '',
+      resendIn: 0,
+      expiresIn: 0,
+      serverMessage: '',
+    });
+
+    // Clear previous phone errors
+    setErrors((prev) => ({ ...prev, phone_number: '' }));
+
+    // Immediate validation feedback (optional)
+    if (national.length > 0 && !isValid) {
+      setErrors((prev) => ({
+        ...prev,
+        phone_number: formatMessage(messages['registration.phone.number.invalid.error']),
+      }));
+    }
+  };
+
+
   const handleErrorChange = (fieldName, error) => {
     if (registrationEmbedded) {
       setTemporaryErrors((prev) => ({ ...prev, [fieldName]: error }));
@@ -345,7 +401,7 @@ const CustomRegistrationPage = ({ handleInstitutionLogin, institutionLogin }) =>
 
   const registerUser = () => {
     const totalRegistrationTime = (Date.now() - formStartTime) / 1000;
-    const phoneProvided = !!(formFields.phone_number?.trim());
+    const phoneProvided = isPhoneTouched && nationalNumber.trim().length > 0;
     //  Client-side field validation
     const customErrors = {};
 
@@ -378,8 +434,12 @@ const CustomRegistrationPage = ({ handleInstitutionLogin, institutionLogin }) =>
     }
 
     // Phone number format check only when provided
-    if (phoneProvided && formFields.phone_number.trim().length < 8) {
-      customErrors.phone_number = formatMessage(messages['registration.phone.number.invalid.error']);
+    if (phoneProvided) {
+      if (nationalNumber.trim().length < 8) { // or better: use isPhoneValid
+        customErrors.phone_number = formatMessage(messages['registration.phone.number.invalid.error']);
+      } else if (!isPhoneValid) {
+        customErrors.phone_number = formatMessage(messages['registration.phone.number.invalid.error']);
+      }
     }
 
     const payloadForValidation = {
@@ -542,23 +602,25 @@ const CustomRegistrationPage = ({ handleInstitutionLogin, institutionLogin }) =>
               <Form.Group className="mb-4">
                 <div className="d-flex gap-2">
                   <div className="flex-grow-1 position-relative">
-                    <Form.Control
+                    <PhoneInput
+                      defaultCountry={"in"}
+                      value={formFields.phone_number ?? null}
+                      onChange={handlePhoneChange} 
                       name="phone_number"
-                      type="tel"
-                      value={formFields.phone_number || ''}
-                      onChange={handleOnChange}
-                      floatingLabel={formatMessage(messages['registration.phone.number.label'])}
-                      placeholder={formatMessage(messages['registration.phone.number.placeholder'])}
+                      inputClass={classNames('form-control', { 'is-invalid': !!errors.phone_number })}
+                      countrySelectorClass="form-select"
+                      enableSearch={true}
+                      placeholder={formatMessage(messages['registration.phone.number.label'])}
+                      style={{ width: '100% !important' }}
                       isInvalid={!!errors.phone_number}
-                      // required
                     />
-                    {/* Error message below input, full width */}
+
                     {errors.phone_number && (
                       <Form.Text className="text-danger mt-1">{errors.phone_number}</Form.Text>
                     )}
                   </div>
 
-                  {formFields.phone_number?.length >= 10 && !otpState.otpVerified && (
+                  {isPhoneTouched &&isPhoneValid && !otpState.otpVerified && (
                     <button
                       type="button"
                       className="btn btn-outline-primary h-100"
