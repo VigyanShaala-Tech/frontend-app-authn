@@ -386,6 +386,12 @@ const messages = defineMessages({
     defaultMessage: 'Login failed after verification. Please try again.',
     description: 'Message shown when login fails after OTP verification',
   },
+  // handle expired activation links by resending and showing message
+  'account.activation.expired.message': {
+    id: 'account.activation.expired.message',
+    defaultMessage: 'Your activation link expired. A new activation email has been sent. Please check your inbox.',
+    description: 'Account activation expired message',
+  },  
 });
 
 export default messages;

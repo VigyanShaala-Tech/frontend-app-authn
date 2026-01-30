@@ -17,4 +17,6 @@ export const ACCOUNT_ACTIVATION_MESSAGE = {
   INFO: 'info',
   SUCCESS: 'success',
   ERROR: 'error',
+  EXPIRED: 'expired', // handle expired activation links by resending and showing message
 };
+ 
