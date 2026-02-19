@@ -89,6 +89,7 @@ const CustomRegistrationPage = ({ handleInstitutionLogin, institutionLogin }) =>
   const [formFields, setFormFields] = useState({
     name: '',
     email: '',
+    username: '',
     password: '',
     confirm_password: '',
     user_role: '',
@@ -296,6 +297,36 @@ const CustomRegistrationPage = ({ handleInstitutionLogin, institutionLogin }) =>
     }
   }, [registrationResult]);
 
+  useEffect(() => {
+    if (!userPipelineDataLoaded && thirdPartyAuthApiStatus === COMPLETE_STATE) {
+      if (thirdPartyAuthErrorMessage) {
+        setErrorCode(prevState => ({ type: TPA_AUTHENTICATION_FAILURE, count: prevState.count + 1 }));
+      }
+      if (pipelineUserDetails && Object.keys(pipelineUserDetails).length !== 0) {
+        const { name = '', username = '', email = '' } = pipelineUserDetails;
+        setFormFields(prevState => ({
+          ...prevState,
+          name,
+          username,   // important for internal username
+          email,
+        }));
+        dispatch(setUserPipelineDataLoaded(true));
+      }
+    }
+  }, [
+    thirdPartyAuthApiStatus,
+    thirdPartyAuthErrorMessage,
+    pipelineUserDetails,
+    userPipelineDataLoaded,
+    dispatch,
+  ]);
+
+  // useEffect(() => {
+  //   if (autoSubmitRegForm && userPipelineDataLoaded) {
+  //     registerUser();
+  //   }
+  // }, [autoSubmitRegForm, userPipelineDataLoaded]);
+
   const handleOnChange = (event) => {
     const { name } = event.target;
     const value = event.target.type === 'checkbox' ? event.target.checked : event.target.value;
@@ -402,67 +433,69 @@ const CustomRegistrationPage = ({ handleInstitutionLogin, institutionLogin }) =>
   const registerUser = () => {
     const totalRegistrationTime = (Date.now() - formStartTime) / 1000;
     const phoneProvided = isPhoneTouched && nationalNumber.trim().length > 0;
-    //  Client-side field validation
+
+    // ====================== PREPARE PAYLOAD FIRST (like original code) ======================
+    let payload = {
+      name: (formFields.name || '').trim(),
+      email: (formFields.email || '').trim(),
+      username: (formFields.username || formFields.email || '').trim(),
+      user_role: formFields.user_role || '',
+      terms_of_service: formFields.terms_of_service,
+      phone_number: phoneProvided ? (formFields.phone_number || '').trim() : null,
+      verification_key: phoneProvided ? (otpState.verificationKey || null) : null,
+    };
+
+    // Remove password for Google/Facebook etc. (exactly like original RegistrationPage)
+    if (currentProvider) {
+      payload.social_auth_provider = currentProvider;
+      // do NOT add password at all
+    } else {
+      payload.password = formFields.password || '';
+    }
+
+    // ====================== CLIENT VALIDATION ======================
     const customErrors = {};
 
-    if (!formFields.name?.trim()) {
+    if (!payload.name) {
       customErrors.name = formatMessage(messages['empty.name.field.error']);
     }
-
-    if (!formFields.email?.trim()) {
+    if (!payload.email) {
       customErrors.email = formatMessage(messages['empty.email.field.error']);
     }
-
-    if (!formFields.user_role) {
+    if (!payload.user_role) {
       customErrors.user_role = formatMessage(messages['registration.user.role.required.error']);
     }
-
-    if (!formFields.password?.trim()) {
-      customErrors.password = formatMessage(messages['empty.password.field.error']);
-    }
-
-    if (!formFields.confirm_password?.trim()) {
-      customErrors.confirm_password = formatMessage(messages['empty.confirm_password.field.error']);
-    }
-
-    if (formFields.password !== formFields.confirm_password) {
-      customErrors.confirm_password = formatMessage(messages['registration.passwords.do.not.match']);
-    }
-
-    if (!formFields.terms_of_service) {
+    if (!payload.terms_of_service) {
       customErrors.terms_of_service = formatMessage(messages['registration.terms.required.error']);
     }
 
-    // Phone number format check only when provided
+    // Phone validation only if provided
     if (phoneProvided) {
-      if (nationalNumber.trim().length < 8) { // or better: use isPhoneValid
-        customErrors.phone_number = formatMessage(messages['registration.phone.number.invalid.error']);
-      } else if (!isPhoneValid) {
+      if (!isPhoneValid || nationalNumber.trim().length < 8) {
         customErrors.phone_number = formatMessage(messages['registration.phone.number.invalid.error']);
       }
     }
 
-    const payloadForValidation = {
-      name: (formFields.name || '').trim(),
-      email: (formFields.email || '').trim(),
-      username: (formFields.email || '').trim(),
-      password: formFields.password || '',
-      user_role: formFields.user_role || '',
-      phone_number: phoneProvided ? (formFields.phone_number || '').trim() : null,
-      terms_of_service: formFields.terms_of_service,
-    };
-
-    if (currentProvider) {
-      delete payloadForValidation.password;
-      payloadForValidation.social_auth_provider = currentProvider;
+    // Password validation ONLY for normal registration (not Google etc.)
+    if (!currentProvider) {
+      if (!formFields.password?.trim()) {
+        customErrors.password = formatMessage(messages['empty.password.field.error']);
+      }
+      if (!formFields.confirm_password?.trim()) {
+        customErrors.confirm_password = formatMessage(messages['empty.confirm_password.field.error']);
+      }
+      if (formFields.password !== formFields.confirm_password) {
+        customErrors.confirm_password = formatMessage(messages['registration.passwords.do.not.match']);
+      }
     }
 
+    // Run standard edx validations (name, email, username, etc.)
     const { 
       isValid: standardIsValid, 
       fieldErrors: standardErrors, 
       emailSuggestion 
     } = isFormValid(
-      payloadForValidation,
+      payload,                                      // ← we already removed password if TPA
       registrationEmbedded ? temporaryErrors : errors,
       configurableFormFields,
       fieldDescriptions,
@@ -477,7 +510,8 @@ const CustomRegistrationPage = ({ handleInstitutionLogin, institutionLogin }) =>
       setErrorCode((prev) => ({ type: FORM_SUBMISSION_ERROR, count: prev.count + 1 }));
       return;
     }
-    //  Phone verification check (only if phone was provided)
+
+    // ====================== PHONE OTP CHECK ======================
     if (phoneProvided && !otpState.otpVerified) {
       setOtpState((prev) => ({
         ...prev,
@@ -485,23 +519,8 @@ const CustomRegistrationPage = ({ handleInstitutionLogin, institutionLogin }) =>
       }));
       return;
     }
-    // Build final payload
-    let payload = {
-      name: (formFields.name || '').trim(),
-      email: (formFields.email || '').trim(),
-      username: (formFields.email || '').trim(),
-      password: formFields.password || '',
-      user_role: formFields.user_role || '',
-      terms_of_service: formFields.terms_of_service,
-      phone_number: phoneProvided ? (formFields.phone_number || '').trim() : null,
-      verification_key: phoneProvided ? (otpState.verificationKey || null) : null,
-    };
 
-    if (currentProvider) {
-      delete payload.password;
-      payload.social_auth_provider = currentProvider;
-    }
-
+    // ====================== FINAL PAYLOAD FOR BACKEND ======================
     const finalPayload = prepareRegistrationPayload(
       payload,
       configurableFormFields,
@@ -510,8 +529,8 @@ const CustomRegistrationPage = ({ handleInstitutionLogin, institutionLogin }) =>
       queryParams
     );
 
-    delete finalPayload.confirm_password;
-    //  Dispatch registration
+    delete finalPayload.confirm_password; // just in case
+
     dispatch(registerNewUser(finalPayload));
   };
 
@@ -666,27 +685,31 @@ const CustomRegistrationPage = ({ handleInstitutionLogin, institutionLogin }) =>
               {otpState.serverMessage && !otpState.otpVerified && (
                 <div className="alert alert-danger mb-4">{otpState.serverMessage}</div>
               )}
-              <PasswordField
-                name="password"
-                value={formFields.password}
-                handleChange={handleOnChange}
-                handleErrorChange={handleErrorChange}
-                errorMessage={errors.password}
-                floatingLabel={formatMessage(messages['registration.password.label'])}
-              />
-              <Form.Group className="mb-4">
-                <Form.Control
-                  name="confirm_password"
-                  type="password"
-                  value={formFields.confirm_password || ''}
-                  onChange={handleOnChange}
-                  floatingLabel={formatMessage(messages['registration.confirm.password.label'])}
-                  placeholder={formatMessage(messages['registration.confirm.password.placeholder'])}
-                  isInvalid={!!errors.confirm_password}
-                  required
+              {!currentProvider && (
+              <>
+                <PasswordField
+                  name="password"
+                  value={formFields.password}
+                  handleChange={handleOnChange}
+                  handleErrorChange={handleErrorChange}
+                  errorMessage={errors.password}
+                  floatingLabel={formatMessage(messages['registration.password.label'])}
                 />
-                {errors.confirm_password && <Form.Text className="text-danger">{errors.confirm_password}</Form.Text>}
-              </Form.Group>
+                <Form.Group className="mb-4">
+                  <Form.Control
+                    name="confirm_password"
+                    type="password"
+                    value={formFields.confirm_password || ''}
+                    onChange={handleOnChange}
+                    floatingLabel={formatMessage(messages['registration.confirm.password.label'])}
+                    placeholder={formatMessage(messages['registration.confirm.password.placeholder'])}
+                    isInvalid={!!errors.confirm_password}
+                    required
+                  />
+                  {errors.confirm_password && <Form.Text className="text-danger">{errors.confirm_password}</Form.Text>}
+                </Form.Group>
+              </>
+              )}
               <TermsOfService
                 value={formFields.terms_of_service}
                 onChangeHandler={handleOnChange}
