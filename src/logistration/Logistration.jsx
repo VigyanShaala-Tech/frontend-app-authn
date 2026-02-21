@@ -153,10 +153,18 @@ const Logistration = ({
                 )}
                 {selectedPage === LOGIN_PAGE
                   ? (
-                    <LoginComponentSlot
-                      institutionLogin={institutionLogin}
-                      handleInstitutionLogin={handleInstitutionLogin}
-                    />
+                    <PluginSlot
+                      id = "login_plugin_slot"
+                      pluginProps = {{
+                        institutionLogin: institutionLogin,
+                        handleInstitutionLogin: handleInstitutionLogin,
+                      }}
+                    >
+                      <LoginComponentSlot
+                        institutionLogin={institutionLogin}
+                        handleInstitutionLogin={handleInstitutionLogin}
+                      />
+                    </PluginSlot>
                   )
                   : (
                     <PluginSlot
