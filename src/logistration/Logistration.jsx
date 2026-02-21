@@ -28,6 +28,7 @@ import { backupLoginForm } from '../login/data/actions';
 import LoginComponentSlot from '../plugin-slots/LoginComponentSlot';
 import { RegistrationPage } from '../register';
 import { backupRegistrationForm } from '../register/data/actions';
+import {PluginSlot} from "@openedx/frontend-plugin-framework";
 
 const Logistration = ({
   selectedPage,
@@ -158,10 +159,18 @@ const Logistration = ({
                     />
                   )
                   : (
-                    <RegistrationPage
-                      institutionLogin={institutionLogin}
-                      handleInstitutionLogin={handleInstitutionLogin}
-                    />
+                    <PluginSlot
+                      id = "registration_plugin_slot"
+                      pluginProps = {{
+                        institutionLogin: institutionLogin,
+                        handleInstitutionLogin: handleInstitutionLogin,
+                      }}
+                    >
+                      <RegistrationPage
+                        institutionLogin={institutionLogin}
+                        handleInstitutionLogin={handleInstitutionLogin}
+                      />
+                    </PluginSlot>
                   )}
               </div>
             </div>

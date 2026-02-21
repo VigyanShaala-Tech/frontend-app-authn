@@ -31,6 +31,11 @@ const AccountActivationMessage = ({ messageType }) => {
       activationMessage = <span>{formatMessage(messages[`account.${activationOrConfirmation}.success.message`])}</span>;
       break;
     }
+    // handle expired activation links by resending and showing message
+    case ACCOUNT_ACTIVATION_MESSAGE.EXPIRED: {
+      activationMessage = formatMessage(messages['account.activation.expired.message']);
+      break;
+    }
     case ACCOUNT_ACTIVATION_MESSAGE.INFO: {
       activationMessage = formatMessage(messages[`account.${activationOrConfirmation}.info.message`]);
       break;
@@ -79,3 +84,4 @@ AccountActivationMessage.defaultProps = {
 };
 
 export default AccountActivationMessage;
+ 

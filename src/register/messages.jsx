@@ -206,6 +206,205 @@ const messages = defineMessages({
     defaultMessage: 'Did you mean',
     description: 'Did you mean alert suggestion',
   },
+  // New messages extracted for custom component
+  'registration.user.role.label': {
+    id: 'registration.user.role.label',
+    defaultMessage: 'User Role',
+    description: 'Label for user role select field',
+  },
+  'registration.user.role.option.student': {
+    id: 'registration.user.role.option.student',
+    defaultMessage: 'Student',
+    description: 'Option label in user role dropdown',
+  },
+  'registration.user.role.option.mentor': {
+    id: 'registration.user.role.option.mentor',
+    defaultMessage: 'Mentor',
+    description: 'Option label in user role dropdown',
+  },
+  'registration.user.role.required.error': {
+    id: 'registration.user.role.required.error',
+    defaultMessage: 'Please select a user role',
+    description: 'Error message when user role is not selected (required field)',
+  },
+
+  'registration.phone.number.label': {
+    id: 'registration.phone.number.label',
+    defaultMessage: 'Phone Number',
+    description: 'Label for phone number input field',
+  },
+  'registration.phone.number.placeholder': {
+    id: 'registration.phone.number.placeholder',
+    defaultMessage: '+91 9876543210',
+    description: 'Placeholder text for phone number',
+  },
+  'registration.phone.number.required.error': {
+    id: 'registration.phone.number.required.error',
+    defaultMessage: 'Phone number required',
+    description: 'Error when phone number is empty',
+  },
+
+  'registration.otp.send.button': {
+    id: 'registration.otp.send.button',
+    defaultMessage: 'Send OTP',
+    description: 'Button label to send OTP',
+  },
+  'registration.otp.resend.button': {
+    id: 'registration.otp.resend.button',
+    defaultMessage: 'Resend OTP',
+    description: 'Button label to resend OTP',
+  },
+  'registration.otp.second': {
+    id: 'registration.otp.second',
+    defaultMessage: 's',
+    description: 'Resend button with countdown',
+  },
+  'registration.otp.sending': {
+    id: 'registration.otp.sending',
+    defaultMessage: 'Sending...',
+    description: 'Loading text while sending OTP',
+  },
+  'registration.otp.resending': {
+    id: 'registration.otp.resending',
+    defaultMessage: 'Resending...',
+    description: 'Loading text while resending OTP',
+  },
+  'registration.otp.enter.label': {
+    id: 'registration.otp.enter.label',
+    defaultMessage: 'Enter OTP',
+    description: 'Label for OTP input field',
+  },
+  'registration.otp.placeholder': {
+    id: 'registration.otp.placeholder',
+    defaultMessage: 'Enter 6 digit OTP',
+    description: 'Placeholder for OTP input',
+  },
+  'registration.otp.verify.button': {
+    id: 'registration.otp.verify.button',
+    defaultMessage: 'Verify',
+    description: 'Button to verify OTP',
+  },
+  'registration.otp.verifying': {
+    id: 'registration.otp.verifying',
+    defaultMessage: 'Verifying...',
+    description: 'Loading text while verifying OTP',
+  },
+  'registration.otp.required.error': {
+    id: 'registration.otp.required.error',
+    defaultMessage: 'Please enter OTP',
+    description: 'Error when OTP input is empty',
+  },
+  'registration.phone.verified.success': {
+    id: 'registration.phone.verified.success',
+    defaultMessage: 'OTP Verified Successfully!',
+    description: 'Success message after phone verification',
+  },
+  'registration.verify.phone.first': {
+    id: 'registration.verify.phone.first',
+    defaultMessage: 'Please verify your phone number with OTP first.',
+    description: 'Error shown when trying to submit without phone verification',
+  },
+
+  'registration.confirm.password.label': {
+    id: 'registration.confirm.password.label',
+    defaultMessage: 'Confirm Password',
+    description: 'Label for confirm password field',
+  },
+  'registration.confirm.password.placeholder': {
+    id: 'registration.confirm.password.placeholder',
+    defaultMessage: 'Re-enter your password',
+    description: 'Placeholder for confirm password',
+  },
+  'registration.passwords.do.not.match': {
+    id: 'registration.passwords.do.not.match',
+    defaultMessage: 'Passwords do not match',
+    description: 'Error when password and confirm password differ',
+  },
+
+  'registration.success.title': {
+    id: 'registration.success.title',
+    defaultMessage: 'Registration Successful!',
+    description: 'Title of success message block',
+  },
+  'registration.success.check.email.before': {
+    id: 'registration.success.check.email.before',
+    defaultMessage: 'Please check your email ',
+    description: 'Success message after registration',
+  },
+  'registration.success.check.email.after': {
+    id: 'registration.success.check.email.after',
+    defaultMessage: ' and click the activation link to verify your account.',
+    description: 'Success message after registration',
+  },
+
+  'creating.account.message': {
+    id: 'creating.account.message',
+    defaultMessage: 'Creating your account...',
+    description: 'Loading text during registration submission',
+  },
+  'empty.confirm_password.field.error': {
+    id: 'empty.confirm_password.field.error',
+    defaultMessage: 'Please confirm your password',
+    description: 'Error message when confirm password field is empty',
+  },
+
+  'registration.terms.required.error': {
+    id: 'registration.terms.required.error',
+    defaultMessage: 'You must agree to the Terms of Service',
+    description: 'Error when Terms of Service checkbox is not checked',
+  },
+  'registration.password.required.error': {
+    id: 'registration.password.required.error',
+    defaultMessage: 'Enter a password',
+    description: 'Clear error when password field is completely empty',
+  },
+  'registration.network.error': {
+    id: 'registration.network.error',
+    defaultMessage: 'A network error occurred. Please check your internet connection and try again.',
+    description: 'Generic network error shown during OTP send/verify failures',
+  },
+  'registration.otp.verification.pending': {
+    id: 'registration.otp.verification.pending',
+    defaultMessage: 'Please verify your phone number before continuing.',
+    description: 'Alternative friendlier message for phone verification step',
+  },
+  'registration.otp.send.failed': {
+    id: 'registration.otp.send.failed',
+    defaultMessage: 'Failed to send OTP',
+  },
+  'registration.otp.resend.failed': {
+    id: 'registration.otp.resend.failed',
+    defaultMessage: 'Failed to resend OTP',
+  },
+  'registration.otp.invalid': {
+    id: 'registration.otp.invalid',
+    defaultMessage: 'Invalid OTP',
+  },
+  'registration.otp.sent.success': {
+    id: 'registration.otp.sent.success',
+    defaultMessage: 'OTP sent successfully',
+  },
+  'registration.otp.resent.success': {
+    id: 'registration.otp.resent.success',
+    defaultMessage: 'OTP resent successfully',
+  },
+  'registration.phone.verified.internal': {
+    id: 'registration.phone.verified.internal',
+    defaultMessage: 'Phone verified!',
+  },
+  'registration.phone.number.invalid.error': {
+    id: 'registration.phone.number.invalid.error',
+    defaultMessage: 'Please enter a valid phone number or register without phone number',
+  },
+  'registration.field.required.generic': {
+    id: 'registration.field.required.generic',
+    defaultMessage: 'This field is required',
+  },
+  'registration.user.role.select.placeholder': {
+    id: 'registration.user.role.select.placeholder',
+    defaultMessage: 'Select your role',
+    description: 'Placeholder for user role select field',
+  },
 });
 
 export default messages;
