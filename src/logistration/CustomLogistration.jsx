@@ -9,6 +9,7 @@ import {
   Icon,
   Tab,
   Tabs,
+  Hyperlink,
 } from '@openedx/paragon';
 import { ChevronLeft } from '@openedx/paragon/icons';
 import PropTypes from 'prop-types';
@@ -166,9 +167,13 @@ const CustomLogistration = ({
                         />
                         <p>
                           {formatMessage(messages['logistration.signin.terms.agreement'])} 
-                          <a href="#">{formatMessage(messages['logistration.signin.terms.agreement.term'])}</a> 
+                          <Hyperlink variant="muted" destination={`${getConfig().CATALOG_MICROFRONTEND_URL}terms`} target="_blank">
+                            {formatMessage(messages['logistration.signin.terms.agreement.term'])}
+                          </Hyperlink>
                           {formatMessage(messages['logistration.signin.terms.agreement.and'])} 
-                          <a href="#"> {formatMessage(messages['logistration.signin.terms.agreement.privacy'])} </a>
+                          <Hyperlink variant="muted" destination={`${getConfig().CATALOG_MICROFRONTEND_URL}privacy`} target="_blank">
+                            {formatMessage(messages['logistration.signin.terms.agreement.privacy'])}
+                          </Hyperlink>
                         </p>
                       </div>
                     )
