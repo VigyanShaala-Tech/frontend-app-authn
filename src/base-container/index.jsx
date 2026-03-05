@@ -11,6 +11,7 @@ import {
   ImageExtraSmallLayout, ImageLargeLayout, ImageMediumLayout, ImageSmallLayout,
 } from './components/image-layout';
 import { AuthLargeLayout, AuthMediumLayout, AuthSmallLayout } from './components/welcome-page-layout';
+import {PluginSlot} from "@openedx/frontend-plugin-framework";
 
 const BaseContainer = ({ children, showWelcomeBanner, fullName }) => {
   const enableImageLayout = getConfig().ENABLE_IMAGE_LAYOUT;
@@ -42,13 +43,31 @@ const BaseContainer = ({ children, showWelcomeBanner, fullName }) => {
       <div className="col-md-12 extra-large-screen-top-stripe" />
       <div className="layout">
         <MediaQuery maxWidth={breakpoints.small.maxWidth - 1}>
-          {showWelcomeBanner ? <AuthSmallLayout fullName={fullName} /> : <DefaultSmallLayout />}
+          {showWelcomeBanner ? 
+          <AuthSmallLayout fullName={fullName} /> 
+          : <PluginSlot
+              id = "custom_small_layout_plugin_slot"
+            >
+              <DefaultSmallLayout />
+            </PluginSlot>}
         </MediaQuery>
         <MediaQuery minWidth={breakpoints.medium.minWidth} maxWidth={breakpoints.large.maxWidth - 1}>
-          {showWelcomeBanner ? <AuthMediumLayout fullName={fullName} /> : <DefaultMediumLayout />}
+          {showWelcomeBanner ?
+           <AuthMediumLayout fullName={fullName} />
+            : <PluginSlot
+                id = "custom_medium_layout_plugin_slot"
+              >
+              <DefaultMediumLayout />
+            </PluginSlot>}
         </MediaQuery>
         <MediaQuery minWidth={breakpoints.extraLarge.minWidth}>
-          {showWelcomeBanner ? <AuthLargeLayout fullName={fullName} /> : <DefaultLargeLayout />}
+          {showWelcomeBanner ? 
+          <AuthLargeLayout fullName={fullName} /> 
+          : <PluginSlot
+              id = "custom_large_layout_plugin_slot"
+            >
+              <DefaultLargeLayout />
+            </PluginSlot>}
         </MediaQuery>
         <div className={classNames('content', { 'align-items-center mt-0': showWelcomeBanner })}>
           {children}

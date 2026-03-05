@@ -20,7 +20,7 @@ import {
 } from './data/actions';
 import { INVALID_FORM, TPA_AUTHENTICATION_FAILURE } from './data/constants';
 import LoginFailureMessage from './LoginFailure';
-import messages from './messages';
+import messages from './custommessages';
 import {
   FormGroup,
   InstitutionLogistration,
@@ -28,6 +28,8 @@ import {
   RedirectLogistration,
   ThirdPartyAuthAlert,
 } from '../common-components';
+import CustomPasswordField from "../common-components/CustomPasswordField"
+import CustomFormGroup from "../common-components/CustomFormGroup"
 import { getThirdPartyAuthContext } from '../common-components/data/actions';
 import { thirdPartyAuthContextSelector } from '../common-components/data/selectors';
 import EnterpriseSSO from '../common-components/EnterpriseSSO';
@@ -466,23 +468,25 @@ const CustomLoginPage = (props) => {
           messageType={activationMsgType}
         />
         {showResetPasswordSuccessBanner && <ResetPasswordSuccess />}
-        <h3 className="mb-3">{formatMessage(messages['sign.in.button'])}</h3>
-        <Tabs activeKey={activeTab} onSelect={(k) => setActiveTab(k)} id="login-tabs" className="mb-4">
-          <Tab eventKey="username" title={formatMessage(messages['login.tab.username'])}>
+        {/* <h3 className="mb-3">{formatMessage(messages['sign.in.button'])}</h3> */}
+        <Tabs activeKey={activeTab} onSelect={(k) => setActiveTab(k)} id="login-tabs" className="mb-4 rounded">
+          <Tab eventKey="username" title={formatMessage(messages['login.tab.username'])} className="tab-item">
 
             <Form id="sign-in-form" name="sign-in-form">
 
-              <FormGroup
+              <CustomFormGroup
                 name="emailOrUsername"
                 value={formFields.emailOrUsername}
                 autoComplete="on"
                 handleChange={handleOnChange}
                 handleFocus={handleOnFocus}
                 errorMessage={errors.emailOrUsername}
-                floatingLabel={formatMessage(messages['login.user.identity.label'])}
+                label={formatMessage(messages['login.user.identity.label'])}
+                placeholder={formatMessage(messages['login.user.identity.placeholder'])}
+                // floatingLabel={formatMessage(messages['login.user.identity.label'])}
               />
 
-              <PasswordField
+              <CustomPasswordField
                 name="password"
                 value={formFields.password}
                 autoComplete="off"
@@ -491,7 +495,9 @@ const CustomLoginPage = (props) => {
                 handleChange={handleOnChange}
                 handleFocus={handleOnFocus}
                 errorMessage={errors.password}
-                floatingLabel={formatMessage(messages['login.password.label'])}
+                label={formatMessage(messages['login.password.label'])}
+                placeholder={formatMessage(messages['login.password.placeholder'])}
+                // floatingLabel={formatMessage(messages['login.password.label'])}
               />
 
               <StatefulButton
@@ -517,24 +523,16 @@ const CustomLoginPage = (props) => {
               >
                 {formatMessage(messages['forgot.password'])}
               </Link>
-
-              {/* ─── This is the most important line ─── */}
-              <ThirdPartyAuth
-                currentProvider={currentProvider}
-                providers={providers}
-                secondaryProviders={secondaryProviders}
-                handleInstitutionLogin={handleInstitutionLogin}
-                thirdPartyAuthApiStatus={thirdPartyAuthApiStatus}
-                isLoginPage
-              />
-
             </Form>
 
           </Tab>
-          <Tab eventKey="otp" title={formatMessage(messages['login.tab.otp'])}>
+          <Tab eventKey="otp" title={formatMessage(messages['login.tab.otp'])} className="tab-item">
             <Form noValidate>
               {/* Phone Number Field */}
               <Form.Group className="mb-4">
+                <Form.Label className="fw-medium mb-2">
+                  {formatMessage(messages['login.phone.number.label'])}
+                </Form.Label>
                 <PhoneInput
                   defaultCountry={'in'}    
                   value={otpState.phone}
@@ -588,6 +586,9 @@ const CustomLoginPage = (props) => {
               {otpState.otpSent && (
                 <>
                   <Form.Group className="mb-4">
+                    <Form.Label className="fw-medium mb-2">
+                      {formatMessage(messages['login.otp.enter.label'])}
+                    </Form.Label>
                     <Form.Control
                       type="text"
                       name="otpCode"
@@ -599,7 +600,7 @@ const CustomLoginPage = (props) => {
                       onFocus={() => setErrors(prev => ({ ...prev, otpCode: '' }))}
                       isInvalid={!!errors.otpCode}
                       placeholder={formatMessage(messages['login.otp.placeholder'])}
-                      floatingLabel={formatMessage(messages['login.otp.enter.label'])}
+                      // floatingLabel={formatMessage(messages['login.otp.enter.label'])}
                     />
                     {errors.otpCode && (
                       <Form.Text className="text-danger">
@@ -630,7 +631,16 @@ const CustomLoginPage = (props) => {
               )}
             </Form>
           </Tab>
+          {/* ─── This is the most important line ─── */}
         </Tabs>
+        <ThirdPartyAuth
+          currentProvider={currentProvider}
+          providers={providers}
+          secondaryProviders={secondaryProviders}
+          handleInstitutionLogin={handleInstitutionLogin}
+          thirdPartyAuthApiStatus={thirdPartyAuthApiStatus}
+          isLoginPage
+        />
       </div>
     </>
   );
