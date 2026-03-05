@@ -20,14 +20,17 @@ import {
 import { FORM_SUBMISSION_ERROR, TPA_AUTHENTICATION_FAILURE } from './data/constants';
 import getBackendValidations from './data/selectors';
 import { isFormValid, prepareRegistrationPayload } from './data/utils';
-import messages from './messages';
-import { EmailField, NameField, TermsOfService } from './RegistrationFields';
+import messages from './custommessages';
+import { TermsOfService } from './RegistrationFields';
+import CustomEmailField from './RegistrationFields/EmailField/CustomEmailField';
+import CustomNameField from './RegistrationFields/NameField/CustomNameField.jsx'
 import {
   InstitutionLogistration,
   RedirectLogistration,
   ThirdPartyAuthAlert,
   PasswordField,
 } from '../common-components';
+import CustomPasswordField from "../common-components/CustomPasswordField.jsx"
 import { getThirdPartyAuthContext as getRegistrationDataFromBackend } from '../common-components/data/actions';
 import EnterpriseSSO from '../common-components/EnterpriseSSO';
 import ThirdPartyAuth from '../common-components/ThirdPartyAuth';
@@ -554,6 +557,21 @@ const CustomRegistrationPage = ({ handleInstitutionLogin, institutionLogin }) =>
           <title>{formatMessage(messages['register.page.title'], { siteName: platformName })}</title>
         </Helmet>
         {registrationComplete ? (
+          registrationResult.is_third_party_user ? (
+          <RedirectLogistration
+            host={host}
+            authenticatedUser={registrationResult.authenticatedUser}
+            success={registrationResult.success}
+            redirectUrl={registrationResult.redirect_url}
+            finishAuthUrl={finishAuthUrl}
+            optionalFields={optionalFields}
+            registrationEmbedded={registrationEmbedded}
+            redirectToProgressiveProfilingPage={
+              getConfig().ENABLE_PROGRESSIVE_PROFILING_ON_AUTHN &&
+              !!Object.keys(optionalFields.fields).length
+            }
+          />
+          ) : (
           <div className="mw-xs mt-5 text-center p-4 bg-light border rounded">
             <h4 className="text-success mb-3">{formatMessage(messages['registration.success.title'])}</h4>
             <div className="alert alert-success mb-4">
@@ -561,7 +579,7 @@ const CustomRegistrationPage = ({ handleInstitutionLogin, institutionLogin }) =>
               <strong>{formFields.email}</strong> 
               {formatMessage(messages['registration.success.check.email.after'])}
             </div>
-          </div>
+          </div>)
         ) : submitState === 'pending' || (autoSubmitRegForm && !errorCode.type) ? (
           <div className="mw-xs mt-5 text-center">
             <Spinner animation="border" variant="primary" />
@@ -584,41 +602,36 @@ const CustomRegistrationPage = ({ handleInstitutionLogin, institutionLogin }) =>
               context={{ provider: currentProvider, errorMessage: thirdPartyAuthErrorMessage }}
             />
             <Form id="registration-form" name="registration-form" noValidate onSubmit={handleSubmit}>
-              <NameField
-                name="name"
-                value={formFields.name}
-                handleChange={handleOnChange}
-                handleErrorChange={handleErrorChange}
-                errorMessage={errors.name}
-                helpText={[formatMessage(messages['help.text.name'])]}
-                floatingLabel={formatMessage(messages['registration.fullname.label'])}
-              />
-              <EmailField
-                name="email"
-                value={formFields.email}
-                handleChange={handleOnChange}
-                handleErrorChange={handleErrorChange}
-                errorMessage={errors.email || errors.username}
-                helpText={[formatMessage(messages['help.text.email'])]}
-                floatingLabel={formatMessage(messages['registration.email.label'])}
-              />
+              <div className="row">
+                <div className="col-md-6">
+                  <CustomNameField
+                    name="name"
+                    value={formFields.name}
+                    handleChange={handleOnChange}
+                    handleErrorChange={handleErrorChange}
+                    errorMessage={errors.name}
+                    helpText={[formatMessage(messages['help.text.name'])]}
+                    label={formatMessage(messages['registration.fullname.label'])}
+                    placeholder={formatMessage(messages['registration.fullname.placeholder'])}
+                  />
+                </div>
+                <div className="col-md-6">
+                  <CustomEmailField
+                    name="email"
+                    value={formFields.email}
+                    handleChange={handleOnChange}
+                    handleErrorChange={handleErrorChange}
+                    errorMessage={errors.email || errors.username}
+                    helpText={[formatMessage(messages['help.text.email'])]}
+                    label={formatMessage(messages['registration.email.label'])}
+                    placeholder={formatMessage(messages['registration.email.placeholder'])}
+                  />
+                </div>
+              </div>
               <Form.Group className="mb-4">
-                <Form.Control
-                  name="user_role"
-                  as="select"
-                  value={formFields.user_role || ''}
-                  onChange={handleOnChange}
-                  floatingLabel={formatMessage(messages['registration.user.role.label'])}
-                  isInvalid={!!errors.user_role}
-                  required
-                >
-                  <option value="" disabled>{formatMessage(messages['registration.user.role.select.placeholder'])}</option>
-                  <option value="student">{formatMessage(messages['registration.user.role.option.student'])}</option>
-                  <option value="mentor">{formatMessage(messages['registration.user.role.option.mentor'])}</option>
-                </Form.Control>
-                {errors.user_role && <Form.Text className="text-danger">{errors.user_role}</Form.Text>}
-              </Form.Group>
-              <Form.Group className="mb-4">
+                <Form.Label className="fw-medium mb-2">
+                  {formatMessage(messages['registration.phone.number.label'])}
+                </Form.Label>
                 <div className="d-flex gap-2">
                   <div className="flex-grow-1 position-relative">
                     <PhoneInput
@@ -633,41 +646,47 @@ const CustomRegistrationPage = ({ handleInstitutionLogin, institutionLogin }) =>
                       style={{ width: '100% !important' }}
                       isInvalid={!!errors.phone_number}
                     />
-
-                    {errors.phone_number && (
-                      <Form.Text className="text-danger mt-1">{errors.phone_number}</Form.Text>
-                    )}
                   </div>
 
-                  {isPhoneTouched &&isPhoneValid && !otpState.otpVerified && (
-                    <button
-                      type="button"
-                      className="btn btn-outline-primary h-100"
-                      onClick={otpState.otpSent ? resendOtp : sendOtp}
-                      disabled={otpState.sending || otpState.resending || (otpState.otpSent && otpState.resendIn > 0)}
-                    >
-                      {otpState.otpSent
-                        ? otpState.resending
-                          ? formatMessage(messages['registration.otp.resending'])
-                          : otpState.resendIn > 0
-                          ? `${formatMessage(messages['registration.otp.resend.button'])} (${otpState.resendIn}${formatMessage(messages['registration.otp.second'])})`
-                          : formatMessage(messages['registration.otp.resend.button'])
-                        : otpState.sending
-                        ? formatMessage(messages['registration.otp.sending'])
-                        : formatMessage(messages['registration.otp.send.button'])}
-                    </button>
-                  )}
+                  <button
+                    type="button"
+                    className="btn btn-outline-primary h-100 react-international-phone-input-button"
+                    onClick={otpState.otpSent ? resendOtp : sendOtp}
+                    disabled={
+                      ! (isPhoneTouched && isPhoneValid && !otpState.otpVerified) ||
+                      otpState.sending ||
+                      otpState.resending ||
+                      (otpState.otpSent && otpState.resendIn > 0)
+                    }
+                  >
+                    {otpState.otpSent
+                      ? otpState.resending
+                        ? formatMessage(messages['registration.otp.resending'])
+                        : otpState.resendIn > 0
+                        ? `${formatMessage(messages['registration.otp.resend.button'])} (${otpState.resendIn}${formatMessage(messages['registration.otp.second'])})`
+                        : formatMessage(messages['registration.otp.resend.button'])
+                      : otpState.sending
+                      ? formatMessage(messages['registration.otp.sending'])
+                      : formatMessage(messages['registration.otp.send.button'])}
+                  </button>
                 </div>
+                {errors.phone_number && (
+                  <Form.Text className="text-danger mt-1">{errors.phone_number}</Form.Text>
+                )}
               </Form.Group>
               {otpState.otpSent && !otpState.otpVerified && (
-                <Form.Group className="mb-4 d-flex gap-2">
+                <Form.Group className="mb-4">
+                  <Form.Label className="fw-medium mb-2">
+                    {formatMessage(messages['registration.otp.enter.label'])}
+                  </Form.Label>
+                  <div className="d-flex">
                   <Form.Control
                     name="otp_code"
                     type="text"
                     value={otpState.otpCode}
                     onChange={(e) => setOtpState((prev) => ({ ...prev, otpCode: e.target.value }))}
-                    floatingLabel={formatMessage(messages['registration.otp.enter.label'])}
                     placeholder={formatMessage(messages['registration.otp.placeholder'])}
+                    className={"mr-2"}
                   />
                   <button
                     type="button"
@@ -677,6 +696,7 @@ const CustomRegistrationPage = ({ handleInstitutionLogin, institutionLogin }) =>
                   >
                     {otpState.verifying ? formatMessage(messages['registration.otp.verifying']) : formatMessage(messages['registration.otp.verify.button'])}
                   </button>
+                  </div>
                 </Form.Group>
               )}
               {otpState.otpVerified && (
@@ -686,30 +706,72 @@ const CustomRegistrationPage = ({ handleInstitutionLogin, institutionLogin }) =>
                 <div className="alert alert-danger mb-4">{otpState.serverMessage}</div>
               )}
               {!currentProvider && (
-              <>
-                <PasswordField
-                  name="password"
-                  value={formFields.password}
-                  handleChange={handleOnChange}
-                  handleErrorChange={handleErrorChange}
-                  errorMessage={errors.password}
-                  floatingLabel={formatMessage(messages['registration.password.label'])}
-                />
-                <Form.Group className="mb-4">
-                  <Form.Control
-                    name="confirm_password"
-                    type="password"
-                    value={formFields.confirm_password || ''}
-                    onChange={handleOnChange}
-                    floatingLabel={formatMessage(messages['registration.confirm.password.label'])}
-                    placeholder={formatMessage(messages['registration.confirm.password.placeholder'])}
-                    isInvalid={!!errors.confirm_password}
-                    required
+              <div className="row">
+                <div className="col-md-6">
+                  <CustomPasswordField
+                    name="password"
+                    value={formFields.password}
+                    handleChange={handleOnChange}
+                    handleErrorChange={handleErrorChange}
+                    errorMessage={errors.password}
+                    label={formatMessage(messages['registration.password.label'])}
+                    placeholder={formatMessage(messages['registration.password.placeholder'])}
                   />
-                  {errors.confirm_password && <Form.Text className="text-danger">{errors.confirm_password}</Form.Text>}
-                </Form.Group>
-              </>
+                </div>
+                <div className="col-md-6">
+                  <CustomPasswordField
+                    name="confirm_password"
+                    value={formFields.confirm_password || ''}
+                    handleChange={handleOnChange}
+                    handleErrorChange={handleErrorChange}
+                    errorMessage={errors.confirm_password}
+                    label={formatMessage(messages['registration.confirm.password.label'])}
+                    placeholder={formatMessage(messages['registration.confirm.password.placeholder'])}
+                  />
+                </div>
+              </div>
               )}
+              <Form.Group className="mb-4 user-role-option">
+                <Form.Label className="fw-medium mb-2">
+                  {formatMessage(messages['registration.user.role.label'])}
+                </Form.Label>
+
+                <div className="row g-3">
+                  {[
+                    { value: 'student', label: formatMessage(messages['registration.user.role.option.student']) },
+                    { value: 'mentor',  label: formatMessage(messages['registration.user.role.option.mentor']) },
+                  ].map((role) => (
+                    <div className="col-12 col-sm-6" key={role.value}>
+                      <label
+                        className={classNames(
+                          'd-flex align-items-center justify-content-center p-2 rounded border text-center w-100',
+                          {
+                            'border-primary bg-primary bg-opacity-10 text-white': formFields.user_role === role.value,
+                            'border-secondary': formFields.user_role !== role.value,
+                          }
+                        )}
+                      >
+                        <input
+                          type="radio"
+                          name="user_role"
+                          value={role.value}
+                          checked={formFields.user_role === role.value}
+                          onChange={handleOnChange}
+                          className="sr-only"
+                          required
+                        />
+                        {role.label}
+                      </label>
+                    </div>
+                  ))}
+                </div>
+
+                {errors.user_role && (
+                  <Form.Text className="text-danger mt-2">
+                    {errors.user_role}
+                  </Form.Text>
+                )}
+              </Form.Group>
               <TermsOfService
                 value={formFields.terms_of_service}
                 onChangeHandler={handleOnChange}
@@ -720,7 +782,7 @@ const CustomRegistrationPage = ({ handleInstitutionLogin, institutionLogin }) =>
                 name="register-user"
                 type="submit"
                 variant="brand"
-                className="register-button mt-4 mb-4"
+                className="register-button mt-4 mb-4 w-100"
                 state={submitState}
                 labels={{ default: buttonLabel, pending: '' }}
               />

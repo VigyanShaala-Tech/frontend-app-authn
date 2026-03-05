@@ -13,7 +13,7 @@ import {
   fetchRealtimeValidations,
   setEmailSuggestionInStore,
 } from '../../data/actions';
-import messages from '../../custommessages';
+import messages from '../../messages';
 
 /**
  * Email field wrapper. It accepts following handlers
@@ -27,7 +27,7 @@ import messages from '../../custommessages';
  * - clearing error on focus
  * - setting value on change
  */
-const EmailField = (props) => {
+const CustomEmailField = (props) => {
   const { formatMessage } = useIntl();
   const dispatch = useDispatch();
 
@@ -124,12 +124,12 @@ const EmailField = (props) => {
   );
 };
 
-EmailField.defaultProps = {
+CustomEmailField.defaultProps = {
   errorMessage: '',
   confirmEmailValue: null,
 };
 
-EmailField.propTypes = {
+CustomEmailField.propTypes = {
   errorMessage: PropTypes.string,
   value: PropTypes.string.isRequired,
   handleChange: PropTypes.func.isRequired,
@@ -137,4 +137,4 @@ EmailField.propTypes = {
   confirmEmailValue: PropTypes.string,
 };
 
-export default EmailField;
+export default CustomEmailField;
