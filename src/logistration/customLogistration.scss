@@ -1,0 +1,21 @@
+.main-content{
+    .component-header{
+        font-size: 1.875rem;
+        line-height: 2.25rem;
+        font-weight: 700;
+        margin-bottom: 0.25rem !important;
+    }
+    .logincomponentcontainer, .registrationcomponentcontainer{
+        .component-message{
+            display: flex;
+            flex-direction: row;
+            gap: 0.5rem;
+            font-size: 1rem;
+            margin-bottom: 1.25rem !important;
+            a{
+                text-decoration: none;
+                font-weight: 600;
+            }
+        }
+    }
+}

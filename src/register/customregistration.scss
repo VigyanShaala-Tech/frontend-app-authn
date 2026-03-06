@@ -14,9 +14,63 @@
                     border: 1px solid #707070;
                     border-radius: 0rem 0.375rem 0.375rem 0rem !important;
                     width: 100% !important;
-                    margin-inline-end: 0.5rem;
                     font-size: var(--react-international-phone-font-size, 14px);
                 }
+
+            }
+            .border{
+                border: 1px solid #707070 !important;
+            }
+            // label{
+            //     font-size: 0.875rem;
+            //     line-height: 1.25rem;
+            //     font-weight: 600;
+            // }
+        }
+    }
+    .pgn__form-control-decorator-group{
+        margin-inline-end: 0;
+    }
+}
+// .registrationcomponentcontainer{
+//     .mw-xs{
+//         form{
+//             div{
+//                 .pgn__form-label{
+//                     font-size: 0.875rem;
+//                     line-height: 1.25rem;
+//                     font-weight: 500;
+//                 }
+//             }
+//         }
+//     }
+// }
+#registration-form{
+    div{
+        .btn-social{
+            width: 100%;
+            height: 100%;
+            margin: 0 !important;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 400;
+            text-align: center;
+            vertical-align: middle;
+            border: 1px solid #707070;
+            color: #000000;
+            padding: 0.25rem;
+            font-size: 1.125rem;
+            line-height: 1.333;
+            border-radius: 0.375rem;
+            background: none;
+            transition: transform 0.25s ease, border 0.15s ease;
+            .mr-auto{
+                margin: 0 !important;
+            }
+            &:hover{
+                border: 3px solid var(--pgn-color-btn-bg-brand);
+                transform: scale(1.05);
 
             }
         }
