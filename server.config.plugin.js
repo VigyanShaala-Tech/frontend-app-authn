@@ -7,9 +7,9 @@ hooks.Filters.ENV_PATCHES.add_item(
 // Runtime plugin configuration injected by Tutor (auth / login & registration overrides)
 
 const { PLUGIN_OPERATIONS, DIRECT_PLUGIN } = await import('@openedx/frontend-plugin-framework');
-const { default: CustomLargeLayout }     = await import('./src/base-container/components/custom-layout');
-const { default: CustomMediumLayout }    = await import('./src/base-container/components/custom-layout');
-const { default: CustomSmallLayout }     = await import('./src/base-container/components/custom-layout');
+const { default: CustomLargeLayout }     = await import('./src/base-container/components/custom-layout/CustomLargeLayout');
+const { default: CustomMediumLayout }    = await import('./src/base-container/components/custom-layout/CustomMediumLayout');
+const { default: CustomSmallLayout }     = await import('./src/base-container/components/custom-layout/CustomSmallLayout');
 const { default: CustomMainAppRoutes }   = await import('./src/CustomMainAppRoutes');
 const { default: CustomFormGroup }       = await import('./src/common-components/CustomFormGroup');
 

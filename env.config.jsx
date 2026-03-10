@@ -1,7 +1,9 @@
 import React from "react";
 import {PLUGIN_OPERATIONS, DIRECT_PLUGIN} from "@openedx/frontend-plugin-framework";
-import { CustomLargeLayout, CustomMediumLayout, CustomSmallLayout } from "./src/base-container/components/custom-layout";
-import  CustomMainAppRoutes  from "./src/CustomMainAppRoutes";
+import CustomLargeLayout from "./src/base-container/components/custom-layout/CustomLargeLayout";
+import CustomMediumLayout from "./src/base-container/components/custom-layout/CustomMediumLayout";
+import CustomSmallLayout from "./src/base-container/components/custom-layout/CustomSmallLayout";
+import CustomMainAppRoutes  from "./src/CustomMainAppRoutes";
 import CustomFormGroup from "./src/common-components/CustomFormGroup"
 
 const getPluginSlots = () => {
