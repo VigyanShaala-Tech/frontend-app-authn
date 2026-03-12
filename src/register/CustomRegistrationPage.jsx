@@ -192,14 +192,14 @@ const CustomRegistrationPage = ({ handleInstitutionLogin, institutionLogin }) =>
         verificationKey: data.verification_key,
         resendIn: data.resend_after_seconds || 30,
         expiresIn: data.expires_in_seconds || 300,
-        serverMessage: formatMessage(messages['registration.otp.sent.success']),
+        serverMessage: data.message || formatMessage(messages['registration.otp.sent.success']),
       }));
     } catch (err) {
       console.error('OTP send error:', err);
       setOtpState((prev) => ({
         ...prev,
         sending: false,
-        serverMessage: formatMessage(messages['registration.network.error']),
+        serverMessage: err.response?.data?.message?.trim() || formatMessage(messages['registration.network.error']),
       }));
     }
   };
@@ -235,14 +235,14 @@ const CustomRegistrationPage = ({ handleInstitutionLogin, institutionLogin }) =>
         otpVerified: false,
         verificationKey: data.verification_key,
         resendIn: data.resend_after_seconds || 30,
-        serverMessage: formatMessage(messages['registration.otp.resent.success']),
+        serverMessage: data.message || formatMessage(messages['registration.otp.resent.success']),
       }));
     } catch (err) {
       console.error('OTP resend error:', err);
       setOtpState((prev) => ({
         ...prev,
         resending: false,
-        serverMessage: formatMessage(messages['registration.network.error']),
+        serverMessage: err.response?.data?.message?.trim() || formatMessage(messages['registration.network.error']),
       }));
     }
   };
@@ -289,14 +289,14 @@ const CustomRegistrationPage = ({ handleInstitutionLogin, institutionLogin }) =>
         ...prev,
         verifying: false,
         otpVerified: true,
-        serverMessage: formatMessage(messages['registration.phone.verified.internal']),
+        serverMessage: data.message || formatMessage(messages['registration.phone.verified.internal']),
       }));
     } catch (err) {
       console.error('OTP verify error:', err);
       setOtpState((prev) => ({
         ...prev,
         verifying: false,
-        serverMessage: formatMessage(messages['registration.network.error']),
+        serverMessage: err.response?.data?.message?.trim() || formatMessage(messages['registration.network.error']),
       }));
     }
   };
@@ -775,7 +775,7 @@ const CustomRegistrationPage = ({ handleInstitutionLogin, institutionLogin }) =>
 
               {otpState.otpVerified && (
                 <div className="alert alert-success mb-4">
-                  {formatMessage(messages['registration.phone.verified.success'])}
+                  {otpState.serverMessage}
                 </div>
               )}
 
