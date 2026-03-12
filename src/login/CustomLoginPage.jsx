@@ -277,7 +277,7 @@ const CustomLoginPage = (props) => {
       setOtpState(prev => ({
         ...prev,
         sending: false,
-        serverMessage: data?.message || formatMessage(messages['login.network.error']),
+        serverMessage: err.response?.data?.message?.trim() || formatMessage(messages['login.network.error']),
       }));
     }
   };
@@ -336,7 +336,7 @@ const CustomLoginPage = (props) => {
       setOtpState((prev) => ({
         ...prev,
         resending: false,
-        serverMessage: data?.message || formatMessage(messages['login.network.error']),
+        serverMessage: err.response?.data?.message?.trim() || formatMessage(messages['login.network.error']),
       }));
     }
   };
@@ -414,7 +414,7 @@ const CustomLoginPage = (props) => {
         } else {
           setOtpState((prev) => ({
             ...prev,
-            serverMessage: loginData?.message || formatMessage(messages['login.failed.after.verification']) ,
+            serverMessage: loginData?.value || formatMessage(messages['login.failed.after.verification']) ,
           }));
         }
         setOtpState((prev) => ({ ...prev, verifying: false }));
@@ -438,7 +438,7 @@ const CustomLoginPage = (props) => {
       setOtpState((prev) => ({
         ...prev,
         verifying: false,
-        serverMessage: verifyData?.message || formatMessage(messages['login.network.error']),
+        serverMessage: err.response?.data?.message?.trim() || formatMessage(messages['login.network.error']),
       }));
     }
   };
