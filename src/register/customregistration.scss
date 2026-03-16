@@ -76,3 +76,21 @@
         }
     }
 }
+
+@media (max-width: 480px) {
+    .registrationcomponentcontainer{
+        div{
+            #registration-form{
+                .pgn__form-group{
+                    .d-flex{
+                        flex-direction: column;
+                        gap: 0.5rem;
+                    }
+                }
+            }
+        }
+    }
+    .pgn__form-group .react-international-phone-input-container .react-international-phone-input {
+        margin-inline-end: 0 !important;
+    }
+}
