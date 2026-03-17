@@ -79,3 +79,19 @@
         }
     }
 }
+@media (max-width: 480px) {
+    .logincomponentcontainer{
+        div{
+            div{
+                .nav-tabs{
+                    width: 100%;
+                    justify-content: left !important;
+                    padding: 0.5rem 1rem;
+                    .nav-link{
+                        padding: 0.4rem 1rem !important;
+                    }
+                }
+            }
+        }
+    }
+}
