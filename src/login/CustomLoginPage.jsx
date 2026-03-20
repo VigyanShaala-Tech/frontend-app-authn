@@ -184,12 +184,15 @@ const CustomLoginPage = (props) => {
     const { emailOrUsername, password } = payload;
     const fieldErrors = { ...errors };
 
-    if (emailOrUsername === '') {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (!emailOrUsername) {
       fieldErrors.emailOrUsername = formatMessage(messages['email.validation.message']);
-    } else if (emailOrUsername.length < 2) {
-      fieldErrors.emailOrUsername = formatMessage(messages['username.or.email.format.validation.less.chars.message']);
+    } else if (!emailRegex.test(emailOrUsername)) {
+      fieldErrors.emailOrUsername = formatMessage(messages['invalid.email.format.message']);
     }
-    if (password === '') {
+
+    if (!password) {
       fieldErrors.password = formatMessage(messages['password.validation.message']);
     }
 
