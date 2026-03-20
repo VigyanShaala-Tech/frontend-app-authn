@@ -5,7 +5,7 @@ import { getConfig } from '@edx/frontend-platform';
 import { sendPageEvent, sendTrackEvent } from '@edx/frontend-platform/analytics';
 import { injectIntl, useIntl } from '@edx/frontend-platform/i18n';
 import {
-  Form, StatefulButton, Tabs, Tab,
+  Form, StatefulButton,
 } from '@openedx/paragon';
 import PropTypes from 'prop-types';
 import { Helmet } from 'react-helmet';
@@ -158,7 +158,7 @@ const CustomLoginPage = (props) => {
 
   useEffect(() => {
     if (thirdPartyErrorMessage) {
-      setErrorCode((prevState) => ({
+      setErrorCode(prev => ({
         type: TPA_AUTHENTICATION_FAILURE,
         count: prevState.count + 1,
         context: {
@@ -215,6 +215,7 @@ const CustomLoginPage = (props) => {
       password: formData.password,
       ...queryParams,
     };
+
     props.loginRequest(payload);
   };
 
@@ -493,173 +494,188 @@ const CustomLoginPage = (props) => {
           messageType={activationMsgType}
         />
         {showResetPasswordSuccessBanner && <ResetPasswordSuccess />}
-        {/* <h3 className="mb-3">{formatMessage(messages['sign.in.button'])}</h3> */}
-        <Tabs activeKey={activeTab} onSelect={(k) => setActiveTab(k)} id="login-tabs" className="mb-4 rounded">
-          <Tab eventKey="username" title={formatMessage(messages['login.tab.username'])} className="tab-item">
 
-            <Form id="sign-in-form" name="sign-in-form">
+        <div className="custom-login-tabs-container mb-4">
+          <div className="tab-buttons">
+            <button
+              type="button"
+              className={classNames("tab-button", { active: activeTab === 'username' })}
+              onClick={() => setActiveTab('username')}
+            >
+              {formatMessage(messages['login.tab.username'])}
+            </button>
 
-              <CustomFormGroup
-                name="emailOrUsername"
-                value={formFields.emailOrUsername}
-                autoComplete="on"
-                handleChange={handleOnChange}
-                handleFocus={handleOnFocus}
-                errorMessage={errors.emailOrUsername}
-                label={formatMessage(messages['login.user.identity.label'])}
-                placeholder={formatMessage(messages['login.user.identity.placeholder'])}
-                // floatingLabel={formatMessage(messages['login.user.identity.label'])}
-              />
-
-              <CustomPasswordField
-                name="password"
-                value={formFields.password}
-                autoComplete="off"
-                showScreenReaderText={false}
-                showRequirements={false}
-                handleChange={handleOnChange}
-                handleFocus={handleOnFocus}
-                errorMessage={errors.password}
-                label={formatMessage(messages['login.password.label'])}
-                placeholder={formatMessage(messages['login.password.placeholder'])}
-                // floatingLabel={formatMessage(messages['login.password.label'])}
-              />
-
-              <StatefulButton
-                name="sign-in"
-                id="sign-in"
-                type="submit"
-                variant="brand"
-                className="login-button-width"
-                state={submitState}
-                labels={{
-                  default: formatMessage(messages['sign.in.button']),
-                  pending: formatMessage(messages['sign.in.button']) + '...',
-                }}
-                onClick={handleUsernameSubmit}
-                onMouseDown={(e) => e.preventDefault()}
-              />
-
-              <Link
-                id="forgot-password"
-                className="btn btn-link font-weight-500 text-body"
-                to={updatePathWithQueryParams(RESET_PAGE)}
-                onClick={trackForgotPasswordLinkClick}
+            {showNumberfield && (
+              <button
+                type="button"
+                className={classNames("tab-button", { active: activeTab === 'otp' })}
+                onClick={() => setActiveTab('otp')}
               >
-                {formatMessage(messages['forgot.password'])}
-              </Link>
-            </Form>
+                {formatMessage(messages['login.tab.otp'])}
+              </button>
+            )}
+          </div>
 
-          </Tab>
-          {showNumberfield && ( 
-            <Tab eventKey="otp" title={formatMessage(messages['login.tab.otp'])} className="tab-item">
-              <Form noValidate>
-                {/* Phone Number Field */}
-                <Form.Group className="mb-4">
-                  <Form.Label className="fw-medium mb-2">
-                    {formatMessage(messages['login.phone.number.label'])}
-                  </Form.Label>
-                  <PhoneInput
-                    defaultCountry={'in'}    
-                    value={otpState.phone}
-                    onChange={(value) => {
-                      setOtpState(prev => ({ ...prev, phone: value }));
-                      setErrors(prev => ({ ...prev, phone: '' }));
-
-                      const phoneNumber = parsePhoneNumberFromString(value);
-                      setIsPhoneValid(phoneNumber?.isValid() ?? false);
-                    }} 
-                    name="phone_number"
-                    inputClass={classNames('form-control', { 'is-invalid': !!errors.phone })}
-                    countrySelectorClass="form-select"
-                    enableSearch={true}
-                    placeholder={formatMessage(messages['login.otp.phone.label'])}
-                    style={{ width: '100% !important' }}
-                    isInvalid={!!errors.phone || (!isPhoneValid && otpState.phone.trim())}
+          <div className="tab-content mt-4">
+            {activeTab === 'username' && (
+              <div className="tab-pane active">
+                <Form id="sign-in-form" name="sign-in-form">
+                  <CustomFormGroup
+                    name="emailOrUsername"
+                    value={formFields.emailOrUsername}
+                    autoComplete="on"
+                    handleChange={handleOnChange}
+                    handleFocus={handleOnFocus}
+                    errorMessage={errors.emailOrUsername}
+                    label={formatMessage(messages['login.user.identity.label'])}
+                    placeholder={formatMessage(messages['login.user.identity.placeholder'])}
                   />
-                  {errors.phone && (
+
+                  <CustomPasswordField
+                    name="password"
+                    value={formFields.password}
+                    autoComplete="off"
+                    showScreenReaderText={false}
+                    showRequirements={false}
+                    handleChange={handleOnChange}
+                    handleFocus={handleOnFocus}
+                    errorMessage={errors.password}
+                    label={formatMessage(messages['login.password.label'])}
+                    placeholder={formatMessage(messages['login.password.placeholder'])}
+                  />
+
+                  <StatefulButton
+                    name="sign-in"
+                    id="sign-in"
+                    type="submit"
+                    variant="primary"
+                    className="login-button-width"
+                    state={submitState}
+                    labels={{
+                      default: formatMessage(messages['sign.in.button']),
+                      pending: formatMessage(messages['sign.in.button']) + '...',
+                    }}
+                    onClick={handleUsernameSubmit}
+                    onMouseDown={(e) => e.preventDefault()}
+                  />
+
+                  <Link
+                    id="forgot-password"
+                    className="btn btn-link font-weight-500 text-body"
+                    to={updatePathWithQueryParams(RESET_PAGE)}
+                    onClick={trackForgotPasswordLinkClick}
+                  >
+                    {formatMessage(messages['forgot.password'])}
+                  </Link>
+                </Form>
+              </div>
+            )}
+
+            {activeTab === 'otp' && showNumberfield && (
+              <div className="tab-pane active">
+                <Form noValidate>
+                  <Form.Group className="mb-4">
+                    <Form.Label className="fw-medium mb-2">
+                      {formatMessage(messages['login.phone.number.label'])}
+                    </Form.Label>
+                    <PhoneInput
+                      defaultCountry={'in'}
+                      value={otpState.phone}
+                      onChange={(value) => {
+                        setOtpState(prev => ({ ...prev, phone: value }));
+                        setErrors(prev => ({ ...prev, phone: '' }));
+
+                        const phoneNumber = parsePhoneNumberFromString(value);
+                        setIsPhoneValid(phoneNumber?.isValid() ?? false);
+                      }}
+                      name="phone_number"
+                      inputClass={classNames('form-control', { 'is-invalid': !!errors.phone })}
+                      countrySelectorClass="form-select"
+                      enableSearch={true}
+                      placeholder={formatMessage(messages['login.otp.phone.label'])}
+                      style={{ width: '100% !important' }}
+                      isInvalid={!!errors.phone || (!isPhoneValid && otpState.phone.trim())}
+                    />
+                    {errors.phone && (
                     <Form.Text className="text-danger">
                       {errors.phone}
                     </Form.Text>
-                  )}
-                  {!errors.phone && !isPhoneValid && otpState.phone.trim() && (
-                    <Form.Text className="text-danger">
-                      {formatMessage(messages['login.otp.phone.invalid'])}
-                    </Form.Text>
-                  )}
-                </Form.Group>
+                    )}
+                    {!errors.phone && !isPhoneValid && otpState.phone.trim() && (
+                      <Form.Text className="text-danger">
+                        {formatMessage(messages['login.otp.phone.invalid'])}
+                      </Form.Text>
+                    )}
+                  </Form.Group>
 
-                {/* Send / Resend OTP Button */}
-                <StatefulButton
-                  variant="brand"
-                  className="w-100 mb-4"
-                  state={otpState.sending || otpState.resending ? 'pending' : 'default'}
-                  labels={{
-                    default: otpState.otpSent
-                      ? (otpState.resendIn > 0
-                          ? formatMessage(messages['login.otp.resend.countdown'], { seconds: otpState.resendIn })
-                          : formatMessage(messages['login.otp.resend.button']))
-                      : formatMessage(messages['login.otp.send.button']),
-                    pending: otpState.sending
-                      ? formatMessage(messages['login.otp.sending'])
-                      : formatMessage(messages['login.otp.resending']),
-                  }}
-                  disabled={otpState.sending || otpState.resending || (otpState.otpSent && otpState.resendIn > 0) || !isPhoneValid}
-                  onClick={otpState.otpSent ? resendOtp : sendOtp}
-                />
+                  <StatefulButton
+                    variant="primary"
+                    className="w-100 mb-4"
+                    state={otpState.sending || otpState.resending ? 'pending' : 'default'}
+                    labels={{
+                      default: otpState.otpSent
+                        ? (otpState.resendIn > 0
+                            ? formatMessage(messages['login.otp.resend.countdown'], { seconds: otpState.resendIn })
+                            : formatMessage(messages['login.otp.resend.button']))
+                        : formatMessage(messages['login.otp.send.button']),
+                      pending: otpState.sending
+                        ? formatMessage(messages['login.otp.sending'])
+                        : formatMessage(messages['login.otp.resending']),
+                    }}
+                    disabled={otpState.sending || otpState.resending || (otpState.otpSent && otpState.resendIn > 0) || !isPhoneValid}
+                    onClick={otpState.otpSent ? resendOtp : sendOtp}
+                  />
 
-                {/* OTP Code Field – only shown after OTP sent */}
-                {otpState.otpSent && (
-                  <>
-                    <Form.Group className="mb-4">
-                      <Form.Label className="fw-medium mb-2">
-                        {formatMessage(messages['login.otp.enter.label'])}
-                      </Form.Label>
-                      <Form.Control
-                        type="text"
-                        name="otpCode"
-                        value={otpState.otpCode}
-                        onChange={(e) => {
-                          setOtpState(prev => ({ ...prev, otpCode: e.target.value }));
-                          setErrors(prev => ({ ...prev, otpCode: '' }));
-                        }}
-                        onFocus={() => setErrors(prev => ({ ...prev, otpCode: '' }))}
-                        isInvalid={!!errors.otpCode}
-                        placeholder={formatMessage(messages['login.otp.placeholder'])}
-                        // floatingLabel={formatMessage(messages['login.otp.enter.label'])}
-                      />
-                      {errors.otpCode && (
+                  {otpState.otpSent && (
+                    <>
+                      <Form.Group className="mb-4">
+                        <Form.Label className="fw-medium mb-2">
+                          {formatMessage(messages['login.otp.enter.label'])}
+                        </Form.Label>
+                        <Form.Control
+                          type="text"
+                          name="otpCode"
+                          value={otpState.otpCode}
+                          onChange={(e) => {
+                            setOtpState(prev => ({ ...prev, otpCode: e.target.value }));
+                            setErrors(prev => ({ ...prev, otpCode: '' }));
+                          }}
+                          onFocus={() => setErrors(prev => ({ ...prev, otpCode: '' }))}
+                          isInvalid={!!errors.otpCode}
+                          placeholder={formatMessage(messages['login.otp.placeholder'])}
+                        />
+                        {errors.otpCode && (
                         <Form.Text className="text-danger">
                           {errors.otpCode}
                         </Form.Text>
-                      )}
-                    </Form.Group>
+                        )}
+                      </Form.Group>
 
-                    <StatefulButton
-                      variant="brand"
-                      className="w-100"
-                      state={otpState.verifying ? 'pending' : 'default'}
-                      labels={{
-                        default: formatMessage(messages['login.otp.verify.button']),
-                        pending: formatMessage(messages['login.otp.verifying']),
-                      }}
-                      disabled={otpState.verifying || !otpState.otpCode.trim()}
-                      onClick={verifyOtp}
-                    />
-                  </>
-                )}
+                      <StatefulButton
+                        variant="primary"
+                        className="w-100"
+                        state={otpState.verifying ? 'pending' : 'default'}
+                        labels={{
+                          default: formatMessage(messages['login.otp.verify.button']),
+                          pending: formatMessage(messages['login.otp.verifying']),
+                        }}
+                        disabled={otpState.verifying || !otpState.otpCode.trim()}
+                        onClick={verifyOtp}
+                      />
+                    </>
+                  )}
 
-                {/* General messages (network, backend non-field errors) */}
-                {otpState.serverMessage && !errors.otpCode && !errors.phone && (
-                  <div className={`mt-3 alert ${otpState.serverMessage.includes('success') ? 'alert-success' : 'alert-danger'}`}>
-                    {otpState.serverMessage}
-                  </div>
-                )}
-              </Form>
-            </Tab>
-          )}
-        </Tabs>
-        {/* ─── This is the most important line ─── */}
+                  {otpState.serverMessage && !errors.otpCode && !errors.phone && (
+                    <div className={`mt-3 alert ${otpState.serverMessage.includes('success') ? 'alert-success' : 'alert-danger'}`}>
+                      {otpState.serverMessage}
+                    </div>
+                  )}
+                </Form>
+              </div>
+            )}
+          </div>
+        </div>
+
         <ThirdPartyAuth
           currentProvider={currentProvider}
           providers={providers}

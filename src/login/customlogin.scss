@@ -17,33 +17,52 @@
         }
     }
 }
-.logincomponentcontainer{
-    div{
-        div{
-            .nav-tabs{
-                background: #F5F7F4;
-                display: flex;
-                align-items: center;
-                justify-content: space-between;
-                gap: 1rem;
-                border-bottom: 0;
-                padding: 0.25rem 3rem;
-                .nav-item{
-                    padding-top: .625rem;
-                    padding-bottom: .625rem;
-                    padding-left: 2rem !important;
-                    padding-right: 2rem !important;
-                    border-radius: 6px;
-                    font-weight: 500;
-                    margin: 0 !important;
-                }
-                .active{
-                    background: #ffffff;
-                    border: none !important;
-                }
-            }
-        }
+.custom-login-tabs-container {
+  .tab-buttons {
+    display: flex;
+    background: #f5f7f4;
+    border-radius: 8px;
+    padding: 0.35rem;
+    gap: 0.75rem;
+    overflow: hidden;
+
+    @media (max-width: 480px) {
+      padding: 0.4rem 0.5rem;
+      gap: 0.5rem;
+      flex-wrap: wrap;
     }
+  }
+
+  .tab-button {
+    flex: 1 1 0;
+    min-width: 0;
+    padding: 0.65rem 1.2rem;
+    font-weight: 500;
+    font-size: 1rem;
+    line-height: 1.4;
+    background: transparent;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.18s ease;
+    white-space: nowrap;
+    text-align: center;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.7);
+    }
+
+    &.active {
+      background: white;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      font-weight: 600;
+    }
+
+    @media (max-width: 480px) {
+      padding: 0.55rem 1rem;
+      font-size: 0.95rem;
+    }
+  }
 }
 
 .logincomponentcontainer{
@@ -69,11 +88,6 @@
                 transition: transform 0.25s ease, border 0.15s ease;
                 .mr-auto{
                     margin: 0 !important;
-                }
-                &:hover{
-                    border: 3px solid var(--pgn-color-btn-bg-brand);
-                    transform: scale(1.05);
-
                 }
             }
         }
