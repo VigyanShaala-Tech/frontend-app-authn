@@ -158,7 +158,7 @@ const CustomLoginPage = (props) => {
 
   useEffect(() => {
     if (thirdPartyErrorMessage) {
-      setErrorCode(prev => ({
+      setErrorCode(prevState => ({
         type: TPA_AUTHENTICATION_FAILURE,
         count: prevState.count + 1,
         context: {
