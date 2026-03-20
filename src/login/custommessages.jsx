@@ -74,10 +74,10 @@ const messages = defineMessages({
     defaultMessage: 'To protect your account, it\'s been temporarily locked. Try again in 30 minutes.',
     description: 'Part of message for when user account has been locked out after multiple failed login attempts',
   },
-  'username.or.email.format.validation.less.chars.message': {
-    id: 'username.or.email.format.validation.less.chars.message',
-    defaultMessage: 'Username or email must have at least 2 characters.',
-    description: 'Validation message that appears when username or email address is less than 2 characters',
+  'invalid.email.format.message': {
+    id: 'invalid.email.format.message',
+    defaultMessage: 'Please enter a valid email address',
+    description: 'Invalid email format error',
   },
   'email.validation.message': {
     id: 'email.validation.message',
