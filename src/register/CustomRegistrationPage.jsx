@@ -761,7 +761,7 @@ const CustomRegistrationPage = ({ handleInstitutionLogin, institutionLogin }) =>
                     />
                     <button
                       type="button"
-                      className="btn btn-success"
+                      className="btn btn-primary"
                       onClick={verifyOtp}
                       disabled={!otpState.otpCode || otpState.verifying}
                     >
@@ -860,7 +860,7 @@ const CustomRegistrationPage = ({ handleInstitutionLogin, institutionLogin }) =>
                 id="register-user"
                 name="register-user"
                 type="submit"
-                variant="brand"
+                variant="primary"
                 className="register-button mt-4 mb-4 w-100"
                 state={submitState}
                 labels={{ default: buttonLabel, pending: '' }}

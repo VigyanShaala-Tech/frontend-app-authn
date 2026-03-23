@@ -156,7 +156,7 @@ const CustomLogistration = ({
                               e.preventDefault();
                               switchToPage(otherPage);
                             }}
-                            className="font-weight-bold"
+                            className="font-weight-bold text-primary"
                           >
                             {formatMessage(messages['logistration.sign.up.link'])}
                           </a>
