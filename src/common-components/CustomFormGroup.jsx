@@ -47,6 +47,7 @@ const FormGroup = (props) => {
         spellCheck={props.spellCheck}
         name={props.name}
         value={props.value}
+        disabled={props.disabled}
         onFocus={handleFocus}
         onBlur={handleOnBlur}
         onClick={handleClick}
@@ -95,6 +96,7 @@ FormGroup.defaultProps = {
   borderClass: '',
   children: null,
   className: '',
+  disabled: false,
   errorMessage: '',
   handleBlur: null,
   handleChange: () => {},
@@ -116,6 +118,7 @@ FormGroup.propTypes = {
   borderClass: PropTypes.string,
   children: PropTypes.element,
   className: PropTypes.string,
+  disabled: PropTypes.bool,
   errorMessage: PropTypes.string,
   floatingLabel: PropTypes.string,
   handleBlur: PropTypes.func,
