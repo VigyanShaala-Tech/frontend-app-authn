@@ -74,6 +74,15 @@
 
             }
         }
+        div{
+            div{
+                .form-group__form-field{
+                    input:disabled{
+                        border-color: #c4b8b8 !important;
+                    }
+                }
+            }
+        }
     }
 }
 

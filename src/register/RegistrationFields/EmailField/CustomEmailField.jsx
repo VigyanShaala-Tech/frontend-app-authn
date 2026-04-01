@@ -35,6 +35,8 @@ const CustomEmailField = (props) => {
     handleChange,
     handleErrorChange,
     confirmEmailValue,
+    disabled = false,
+    readOnly = false,
   } = props;
 
   const backedUpFormData = useSelector(state => state.register.registrationFormData);
@@ -116,6 +118,8 @@ const CustomEmailField = (props) => {
       borderClass={emailSuggestion.type === 'warning' ? 'yellow-border' : ''}
       maxLength={254} // Limit per RFCs is 254
       {...props}
+      disabled={disabled}
+      readOnly={readOnly}
       handleBlur={handleOnBlur}
       handleFocus={handleOnFocus}
     >

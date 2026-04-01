@@ -684,6 +684,8 @@ const CustomRegistrationPage = ({ handleInstitutionLogin, institutionLogin }) =>
                 </div>
                 <div className="col-md-6">
                   <CustomEmailField
+                    disabled={!!currentProvider}
+                    readOnly={!!currentProvider}
                     name="email"
                     value={formFields.email}
                     handleChange={handleOnChange}
