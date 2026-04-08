@@ -167,11 +167,11 @@ const CustomLogistration = ({
                         />
                         <p>
                           {formatMessage(messages['logistration.signin.terms.agreement'])} 
-                          <Hyperlink variant="muted" destination={`${getConfig().CATALOG_MICROFRONTEND_URL}terms`} target="_blank">
+                          <Hyperlink variant="muted" destination={`${getConfig().CATALOG_MICROFRONTEND_URL}terms`} target="_blank" className='ml-2 mr-2'>
                             {formatMessage(messages['logistration.signin.terms.agreement.term'])}
                           </Hyperlink>
                           {formatMessage(messages['logistration.signin.terms.agreement.and'])} 
-                          <Hyperlink variant="muted" destination={`${getConfig().CATALOG_MICROFRONTEND_URL}privacy`} target="_blank">
+                          <Hyperlink variant="muted" destination={`${getConfig().CATALOG_MICROFRONTEND_URL}privacy`} target="_blank" className='ml-2'>
                             {formatMessage(messages['logistration.signin.terms.agreement.privacy'])}
                           </Hyperlink>
                         </p>
@@ -187,7 +187,7 @@ const CustomLogistration = ({
                               e.preventDefault();
                               switchToPage(otherPage);
                             }}
-                            className="font-weight-bold"
+                            className="font-weight-bold text-primary"
                           >
                             {formatMessage(messages['logistration.sign.in'])}
                           </a>

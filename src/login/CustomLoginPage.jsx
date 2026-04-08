@@ -552,7 +552,7 @@ const CustomLoginPage = (props) => {
                     id="sign-in"
                     type="submit"
                     variant="primary"
-                    className="login-button-width"
+                    className="login-button-width text-white"
                     state={submitState}
                     labels={{
                       default: formatMessage(messages['sign.in.button']),
@@ -613,7 +613,7 @@ const CustomLoginPage = (props) => {
 
                   <StatefulButton
                     variant="primary"
-                    className="w-100 mb-4"
+                    className="w-100 mb-4 text-white"
                     state={otpState.sending || otpState.resending ? 'pending' : 'default'}
                     labels={{
                       default: otpState.otpSent
@@ -656,7 +656,7 @@ const CustomLoginPage = (props) => {
 
                       <StatefulButton
                         variant="primary"
-                        className="w-100"
+                        className="w-100 text-white"
                         state={otpState.verifying ? 'pending' : 'default'}
                         labels={{
                           default: formatMessage(messages['login.otp.verify.button']),

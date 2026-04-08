@@ -144,17 +144,17 @@ const messages = defineMessages({
   },
   'logistration.signin.terms.agreement': {
     id: 'logistration.signin.terms.agreement',
-    defaultMessage: 'By signing in, you agree to our ',
+    defaultMessage: 'By signing in, you agree to our',
     description: 'Footer legal agreement text shown on login form',
   },
   'logistration.signin.terms.agreement.term': {
     id: 'logistration.signin.terms.agreement.term',
-    defaultMessage: ' Terms of Service',
+    defaultMessage: 'Terms of Service',
     description: 'Footer legal agreement text shown on login form',
   },
   'logistration.signin.terms.agreement.and': {
     id: 'logistration.signin.terms.agreement.and',
-    defaultMessage: ' and ',
+    defaultMessage: 'and',
     description: 'Footer legal agreement text shown on login form',
   },
   'logistration.signin.terms.agreement.privacy': {

@@ -14,7 +14,7 @@ const CustomMediumLayout = () => {
     <span className="d-flex align-items-center justify-content-center w-100">
       <div>
         <Hyperlink destination={getConfig().MARKETING_SITE_BASE_URL}>
-          <Image className="logo-medium" alt={getConfig().SITE_NAME} src={getConfig().LOGO_WHITE_URL} />
+          <Image className="logo-medium" alt={getConfig().SITE_NAME} src={getConfig().LOGO_URL} />
         </Hyperlink>
       </div>
     </span>
