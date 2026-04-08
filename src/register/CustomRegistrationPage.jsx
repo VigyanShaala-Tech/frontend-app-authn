@@ -763,7 +763,7 @@ const CustomRegistrationPage = ({ handleInstitutionLogin, institutionLogin }) =>
                     />
                     <button
                       type="button"
-                      className="btn btn-primary"
+                      className="btn btn-primary text-white"
                       onClick={verifyOtp}
                       disabled={!otpState.otpCode || otpState.verifying}
                     >
