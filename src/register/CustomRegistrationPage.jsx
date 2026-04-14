@@ -621,7 +621,7 @@ const CustomRegistrationPage = ({ handleInstitutionLogin, institutionLogin }) =>
         </Helmet>
 
         {registrationComplete ? (
-          registrationResult.is_third_party_user ? (
+          registrationResult.authenticatedUser.is_third_party_user ? (
             <RedirectLogistration
               host={host}
               authenticatedUser={registrationResult.authenticatedUser}
