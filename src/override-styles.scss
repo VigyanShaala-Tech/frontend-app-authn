@@ -1,0 +1,37 @@
+#root {
+    .layout{
+        .auth-left{
+            .auth-left-container{
+                max-width: 28rem !important;
+                a{
+                    img{
+                        height: 4rem !important;
+                    }
+                }
+                .login-left-container{
+                    .list-container{
+                        .avatars-container{
+                            .avatar-item{
+                                width: 2.5rem !important;
+                                height: 2.5rem !important;
+                            }
+                            .extra-count{
+                                font-size: 0.875rem !important;
+                            }
+                            height: unset !important;
+                        }
+                    }
+                    .message-header{
+                        letter-spacing: -.025em !important;
+                    }
+                }
+            }
+        }
+        .content{
+            padding: 2rem !important;
+            .main-wrapper{
+                max-width: 28rem !important;
+            }
+        }
+    }
+}

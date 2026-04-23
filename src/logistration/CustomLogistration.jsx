@@ -120,7 +120,7 @@ const CustomLogistration = ({
 
   return (
     <BaseContainer>
-      <div className='d-flex align-items-center justify-content-center'>
+      <div className='main-wrapper d-flex align-items-center justify-content-center'>
         {disablePublicAccountCreation
           ? (
               <>
