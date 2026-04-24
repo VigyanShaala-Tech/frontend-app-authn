@@ -1,34 +1,30 @@
 import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faArrowLeft, faArrowRight, faEnvelope } from '@fortawesome/free-solid-svg-icons';
 
 import { getConfig } from '@edx/frontend-platform';
 import { sendPageEvent, sendTrackEvent } from '@edx/frontend-platform/analytics';
 import { useIntl } from '@edx/frontend-platform/i18n';
 import {
   Form,
-  Hyperlink,
-  Icon,
   StatefulButton,
-  Tab,
-  Tabs,
 } from '@openedx/paragon';
-import { ChevronLeft } from '@openedx/paragon/icons';
 import PropTypes from 'prop-types';
 import { Helmet } from 'react-helmet';
-import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
 import { forgotPassword, setForgotPasswordFormData } from './data/actions';
 import { forgotPasswordResultSelector } from './data/selectors';
-import ForgotPasswordAlert from './ForgotPasswordAlert';
+import CustomForgotPasswordAlertView, { resolveForgotPasswordAlertState } from './CustomForgotPasswordAlertView';
 import messages from './custommessages';
 import BaseContainer from '../base-container';
-import { FormGroup } from '../common-components';
 import CustomFormGroup from "../common-components/CustomFormGroup"
 import { DEFAULT_STATE, LOGIN_PAGE, VALID_EMAIL_REGEX } from '../data/constants';
 import { updatePathWithQueryParams, windowScrollTo } from '../data/utils';
+import './customforgotpassword.scss';
 
 const CustomForgotPasswordPage = (props) => {
-  const platformName = getConfig().SITE_NAME;
   const emailRegex = new RegExp(VALID_EMAIL_REGEX, 'i');
   const {
     status, submitState, emailValidationError,
@@ -39,7 +35,7 @@ const CustomForgotPasswordPage = (props) => {
   const [bannerEmail, setBannerEmail] = useState('');
   const [formErrors, setFormErrors] = useState('');
   const [validationError, setValidationError] = useState(emailValidationError);
-  const navigate = useNavigate();
+  const [dismissAlertView, setDismissAlertView] = useState(false);
 
   useEffect(() => {
     sendPageEvent('login_and_registration', 'reset');
@@ -55,6 +51,10 @@ const CustomForgotPasswordPage = (props) => {
       setEmail('');
     }
   }, [status]);
+
+  useEffect(() => {
+    setDismissAlertView(false);
+  }, [status, formErrors]);
 
   const getValidationMessage = (value) => {
     let error = '';
@@ -88,12 +88,16 @@ const CustomForgotPasswordPage = (props) => {
     }
   };
 
-  const tabTitle = (
-    <div className="d-inline-flex flex-wrap align-items-center">
-      <Icon src={ChevronLeft} />
-      <span className="ml-2">{formatMessage(messages['sign.in.text'])}</span>
-    </div>
-  );
+  const handleTryAnotherEmail = () => {
+    setDismissAlertView(true);
+    setFormErrors('');
+    props.setForgotPasswordFormData({ emailValidationError: '' });
+  };
+
+  const showAlertView = !dismissAlertView && resolveForgotPasswordAlertState({
+    status,
+    emailError: formErrors,
+  }).hasAlert;
 
   return (
     <BaseContainer>
@@ -103,64 +107,78 @@ const CustomForgotPasswordPage = (props) => {
         </title>
       </Helmet>
       <div className='d-flex justify-content-center flex-column'>
-        <Tabs activeKey="" id="controlled-tab" onSelect={(key) => navigate(updatePathWithQueryParams(key))}>
-          <Tab title={tabTitle} eventKey={LOGIN_PAGE} />
-        </Tabs>
-        <div id="main-content" className="main-content">
-          <Form id="forget-password-form" name="forget-password-form" className="mw-xs">
-            <ForgotPasswordAlert email={bannerEmail} emailError={formErrors} status={status} />
-            <h2 className="h2">
-              {formatMessage(messages['forgot.password.page.heading'])}
-            </h2>
-            <p className="mb-4">
-              {formatMessage(messages['forgot.password.page.instructions'])}
-            </p>
-            <CustomFormGroup
-            //   floatingLabel={formatMessage(messages['forgot.password.page.email.field.label'])}
-              name="email"
-              value={email}
-              autoComplete="on"
-              errorMessage={validationError}
-              handleChange={(e) => setEmail(e.target.value)}
-              handleBlur={handleBlur}
-              handleFocus={handleFocus}
-              helpText={[formatMessage(messages['forgot.password.email.help.text'], { platformName })]}
-              label={formatMessage(messages['forgot.password.page.email.field.label'])}
-              placeholder={formatMessage(messages['forgot.password.page.email.field.placeholder'])}
-            />
-            <StatefulButton
-              id="submit-forget-password"
-              name="submit-forget-password"
-              type="submit"
-              variant="primary"
-              className="forgot-password--button text-white"
-              state={submitState}
-              labels={{
-                default: formatMessage(messages['forgot.password.page.submit.button']),
-                pending: '',
-              }}
-              onClick={handleSubmit}
-              onMouseDown={(e) => e.preventDefault()}
-            />
-            {(getConfig().LOGIN_ISSUE_SUPPORT_LINK) && (
-              <Hyperlink
-                id="forgot-password"
-                name="forgot-password"
-                className="ml-4 font-weight-500 text-body"
-                destination={getConfig().LOGIN_ISSUE_SUPPORT_LINK}
-                target="_blank"
-                showLaunchIcon={false}
-              >
-                {formatMessage(messages['need.help.sign.in.text'])}
-              </Hyperlink>
+        <div id="main-content" className="main-content custom-forgot-main-content">
+          <div className="mw-xs custom-forgot-wrapper">
+            {showAlertView ? (
+              <CustomForgotPasswordAlertView
+                email={bannerEmail}
+                emailError={formErrors}
+                status={status}
+                onTryAnotherEmail={handleTryAnotherEmail}
+              />
+            ) : (
+              <>
+                <Link
+                  className="forgot-back-link"
+                  to={updatePathWithQueryParams(LOGIN_PAGE)}
+                >
+                  <FontAwesomeIcon icon={faArrowLeft} />
+                  <span>{formatMessage(messages['sign.in.text'])}</span>
+                </Link>
+                <h2 className="h2 custom-forgot-heading">
+                  {formatMessage(messages['forgot.password.page.heading'])}
+                </h2>
+                <p className="custom-forgot-instructions">
+                  {formatMessage(messages['forgot.password.page.instructions'])}
+                </p>
+
+                <Form id="forget-password-form" name="forget-password-form" className="custom-forgot-form">
+                  <div className="forgot-email-group">
+                    <span className="forgot-input-icon" aria-hidden="true">
+                      <FontAwesomeIcon icon={faEnvelope} />
+                    </span>
+                    <CustomFormGroup
+                      name="email"
+                      value={email}
+                      autoComplete="on"
+                      errorMessage={validationError}
+                      handleChange={(e) => setEmail(e.target.value)}
+                      handleBlur={handleBlur}
+                      handleFocus={handleFocus}
+                      label={formatMessage(messages['forgot.password.page.email.field.label'])}
+                      placeholder={formatMessage(messages['forgot.password.page.email.field.placeholder'])}
+                    />
+                  </div>
+                  <StatefulButton
+                    id="submit-forget-password"
+                    name="submit-forget-password"
+                    type="submit"
+                    variant="primary"
+                    className="forgot-password--button text-white forgot-submit-button text-white mt-1.5"
+                    state={submitState}
+                    labels={{
+                      default: (
+                        <>
+                          {formatMessage(messages['forgot.password.page.submit.button'])}
+                          <FontAwesomeIcon icon={faArrowRight} className="ml-2" />
+                        </>
+                      ),
+                      pending: '',
+                    }}
+                    onClick={handleSubmit}
+                    onMouseDown={(e) => e.preventDefault()}
+                  />
+                </Form>
+                <p className="forgot-remember-text">
+                  {formatMessage(messages['forgot.password.remember.prompt'])}
+                  {' '}
+                  <Link to={updatePathWithQueryParams(LOGIN_PAGE)} className="forgot-remember-signin-link text-primary">
+                    {formatMessage(messages['forgot.password.sign.in.link'])}
+                  </Link>
+                </p>
+              </>
             )}
-            <p className="mt-5.5 small text-gray-700">
-              {formatMessage(messages['additional.help.text'], { platformName })}
-              <span>
-                <Hyperlink isInline destination={`mailto:${getConfig().INFO_EMAIL}`}>{getConfig().INFO_EMAIL}</Hyperlink>
-              </span>
-            </p>
-          </Form>
+          </div>
         </div>
       </div>
     </BaseContainer>

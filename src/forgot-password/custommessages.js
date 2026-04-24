@@ -87,6 +87,16 @@ const messages = defineMessages({
     defaultMessage: 'Back to Sign In',
     description: 'login page link on password page',
   },
+  'forgot.password.remember.prompt': {
+    id: 'forgot.password.remember.prompt',
+    defaultMessage: 'Remember your password?',
+    description: 'Prompt text before sign-in link on custom forgot password page',
+  },
+  'forgot.password.sign.in.link': {
+    id: 'forgot.password.sign.in.link',
+    defaultMessage: 'Sign In',
+    description: 'Sign-in link label on custom forgot password page',
+  },
   'extend.field.errors': {
     id: 'extend.field.errors',
     defaultMessage: '{emailError} below.',
