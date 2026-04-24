@@ -103,3 +103,213 @@
         margin-inline-end: 0 !important;
     }
 }
+
+#registration-form {
+    .mb-4 , .mt-4 {
+        margin-bottom: 0.5rem !important;
+    }
+
+    .reg-phone-group {
+        margin-top: 0.5rem !important;
+    }
+
+    .user-role-option {
+        margin-top: 0.5rem !important;
+    }
+
+    #terms-of-service {
+        margin-top: 0.5rem !important;
+    }
+
+    .reg-input-group {
+        position: relative;
+    }
+
+    .reg-input-icon {
+        position: absolute;
+        left: 1rem !important;
+        top: 2.95rem !important;
+        color: #718096;
+        z-index: 3;
+        width: 1rem;
+        height: 1rem;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        pointer-events: none;
+    }
+
+    .reg-phone-field .reg-phone-icon {
+        top: 1.3rem;
+    }
+
+    .pgn__form-group {
+        margin-bottom: 0.5rem !important;
+    }
+
+    .pgn__form-label,
+    .fw-medium.mb-2 {
+        font-size: 0.875rem !important;
+        line-height: 1.25rem !important;
+        height: 20px !important;
+        font-weight: 500 !important;
+    }
+
+    .form-group__form-field .form-control,
+    .form-control {
+        height: 42px !important;
+        min-height: 42px !important;
+        border-radius: 6px !important;
+        border: 1px solid #E2E8F0 !important;
+        background: #ffffff !important;
+        font-size: 0.875rem !important;
+    }
+
+    .reg-input-group .form-group__form-field .form-control {
+        padding-left: 2.5rem !important;
+    }
+
+    .react-international-phone-input-container {
+        min-height: 42px;
+    }
+
+    .react-international-phone-input-container .react-international-phone-country-selector button,
+    .react-international-phone-input-container .react-international-phone-input {
+        height: 42px !important;
+        min-height: 42px !important;
+        border: 1px solid #E2E8F0 !important;
+        border-color: #E2E8F0 !important;
+    }
+
+    .reg-phone-field .react-international-phone-input {
+        padding-left: 2.5rem !important;
+    }
+
+    .react-international-phone-input-button {
+        height: 42px !important;
+        min-height: 42px !important;
+        border-radius: 6px !important;
+        font-size: 0.875rem !important;
+        font-weight: 500 !important;
+        background: #F5F7F4 !important;
+        border: none !important;
+        color: #718096 !important;
+    }
+
+    .btn.btn-primary.text-white {
+        height: 42px !important;
+        min-height: 42px !important;
+        border-radius: 6px !important;
+        font-size: 0.875rem !important;
+        font-weight: 500 !important;
+    }
+
+    .register-button,
+    #register-user.register-button {
+        height: 3rem !important;
+        min-height: 3rem !important;
+        border-radius: 8px !important;
+        font-size: 1rem !important;
+        font-weight: 600 !important;
+        margin-top: 1rem !important;
+        margin-bottom: 0 !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 0.5rem !important;
+    }
+
+    .register-button svg {
+        position: relative;
+        top: 1px;
+    }
+
+    .btn-social {
+        height: 44px !important;
+        min-height: 44px !important;
+        border-radius: 8px !important;
+        font-size: 14px !important;
+        font-weight: 600 !important;
+        border: 2px solid #E2E8F0 !important;
+    }
+
+    .reg-auth-divider {
+        position: relative;
+        text-align: center;
+        height: 1rem;
+        margin: 1rem 0;
+
+        &::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            border-top: 1px solid #E2E8F0;
+        }
+
+        span {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 1;
+            padding: 0 0.5rem;
+            background: #fff;
+            color: #718096;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+        }
+    }
+
+    .h4 {
+        display: none !important;
+    }
+
+    #terms-of-service {
+        font-size: 12px !important;
+        line-height: 1rem !important;
+        color: #718096 !important;
+    }
+
+    #terms-of-service .form-field--checkbox,
+    #terms-of-service .form-field--checkbox label {
+        font-size: 12px !important;
+        line-height: 1rem !important;
+    }
+
+    #terms-of-service .pgn__form-checkbox.form-field--checkbox.mt-1 {
+        height: 18px !important;
+        min-height: 18px !important;
+        margin-top: 0.5rem !important;
+    }
+
+    #terms-of-service input[type='checkbox'],
+    #terms-of-service .pgn__form-checkbox-input {
+        width: 16px !important;
+        height: 16px !important;
+        min-width: 16px !important;
+        min-height: 16px !important;
+    }
+
+    .user-role-option label.border-secondary {
+        border: 1px solid #E2E8F0 !important;
+    }
+
+    .user-role-option .row.g-3 label {
+        height: 3rem !important;
+        min-height: 3rem !important;
+        margin-bottom: 0 !important;
+    }
+
+    .user-role-option .row.g-3 {
+        row-gap: 0.75rem !important;
+    }
+
+    .user-role-option .row.g-3 label span,
+    .user-role-option .row.g-3 label {
+        font-size: 14px !important;
+        line-height: 1.25rem !important;
+    }
+}

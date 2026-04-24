@@ -21,9 +21,10 @@ import CustomLogistration from './logistration/CustomLogistration';
 import { ProgressiveProfiling } from './progressive-profiling';
 import { RecommendationsPage } from './recommendations';
 import { RegistrationPage } from './register';
-import { ResetPasswordPage } from './reset-password';
+import CustomResetPasswordPage from './reset-password/CustomResetPasswordPage';
 
 import './index.scss';
+import './override-styles.scss';
 
 registerIcons();
 
@@ -42,7 +43,7 @@ const CustomMainAppRoutes = () => (
     />
     <Route path={REGISTER_PAGE} element={<UnAuthOnlyRoute><CustomLogistration /></UnAuthOnlyRoute>} />
     <Route path={RESET_PAGE} element={<UnAuthOnlyRoute><CustomForgotPasswordPage /></UnAuthOnlyRoute>} />
-    <Route path={PASSWORD_RESET_CONFIRM} element={<ResetPasswordPage />} />
+    <Route path={PASSWORD_RESET_CONFIRM} element={<CustomResetPasswordPage />} />
     <Route path={AUTHN_PROGRESSIVE_PROFILING} element={<ProgressiveProfiling />} />
     <Route path={RECOMMENDATIONS} element={<RecommendationsPage />} />
     <Route path={PAGE_NOT_FOUND} element={<NotFoundPage />} />

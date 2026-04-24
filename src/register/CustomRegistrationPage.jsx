@@ -1,5 +1,9 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {
+  faArrowRight, faEnvelope, faLock, faPhone, faUser,
+} from '@fortawesome/free-solid-svg-icons';
 import { getConfig } from '@edx/frontend-platform';
 import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
 import { sendPageEvent, sendTrackEvent } from '@edx/frontend-platform/analytics';
@@ -300,10 +304,6 @@ const CustomRegistrationPage = ({ handleInstitutionLogin, institutionLogin }) =>
       }));
     }
   };
-
-  // ────────────────────────────────────────────────
-  //   Rest of your component remains unchanged
-  // ────────────────────────────────────────────────
 
   useEffect(() => {
     const fetchOtpStatus = async () => {
@@ -671,34 +671,44 @@ const CustomRegistrationPage = ({ handleInstitutionLogin, institutionLogin }) =>
             <Form id="registration-form" name="registration-form" noValidate onSubmit={handleSubmit}>
               <div className="row">
                 <div className="col-md-6">
-                  <CustomNameField
-                    name="name"
-                    value={formFields.name}
-                    handleChange={handleOnChange}
-                    handleErrorChange={handleErrorChange}
-                    errorMessage={errors.name}
-                    helpText={[formatMessage(messages['help.text.name'])]}
-                    label={formatMessage(messages['registration.fullname.label'])}
-                    placeholder={formatMessage(messages['registration.fullname.placeholder'])}
-                  />
+                  <div className="reg-input-group">
+                    <span className="reg-input-icon" aria-hidden="true">
+                      <FontAwesomeIcon icon={faUser} />
+                    </span>
+                    <CustomNameField
+                      name="name"
+                      value={formFields.name}
+                      handleChange={handleOnChange}
+                      handleErrorChange={handleErrorChange}
+                      errorMessage={errors.name}
+                      helpText={[formatMessage(messages['help.text.name'])]}
+                      label={formatMessage(messages['registration.fullname.label'])}
+                      placeholder={formatMessage(messages['registration.fullname.placeholder'])}
+                    />
+                  </div>
                 </div>
                 <div className="col-md-6">
-                  <CustomEmailField
-                    disabled={!!currentProvider}
-                    readOnly={!!currentProvider}
-                    name="email"
-                    value={formFields.email}
-                    handleChange={handleOnChange}
-                    handleErrorChange={handleErrorChange}
-                    errorMessage={errors.email || errors.username}
-                    helpText={[formatMessage(messages['help.text.email'])]}
-                    label={formatMessage(messages['registration.email.label'])}
-                    placeholder={formatMessage(messages['registration.email.placeholder'])}
-                  />
+                  <div className="reg-input-group">
+                    <span className="reg-input-icon" aria-hidden="true">
+                      <FontAwesomeIcon icon={faEnvelope} />
+                    </span>
+                    <CustomEmailField
+                      disabled={!!currentProvider}
+                      readOnly={!!currentProvider}
+                      name="email"
+                      value={formFields.email}
+                      handleChange={handleOnChange}
+                      handleErrorChange={handleErrorChange}
+                      errorMessage={errors.email || errors.username}
+                      helpText={[formatMessage(messages['help.text.email'])]}
+                      label={formatMessage(messages['registration.email.label'])}
+                      placeholder={formatMessage(messages['registration.email.placeholder'])}
+                    />
+                  </div>
                 </div>
               </div>
               { showNumberfield && 
-                <Form.Group className="mb-4">
+                <Form.Group className="mb-4 reg-phone-group">
                   <Form.Label className="fw-medium mb-2">
                     {formatMessage(messages['registration.phone.number.label'])}
                   </Form.Label>
@@ -788,26 +798,36 @@ const CustomRegistrationPage = ({ handleInstitutionLogin, institutionLogin }) =>
               {!currentProvider && (
                 <div className="row">
                   <div className="col-md-6">
-                    <CustomPasswordField
-                      name="password"
-                      value={formFields.password}
-                      handleChange={handleOnChange}
-                      handleErrorChange={handleErrorChange}
-                      errorMessage={errors.password}
-                      label={formatMessage(messages['registration.password.label'])}
-                      placeholder={formatMessage(messages['registration.password.placeholder'])}
-                    />
+                    <div className="reg-input-group">
+                      <span className="reg-input-icon" aria-hidden="true">
+                        <FontAwesomeIcon icon={faLock} />
+                      </span>
+                      <CustomPasswordField
+                        name="password"
+                        value={formFields.password}
+                        handleChange={handleOnChange}
+                        handleErrorChange={handleErrorChange}
+                        errorMessage={errors.password}
+                        label={formatMessage(messages['registration.password.label'])}
+                        placeholder={formatMessage(messages['registration.password.placeholder'])}
+                      />
+                    </div>
                   </div>
                   <div className="col-md-6">
-                    <CustomPasswordField
-                      name="confirm_password"
-                      value={formFields.confirm_password || ''}
-                      handleChange={handleOnChange}
-                      handleErrorChange={handleErrorChange}
-                      errorMessage={errors.confirm_password}
-                      label={formatMessage(messages['registration.confirm.password.label'])}
-                      placeholder={formatMessage(messages['registration.confirm.password.placeholder'])}
-                    />
+                    <div className="reg-input-group">
+                      <span className="reg-input-icon" aria-hidden="true">
+                        <FontAwesomeIcon icon={faLock} />
+                      </span>
+                      <CustomPasswordField
+                        name="confirm_password"
+                        value={formFields.confirm_password || ''}
+                        handleChange={handleOnChange}
+                        handleErrorChange={handleErrorChange}
+                        errorMessage={errors.confirm_password}
+                        label={formatMessage(messages['registration.confirm.password.label'])}
+                        placeholder={formatMessage(messages['registration.confirm.password.placeholder'])}
+                      />
+                    </div>
                   </div>
                 </div>
               )}
@@ -865,17 +885,28 @@ const CustomRegistrationPage = ({ handleInstitutionLogin, institutionLogin }) =>
                 variant="primary"
                 className="register-button mt-4 mb-4 w-100 text-white"
                 state={submitState}
-                labels={{ default: buttonLabel, pending: '' }}
+                labels={{
+                  default: (
+                    <>
+                      {buttonLabel}
+                      <FontAwesomeIcon icon={faArrowRight} className="ml-2" />
+                    </>
+                  ),
+                  pending: '',
+                }}
               />
 
               {!registrationEmbedded && (
-                <ThirdPartyAuth
-                  currentProvider={currentProvider}
-                  providers={providers}
-                  secondaryProviders={secondaryProviders}
-                  handleInstitutionLogin={handleInstitutionLogin}
-                  thirdPartyAuthApiStatus={thirdPartyAuthApiStatus}
-                />
+                <>
+                  <div className="reg-auth-divider"><span>Or</span></div>
+                  <ThirdPartyAuth
+                    currentProvider={currentProvider}
+                    providers={providers}
+                    secondaryProviders={secondaryProviders}
+                    handleInstitutionLogin={handleInstitutionLogin}
+                    thirdPartyAuthApiStatus={thirdPartyAuthApiStatus}
+                  />
+                </>
               )}
             </Form>
           </div>

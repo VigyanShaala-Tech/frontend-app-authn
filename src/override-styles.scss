@@ -1,0 +1,172 @@
+#root {
+    .layout{
+        .auth-left{
+            .auth-left-container{
+                max-width: 28rem !important;
+                a{
+                    img{
+                        height: 4rem !important;
+                    }
+                }
+                .login-left-container{
+                    .list-container{
+                        .avatars-container{
+                            .avatar-item{
+                                width: 2.5rem !important;
+                                height: 2.5rem !important;
+                            }
+                            .extra-count{
+                                font-size: 0.875rem !important;
+                            }
+                            height: unset !important;
+                        }
+                    }
+                    .message-header{
+                        letter-spacing: -.025em !important;
+                    }
+                }
+                .registration-left-container{
+                    max-width: 28rem !important;
+
+                    .message-header{
+                        font-size: 2.25rem !important;
+                        line-height: 2.5rem !important;
+                        font-weight: 700 !important;
+                        margin-bottom: 1.5rem !important;
+                        letter-spacing: -0.025em !important;
+                    }
+
+                    .message-describe{
+                        color: rgb(255 255 255 / 80%) !important;
+                        font-size: 1.125rem !important;
+                        line-height: 1.75rem !important;
+                        margin-bottom: 2rem !important;
+                    }
+
+                    .list-container{
+                        > div{
+                            margin-top: 1rem !important;
+                            display: flex !important;
+                            align-items: center !important;
+                            gap: 0.75rem !important;
+
+                            &:first-child{
+                                margin-top: 0 !important;
+                            }
+
+                            .bg-light-color{
+                                border-radius: 999px !important;
+                                background: rgb(255 255 255 / 20%) !important;
+                                display: inline-flex !important;
+                                align-items: center !important;
+                                justify-content: center !important;
+                                margin-right: 0 !important;
+
+                                &.svg-inline--fa,
+                                .svg-inline--fa{
+                                    width: 1rem !important;
+                                    height: 1rem !important;
+                                    min-width: 1rem !important;
+                                    min-height: 1rem !important;
+                                    max-width: 1rem !important;
+                                    max-height: 1rem !important;
+                                    padding: 0.25rem !important;
+                                }
+                            }
+
+                            .list-item{
+                                font-size: 1rem !important;
+                                line-height: 1.5rem !important;
+                            }
+                        }
+                    }
+                }
+                .forgot-password-left-container{
+                    .message-header{
+                        letter-spacing: -0.025em !important;
+                    }
+
+                    .list-container{
+                        .rounded-full.p-3.mr-3.text-white.bg-light-color{
+                            display: flex !important;
+                            align-items: center !important;
+                            justify-content: center !important;
+                            width: 48px !important;
+                            height: 48px !important;
+                        }
+
+                        .bg-light-color .svg-inline--fa{
+                            height: 1.5rem !important;
+                        }
+
+                        .list-item{
+                            font-size: 0.875rem !important;
+                            line-height: 1.25rem !important;
+                        }
+                    }
+                }
+                .set-password-left-container{
+                    .message-header{
+                        letter-spacing: -0.025em !important;
+                    }
+
+                    .message-describe{
+                        color: rgb(255 255 255 / 80%) !important;
+                    }
+                }
+            }
+        }
+        .content{
+            padding: 2rem !important;
+            .main-wrapper{
+                max-width: 28rem !important;
+                width: 100%;
+                min-width: 0 !important;
+                flex: 1 1 auto;
+            }
+            .main-wrapper,
+            .main-content {
+                width: 100%;
+                max-width: 100%;
+                min-width: 0 !important;
+            }
+        }
+    }
+
+    .vs-input-icon,
+    .reg-input-icon,
+    .forgot-input-icon,
+    .reset-password-icon {
+        color: #2d3748 !important;
+
+        svg path {
+            fill: none !important;
+            stroke: currentColor !important;
+            stroke-width: 28px;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+    }
+}
+
+@media (max-width: 768px) {
+    #root {
+        .layout {
+            .content {
+                padding: 1rem !important;
+                .main-wrapper {
+                    max-width: 100% !important;
+                }
+            }
+        }
+    }
+}
+
+@media (max-width: 1024px) {
+    #root {
+        .layout {
+            display: flex;
+            align-items: center;
+        }
+    }
+}

@@ -123,7 +123,7 @@ const PasswordField = (props) => {
     <Form.Group controlId={props.name} isInvalid={props.errorMessage !== ''}>
       {/* Fixed label - only shown when NOT using floating */}
       {!useFloating && (
-        <Form.Label htmlFor={props.name} className="fw-medium mb-1">
+        <Form.Label htmlFor={props.name} className="fw-medium mb-2">
           {labelText}
         </Form.Label>
       )}

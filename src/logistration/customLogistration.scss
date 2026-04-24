@@ -1,9 +1,14 @@
 .main-content{
+    width: 100%;
+    max-width: 100%;
+    min-width: 0 !important;
     .component-header{
         font-size: 1.875rem;
         line-height: 2.25rem;
         font-weight: 700;
-        margin-bottom: 0.25rem !important;
+        margin-bottom: 0.50rem !important;
+        letter-spacing: -.025em;
+        color: #2D3748;
     }
     .logincomponentcontainer, .registrationcomponentcontainer{
         .component-message{
@@ -11,11 +16,52 @@
             flex-direction: row;
             gap: 0.5rem;
             font-size: 1rem;
-            margin-bottom: 1.25rem !important;
+            margin-bottom: 2rem !important;
+            height: 1.5rem !important;
+            p{
+                margin-bottom: 0 !important;
+                color: #718096;
+            }
             a{
                 text-decoration: none;
                 font-weight: 600;
             }
         }
+    }
+
+    .registrationcomponentcontainer{
+        margin-bottom: 0 !important;
+        .component-message{
+            margin-bottom: 1.25rem !important;
+        }
+    }
+    .logincomponentcontainer {
+        > p {
+            margin-top: 2rem;
+            margin-bottom: 0 !important;
+            font-size: 14px;
+            line-height: 1.5;
+            text-align: center;
+            color: #718096;
+
+            .pgn__hyperlink__external-icon {
+                display: none !important;
+            }
+
+            a {
+                text-decoration: none !important;
+            }
+
+            a:hover,
+            a:focus {
+                text-decoration: none !important;
+            }
+        }
+    }
+}
+
+.main-wrapper {
+    > .main-content {
+        padding-top: 0 !important;
     }
 }

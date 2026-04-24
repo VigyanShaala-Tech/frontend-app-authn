@@ -120,7 +120,7 @@ const CustomLogistration = ({
 
   return (
     <BaseContainer>
-      <div className='d-flex align-items-center justify-content-center'>
+      <div className='main-wrapper d-flex align-items-center justify-content-center'>
         {disablePublicAccountCreation
           ? (
               <>
@@ -131,7 +131,7 @@ const CustomLogistration = ({
                 )}
                 <div id="main-content" className="main-content">
                   {!institutionLogin && (
-                    <h3 className="mb-4.5">{formatMessage(messages['logistration.sign.in'])}</h3>
+                    <h3 className="mb-1">{formatMessage(messages['logistration.sign.in'])}</h3>
                   )}
                   <LoginComponentSlot
                     institutionLogin={institutionLogin}
@@ -149,7 +149,7 @@ const CustomLogistration = ({
                     ? (
                       <div className="logincomponentcontainer">
                         <div className='component-message'>
-                          <p>{formatMessage(messages['logistration.dont.have.account'])}</p>
+                          <p className='text-muted'>{formatMessage(messages['logistration.dont.have.account'])}</p>
                           <a
                             href="#"
                             onClick={(e) => {
