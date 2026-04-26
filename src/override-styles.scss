@@ -3,6 +3,7 @@
         .auth-left{
             .auth-left-container{
                 max-width: 28rem !important;
+                min-width: 28rem !important;
                 a{
                     img{
                         height: 4rem !important;
@@ -128,7 +129,6 @@
             .main-content {
                 width: 100%;
                 max-width: 100%;
-                min-width: 0 !important;
             }
         }
     }
@@ -146,6 +146,10 @@
             stroke-linecap: round;
             stroke-linejoin: round;
         }
+    }
+
+    .btn-social .btn-tpa__font-container {
+        border-radius: 6px !important;
     }
 }
 

@@ -218,6 +218,7 @@ const CustomLoginPage = (props) => {
     const payload = {
       email_or_username: formData.emailOrUsername,
       password: formData.password,
+      remember_me: formData.rememberMe ? 'yes' : 'no',
       ...queryParams,
     };
 
@@ -225,8 +226,13 @@ const CustomLoginPage = (props) => {
   };
 
   const handleOnChange = (event) => {
-    const { name, value } = event.target;
-    setFormFields(prevState => ({ ...prevState, [name]: value }));
+    const {
+      name, value, type, checked,
+    } = event.target;
+    setFormFields(prevState => ({
+      ...prevState,
+      [name]: type === 'checkbox' ? checked : value,
+    }));
   };
 
   const handleOnFocus = (event) => {
@@ -450,6 +456,7 @@ const CustomLoginPage = (props) => {
   };
 
   const { provider, skipHintedLogin } = getTpaProvider(tpaHint, providers, secondaryProviders);
+  const hasThirdPartyAuthOptions = !currentProvider && (providers.length > 0 || secondaryProviders.length > 0);
 
   if (tpaHint) {
     if (thirdPartyAuthApiStatus === PENDING_STATE) {
@@ -560,6 +567,15 @@ const CustomLoginPage = (props) => {
                   </div>
 
                   <div className="vs-forgot-row">
+                    <Form.Checkbox
+                      id="remember-me"
+                      name="rememberMe"
+                      className="vs-remember-checkbox"
+                      checked={!!formFields.rememberMe}
+                      onChange={handleOnChange}
+                    >
+                      {formatMessage(messages['remember.me'])}
+                    </Form.Checkbox>
                     <Link
                       id="forgot-password"
                       className="vs-forgot-link"
@@ -718,7 +734,7 @@ const CustomLoginPage = (props) => {
           </div>
         </div>
 
-        <div className="vs-auth-divider"><span>Or</span></div>
+        {hasThirdPartyAuthOptions && <div className="vs-auth-divider"><span>Or</span></div>}
         <ThirdPartyAuth
           currentProvider={currentProvider}
           providers={providers}
@@ -739,6 +755,7 @@ CustomLoginPage.propTypes = {
     formFields: PropTypes.shape({
       emailOrUsername: PropTypes.string,
       password: PropTypes.string,
+      rememberMe: PropTypes.bool,
     }),
     errors: PropTypes.shape({
       emailOrUsername: PropTypes.string,

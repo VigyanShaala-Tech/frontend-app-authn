@@ -91,6 +91,7 @@ const CustomRegistrationPage = ({ handleInstitutionLogin, institutionLogin }) =>
   const secondaryProviders = useSelector(
     (state) => state.commonComponents.thirdPartyAuthContext.secondaryProviders
   );
+  const hasThirdPartyAuthOptions = !currentProvider && (providers.length > 0 || secondaryProviders.length > 0);
   const pipelineUserDetails = useSelector(
     (state) => state.commonComponents.thirdPartyAuthContext.pipelineUserDetails
   );
@@ -688,7 +689,7 @@ const CustomRegistrationPage = ({ handleInstitutionLogin, institutionLogin }) =>
                   </div>
                 </div>
                 <div className="col-md-6">
-                  <div className="reg-input-group">
+                  <div className="reg-input-group reg-input-group-email">
                     <span className="reg-input-icon" aria-hidden="true">
                       <FontAwesomeIcon icon={faEnvelope} />
                     </span>
@@ -898,7 +899,7 @@ const CustomRegistrationPage = ({ handleInstitutionLogin, institutionLogin }) =>
 
               {!registrationEmbedded && (
                 <>
-                  <div className="reg-auth-divider"><span>Or</span></div>
+                  {hasThirdPartyAuthOptions && <div className="reg-auth-divider"><span>Or</span></div>}
                   <ThirdPartyAuth
                     currentProvider={currentProvider}
                     providers={providers}
