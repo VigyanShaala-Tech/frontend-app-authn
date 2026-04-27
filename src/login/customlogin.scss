@@ -86,7 +86,7 @@
       .vs-input-icon {
         position: absolute;
         left: 1rem;
-        top: 3.3rem;
+        top: 3.28rem;
         transform: translateY(-50%);
         color: #718096;
         z-index: 3;
@@ -149,7 +149,7 @@
 
       &.vs-input-group-email {
         .vs-input-icon {
-          top: 3.3rem;
+          top: 3.4rem;
         }
       }
     }
@@ -191,9 +191,22 @@
 
     .vs-forgot-row {
       display: flex;
-      justify-content: flex-end;
+      justify-content: space-between;
       align-items: center;
-      min-height: 20px;
+      min-height: 24px;
+      gap: 0.75rem;
+    }
+
+    .vs-remember-checkbox {
+      margin-bottom: 0 !important;
+
+      label {
+        margin-bottom: 0 !important;
+        color: #718096;
+        font-size: 0.875rem;
+        font-weight: 500;
+        line-height: 1.25rem;
+      }
     }
 
     .vs-forgot-link {
