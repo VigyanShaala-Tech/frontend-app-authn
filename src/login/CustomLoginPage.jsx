@@ -493,11 +493,6 @@ const CustomLoginPage = (props) => {
         finishAuthUrl={finishAuthUrl}
       />
       <div className="mw-xs mt-3 mb-2">
-        <LoginFailureMessage
-          errorCode={errorCode.type}
-          errorCount={errorCode.count}
-          context={errorCode.context}
-        />
         <ThirdPartyAuthAlert
           currentProvider={currentProvider}
           platformName={platformName}
@@ -506,6 +501,20 @@ const CustomLoginPage = (props) => {
           messageType={activationMsgType}
         />
         {showResetPasswordSuccessBanner && <ResetPasswordSuccess />}
+
+        {hasThirdPartyAuthOptions && (
+          <div className="custom-auth-tpa">
+            <ThirdPartyAuth
+              currentProvider={currentProvider}
+              providers={providers}
+              secondaryProviders={secondaryProviders}
+              handleInstitutionLogin={handleInstitutionLogin}
+              thirdPartyAuthApiStatus={thirdPartyAuthApiStatus}
+              isLoginPage
+            />
+            <div className="vs-auth-divider"><span>Or</span></div>
+          </div>
+        )}
 
         <div className="custom-login-tabs-container mb-4">
           <div className="tab-buttons">
@@ -734,14 +743,10 @@ const CustomLoginPage = (props) => {
           </div>
         </div>
 
-        {hasThirdPartyAuthOptions && <div className="vs-auth-divider"><span>Or</span></div>}
-        <ThirdPartyAuth
-          currentProvider={currentProvider}
-          providers={providers}
-          secondaryProviders={secondaryProviders}
-          handleInstitutionLogin={handleInstitutionLogin}
-          thirdPartyAuthApiStatus={thirdPartyAuthApiStatus}
-          isLoginPage
+        <LoginFailureMessage
+          errorCode={errorCode.type}
+          errorCount={errorCode.count}
+          context={errorCode.context}
         />
       </div>
     </>
