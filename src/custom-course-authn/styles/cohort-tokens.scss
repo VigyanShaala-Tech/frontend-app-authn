@@ -1,0 +1,40 @@
+@import './cohort-breakpoints';
+
+.cohort-register-page {
+  --primary: #69ab4a;
+  --primary-rgb: 105, 171, 74;
+  --primary-dark: #5e9b42;
+  --cohort-color-border: #cbd5e0;
+  --cohort-color-border-muted: #e5e7eb;
+  --cohort-color-surface: #ffffff;
+  --cohort-color-surface-muted: #f7fafc;
+  --cohort-color-text: #2c4869;
+  --cohort-color-text-muted: #718096;
+  --cohort-color-text-secondary: #4a5568;
+  --cohort-color-primary: #2a3b8f;
+  --cohort-color-primary-contrast: #ffffff;
+  --cohort-color-accent: #69ab4a;
+  --cohort-color-badge-bg: rgb(42 59 143 / 10%);
+  --cohort-color-focus-ring: rgb(42 57 141 / 15%);
+  --cohort-color-danger: #ef4444;
+  --cohort-shadow-dropdown: 0 4px 12px rgb(0 0 0 / 8%);
+
+  --cohort-viewport-min: #{$cohort-viewport-min};
+  --cohort-viewport-max: #{$cohort-viewport-max};
+  --cohort-space-page-y: #{cohort-fluid(16, 40)};
+  --cohort-space-page-x: #{cohort-fluid(10, 24)};
+  --cohort-space-section: #{cohort-fluid(16, 24)};
+  --cohort-font-title: #{cohort-fluid-rem(1.2, 1.875)};
+  --cohort-font-body: #{cohort-fluid-rem(0.8125, 0.9375)};
+  --cohort-font-small: #{cohort-fluid-rem(0.6875, 0.8125)};
+  --cohort-touch-min: #{cohort-fluid(44, 48)};
+  --cohort-content-max: min(64rem, 100%);
+
+  @include cohort-up($cohort-bp-xxl) {
+    --cohort-content-max: min(68rem, 100%);
+  }
+
+  @include cohort-up($cohort-bp-max) {
+    --cohort-content-max: min(72rem, 100%);
+  }
+}

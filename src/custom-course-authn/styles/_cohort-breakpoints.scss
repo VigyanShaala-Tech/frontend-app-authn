@@ -1,0 +1,66 @@
+@use 'sass:math';
+
+// Supported viewport range: 360px → 1400px
+$cohort-viewport-min: 360px;
+$cohort-viewport-max: 1400px;
+
+$cohort-bp-min: 360px;
+$cohort-bp-xs: 360px;
+$cohort-bp-sm: 480px;
+$cohort-bp-md: 576px;
+$cohort-bp-lg: 768px;
+$cohort-bp-xl: 992px;
+$cohort-bp-xxl: 1200px;
+$cohort-bp-max: 1400px;
+
+@mixin cohort-up($width) {
+  @media (min-width: $width) {
+    @content;
+  }
+}
+
+@mixin cohort-down($width) {
+  @media (max-width: ($width - 0.02px)) {
+    @content;
+  }
+}
+
+@mixin cohort-between($min, $max) {
+  @media (min-width: $min) and (max-width: ($max - 0.02px)) {
+    @content;
+  }
+}
+
+@mixin cohort-range() {
+  @media (min-width: $cohort-viewport-min) and (max-width: $cohort-viewport-max) {
+    @content;
+  }
+}
+
+@function cohort-strip-unit($value) {
+  @if type-of($value) != 'number' {
+    @return $value;
+  }
+
+  @if unitless($value) {
+    @return $value;
+  }
+
+  @return math.div($value, $value * 0 + 1);
+}
+
+// Fluid size (px) that scales linearly between viewport 360px and 1400px
+@function cohort-fluid($min-px, $max-px) {
+  $min-val: cohort-strip-unit($min-px);
+  $max-val: cohort-strip-unit($max-px);
+  $vmin: cohort-strip-unit($cohort-viewport-min);
+  $vmax: cohort-strip-unit($cohort-viewport-max);
+  $slope: math.div($max-val - $min-val, $vmax - $vmin);
+  $intercept: $min-val - $slope * $vmin;
+
+  @return clamp(#{$min-val}px, #{$intercept}px + #{$slope * 100}vw, #{$max-val}px);
+}
+
+@function cohort-fluid-rem($min-rem, $max-rem) {
+  @return cohort-fluid(cohort-strip-unit($min-rem) * 16, cohort-strip-unit($max-rem) * 16);
+}

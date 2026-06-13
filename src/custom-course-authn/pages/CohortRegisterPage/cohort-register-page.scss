@@ -1,0 +1,165 @@
+@import '../../styles/cohort-tokens';
+
+.cohort-register-page {
+  box-sizing: border-box;
+  min-height: 100vh;
+  min-height: 100dvh;
+  width: 100%;
+  max-width: $cohort-viewport-max;
+  margin-inline: auto;
+  overflow-x: clip;
+  background: var(--cohort-color-surface);
+  padding: var(--cohort-space-page-y) var(--cohort-space-page-x);
+
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+  &__container {
+    width: 100%;
+    max-width: var(--cohort-content-max);
+    margin: 0 auto;
+    padding: 0;
+    min-width: 0;
+  }
+
+  &__header {
+    text-align: center;
+    margin-bottom: var(--cohort-space-section);
+    padding-inline: #{cohort-fluid(4, 8)};
+  }
+
+  &__logo {
+    height: #{cohort-fluid(56, 96)};
+    width: auto;
+    max-width: min(100%, #{cohort-fluid(200, 256)});
+    margin: 0 auto #{cohort-fluid(8, 12)};
+    display: block;
+    object-fit: contain;
+  }
+
+  &__title {
+    font-size: var(--cohort-font-title);
+    font-weight: 700;
+    color: var(--cohort-color-text);
+    margin: 0;
+    line-height: 1.25;
+    overflow-wrap: anywhere;
+    hyphens: auto;
+  }
+
+  &__content {
+    margin-top: var(--cohort-space-section);
+    min-width: 0;
+    width: 100%;
+  }
+
+  &__back-btn-icon {
+    font-size: #{cohort-fluid-rem(0.75, 0.875)};
+    flex-shrink: 0;
+  }
+
+  &__back-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: #{cohort-fluid(6, 8)};
+    min-height: var(--cohort-touch-min);
+    padding: 0 #{cohort-fluid(12, 16)};
+    margin-bottom: #{cohort-fluid(12, 16)};
+    border: 1px solid var(--cohort-color-border);
+    border-radius: 6px;
+    background: var(--cohort-color-surface);
+    font-size: var(--cohort-font-body);
+    color: var(--cohort-color-text);
+    cursor: pointer;
+    max-width: 100%;
+
+    &:hover {
+      border-color: var(--cohort-color-accent);
+    }
+  }
+
+  &__step-description,
+  &__email-line {
+    font-size: var(--cohort-font-body);
+    color: var(--cohort-color-text-secondary);
+    margin-bottom: var(--cohort-space-section);
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+  }
+
+  &__email-link {
+    color: var(--cohort-color-text);
+    text-decoration: underline;
+    word-break: break-all;
+  }
+
+  &__actions {
+    display: flex;
+    justify-content: stretch;
+    margin-top: #{cohort-fluid(12, 16)};
+    width: 100%;
+
+    @include cohort-up($cohort-bp-md) {
+      justify-content: flex-end;
+    }
+  }
+
+  &__content #validation-errors,
+  &__content #cohort-submit-error {
+    margin-top: #{cohort-fluid(16, 24)};
+  }
+
+  &__next-btn {
+    width: 100%;
+    min-height: var(--cohort-touch-min);
+    padding: 0 #{cohort-fluid(16, 20)};
+    border: 1px solid var(--cohort-color-border);
+    border-radius: 6px;
+    background: var(--cohort-color-surface);
+    color: var(--cohort-color-text);
+    font-size: var(--cohort-font-body);
+    font-weight: 500;
+    cursor: pointer;
+    transition: border-color 0.2s, color 0.2s;
+
+    @include cohort-up($cohort-bp-md) {
+      width: auto;
+      min-width: #{cohort-fluid(112, 128)};
+    }
+
+    &:hover:not(:disabled) {
+      border-color: var(--cohort-color-accent);
+      color: var(--cohort-color-accent);
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  }
+
+  &__loading,
+  &__error {
+    text-align: center;
+    color: var(--cohort-color-text-secondary);
+    font-size: var(--cohort-font-body);
+    padding: #{cohort-fluid(24, 32)} #{cohort-fluid(8, 16)};
+    overflow-wrap: anywhere;
+  }
+
+  &__error {
+    color: var(--cohort-color-danger);
+  }
+
+  .cohort-loading-spinner {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: #{cohort-fluid(160, 240)};
+    width: 100%;
+  }
+}
