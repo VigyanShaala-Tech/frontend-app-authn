@@ -9,7 +9,7 @@ import messages from './messages';
 
 import './cohort-success-view.scss';
 
-const CohortEmailSentView = ({ email }) => {
+const CohortEmailSentView = ({ email, message }) => {
   const intl = useIntl();
   const displayEmail = email || intl.formatMessage(messages.emailSentFallbackEmail);
 
@@ -25,15 +25,24 @@ const CohortEmailSentView = ({ email }) => {
       <h3 className="cohort-success-view__title">
         {intl.formatMessage(messages.emailSentTitle)}
       </h3>
-      <p className="cohort-success-view__subtitle">
-        {intl.formatMessage(messages.emailSentIntro)}
-        {' '}
-        <span className="cohort-success-view__email-highlight">{displayEmail}</span>
-        .
-      </p>
-      <p className="cohort-success-view__subtitle cohort-success-view__subtitle--spaced">
-        {intl.formatMessage(messages.emailSentInstructions)}
-      </p>
+      {message ? (
+        <p
+          className="cohort-success-view__subtitle"
+          dangerouslySetInnerHTML={{ __html: message }}
+        />
+      ) : (
+        <>
+          <p className="cohort-success-view__subtitle">
+            {intl.formatMessage(messages.emailSentIntro)}
+            {' '}
+            <span className="cohort-success-view__email-highlight">{displayEmail}</span>
+            .
+          </p>
+          <p className="cohort-success-view__subtitle cohort-success-view__subtitle--spaced">
+            {intl.formatMessage(messages.emailSentInstructions)}
+          </p>
+        </>
+      )}
       <p className="cohort-success-view__spam-hint">
         {intl.formatMessage(messages.emailSentSpamHint)}
       </p>
@@ -43,10 +52,12 @@ const CohortEmailSentView = ({ email }) => {
 
 CohortEmailSentView.propTypes = {
   email: PropTypes.string,
+  message: PropTypes.string,
 };
 
 CohortEmailSentView.defaultProps = {
   email: '',
+  message: '',
 };
 
 export default CohortEmailSentView;

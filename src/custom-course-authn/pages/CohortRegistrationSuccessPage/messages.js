@@ -26,11 +26,6 @@ const messages = defineMessages({
     defaultMessage: 'A confirmation email has been sent to',
     description: 'Text before user email on success page',
   },
-  dashboardHint: {
-    id: 'custom.course.authn.registration.success.dashboard.hint',
-    defaultMessage: 'You can now access your course from your dashboard.',
-    description: 'Hint below confirmation email text',
-  },
   goToDashboard: {
     id: 'custom.course.authn.registration.success.dashboard.button',
     defaultMessage: 'Go to Dashboard',

@@ -50,5 +50,19 @@ export const setCohortFormSubmittedGoogleError = (slug, message) => {
   setCohortFormSubmittedSession(slug, {
     ...existing,
     googleErrorMessage: message || '',
+    emailErrorMessage: '',
+  });
+};
+
+export const setCohortFormSubmittedEmailError = (slug, message) => {
+  if (!slug) {
+    return;
+  }
+
+  const existing = getCohortFormSubmittedSession(slug) || { slug };
+  setCohortFormSubmittedSession(slug, {
+    ...existing,
+    emailErrorMessage: message || '',
+    googleErrorMessage: '',
   });
 };

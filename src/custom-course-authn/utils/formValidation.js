@@ -1,3 +1,4 @@
+import formValidationMessages from '../messages/formValidationMessages';
 import {
   getCascadeLevelValidationKey,
   getCascadeLevels,
@@ -8,29 +9,41 @@ import { isFieldFilled, isFieldShown } from './fieldUtils';
 const EMAIL_REGEX = /^\S+@\S+\.\S+$/;
 const URL_REGEX = /^(https?:\/\/)?[\w.-]+\.[a-z]{2,}(\/.*)?$/i;
 
-export const validateFieldLocally = (field, formValues) => {
+export const validateFieldLocally = (field, formValues, formatMessage) => {
   if (!isFieldShown(field, formValues)) {
     return { valid: true, message: '' };
   }
 
   if (field.required && !isFieldFilled(field, formValues)) {
-    return { valid: false, message: 'This field is required.' };
+    return {
+      valid: false,
+      message: formatMessage(formValidationMessages.fieldRequired),
+    };
   }
 
   const value = formValues[field.name];
 
   if (field.type === 'email' && value && !EMAIL_REGEX.test(value)) {
-    return { valid: false, message: 'Enter a valid email address.' };
+    return {
+      valid: false,
+      message: formatMessage(formValidationMessages.invalidEmail),
+    };
   }
 
   if ((field.type === 'url' || field.inputType === 'url') && value && !URL_REGEX.test(value)) {
-    return { valid: false, message: 'Enter a valid URL.' };
+    return {
+      valid: false,
+      message: formatMessage(formValidationMessages.invalidUrl),
+    };
   }
 
   if (field.type === 'password' && value) {
     const minLen = field.validation?.minLength;
     if (minLen && String(value).length < minLen) {
-      return { valid: false, message: `Password must be at least ${minLen} characters.` };
+      return {
+        valid: false,
+        message: formatMessage(formValidationMessages.passwordMinLength, { minLen }),
+      };
     }
   }
 
@@ -39,10 +52,16 @@ export const validateFieldLocally = (field, formValues) => {
     const minLen = field.validation?.minLength;
     const maxLen = field.validation?.maxLength;
     if (minLen && digits.length < minLen) {
-      return { valid: false, message: `Enter at least ${minLen} digits.` };
+      return {
+        valid: false,
+        message: formatMessage(formValidationMessages.phoneMinDigits, { minLen }),
+      };
     }
     if (maxLen && digits.length > maxLen) {
-      return { valid: false, message: `Enter at most ${maxLen} digits.` };
+      return {
+        valid: false,
+        message: formatMessage(formValidationMessages.phoneMaxDigits, { maxLen }),
+      };
     }
   }
 
@@ -51,13 +70,22 @@ export const validateFieldLocally = (field, formValues) => {
     const min = field.validation?.min;
     const max = field.validation?.max;
     if (Number.isNaN(numericValue)) {
-      return { valid: false, message: 'Enter a valid number.' };
+      return {
+        valid: false,
+        message: formatMessage(formValidationMessages.invalidNumber),
+      };
     }
     if (min !== undefined && numericValue < min) {
-      return { valid: false, message: `Value must be at least ${min}.` };
+      return {
+        valid: false,
+        message: formatMessage(formValidationMessages.numberMin, { min }),
+      };
     }
     if (max !== undefined && numericValue > max) {
-      return { valid: false, message: `Value must be at most ${max}.` };
+      return {
+        valid: false,
+        message: formatMessage(formValidationMessages.numberMax, { max }),
+      };
     }
   }
 

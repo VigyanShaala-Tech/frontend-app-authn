@@ -6,6 +6,11 @@ const messages = defineMessages({
     defaultMessage: 'Loading...',
     description: 'Loading state while validating activation link',
   },
+  pageTitle: {
+    id: 'custom.course.authn.set.password.page.title',
+    defaultMessage: 'Complete your registration',
+    description: 'Page title on set password screen',
+  },
   activationError: {
     id: 'custom.course.authn.set.password.activation.error',
     defaultMessage: 'This activation link is invalid or has expired.',
@@ -25,6 +30,11 @@ const messages = defineMessages({
     id: 'custom.course.authn.set.password.thank.you.intro',
     defaultMessage: 'Set a password to secure your account for',
     description: 'Intro text before user email on set password page',
+  },
+  thankYouIntroNamed: {
+    id: 'custom.course.authn.set.password.thank.you.intro.named',
+    defaultMessage: 'Hi {name}, set a password to secure your account for',
+    description: 'Intro text with user name before email on set password page',
   },
   setPasswordLabel: {
     id: 'custom.course.authn.set.password.label',
@@ -60,11 +70,6 @@ const messages = defineMessages({
     id: 'custom.course.authn.set.password.mismatch',
     defaultMessage: 'Passwords do not match.',
     description: 'Validation error when passwords do not match',
-  },
-  submitError: {
-    id: 'custom.course.authn.set.password.submit.error',
-    defaultMessage: 'Unable to set your password. Please try again.',
-    description: 'Generic submit failure message',
   },
   togglePasswordShow: {
     id: 'custom.course.authn.set.password.show',

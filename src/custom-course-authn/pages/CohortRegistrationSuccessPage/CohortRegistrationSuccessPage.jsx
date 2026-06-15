@@ -1,5 +1,6 @@
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 
+import { fetchAuthenticatedUser, getAuthenticatedUser } from '@edx/frontend-platform/auth';
 import { useIntl } from '@edx/frontend-platform/i18n';
 import {
   faArrowRight,
@@ -11,9 +12,17 @@ import {
   faThLarge,
 } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 
+import CohortLoadingSpinner from '../../components/CohortLoadingSpinner/CohortLoadingSpinner';
+import {
+  buildCohortRegisterPath,
+  buildCohortSetPasswordPath,
+} from '../../data/constants';
+import { redirectToCohortDashboard } from '../../utils/cohortAuthRedirect';
 import { normalizeCohortEnrollmentSuccess } from '../../utils/cohortEnrollmentSuccess';
+import { getCohortEnrollmentSession } from '../../utils/cohortEnrollmentSession';
+import { clearAllCohortRegistrationSessions } from '../../utils/cohortSessionCleanup';
 
 import messages from './messages';
 
@@ -22,31 +31,94 @@ import './cohort-registration-success-page.scss';
 const CohortRegistrationSuccessPage = () => {
   const intl = useIntl();
   const location = useLocation();
+  const navigate = useNavigate();
+  const { slug } = useParams();
+  const [searchParams] = useSearchParams();
+  const activationKey = searchParams.get('activation_key') || '';
+
+  const [isResolvingAccess, setIsResolvingAccess] = useState(true);
+
+  const enrollmentData = useMemo(
+    () => location.state?.enrollment || getCohortEnrollmentSession(slug),
+    [location.state, slug],
+  );
 
   const enrollment = useMemo(
-    () => normalizeCohortEnrollmentSuccess(location.state?.enrollment),
-    [location.state],
+    () => normalizeCohortEnrollmentSuccess(enrollmentData),
+    [enrollmentData],
   );
 
   const hasEnrollmentData = Boolean(
-    enrollment.email
-    || enrollment.courseTitle
-    || location.state?.enrollment,
+    enrollmentData
+    && (enrollment.email || enrollment.courseTitle),
   );
 
+  useEffect(() => {
+    let mounted = true;
+
+    const resolveAccess = async () => {
+      if (hasEnrollmentData) {
+        if (mounted) {
+          setIsResolvingAccess(false);
+        }
+        return;
+      }
+
+      const authenticatedUser = await fetchAuthenticatedUser({
+        forceRefresh: !!getAuthenticatedUser(),
+      });
+
+      if (!mounted) {
+        return;
+      }
+
+      if (authenticatedUser?.username) {
+        clearAllCohortRegistrationSessions(slug);
+        redirectToCohortDashboard();
+        return;
+      }
+
+      if (slug && activationKey) {
+        navigate(
+          buildCohortSetPasswordPath(slug, { activationKey }),
+          { replace: true },
+        );
+        return;
+      }
+
+      if (slug) {
+        navigate(buildCohortRegisterPath(slug), { replace: true });
+        return;
+      }
+
+      navigate(buildCohortRegisterPath(''), { replace: true });
+    };
+
+    resolveAccess();
+
+    return () => {
+      mounted = false;
+    };
+  }, [activationKey, hasEnrollmentData, navigate, slug]);
+
   const handleDashboardClick = () => {
+    clearAllCohortRegistrationSessions(slug);
     if (enrollment.dashboardUrl) {
       window.location.assign(enrollment.dashboardUrl);
     }
   };
 
-  if (!hasEnrollmentData) {
+  const handleAppDownloadClick = () => {
+    if (enrollment.appDownloadUrl) {
+      window.location.assign(enrollment.appDownloadUrl);
+    }
+  };
+
+  if (isResolvingAccess || !hasEnrollmentData) {
     return (
       <div className="cohort-registration-success-page">
         <div className="cohort-registration-success-page__card">
-          <p className="cohort-registration-success-page__error" role="alert">
-            {intl.formatMessage(messages.missingData)}
-          </p>
+          <CohortLoadingSpinner />
         </div>
       </div>
     );
@@ -121,9 +193,6 @@ const CohortRegistrationSuccessPage = () => {
               >
                 {enrollment.email}
               </a>
-              <p className="cohort-registration-success-page__email-hint">
-                {intl.formatMessage(messages.dashboardHint)}
-              </p>
             </div>
           </div>
         )}
@@ -142,23 +211,24 @@ const CohortRegistrationSuccessPage = () => {
           />
         </button>
 
-        <a
-          href={enrollment.appDownloadUrl}
-          target="_blank"
-          rel="noreferrer"
-          className="cohort-registration-success-page__app-link"
-        >
-          <FontAwesomeIcon icon={faDownload} aria-hidden />
-          {intl.formatMessage(messages.downloadApp)}
-          <FontAwesomeIcon icon={faArrowRight} className="cohort-registration-success-page__dashboard-arrow" aria-hidden />
-        </a>
+        {enrollment.appDownloadUrl && (
+          <button
+            type="button"
+            className="cohort-registration-success-page__app-link"
+            onClick={handleAppDownloadClick}
+          >
+            <FontAwesomeIcon icon={faDownload} aria-hidden />
+            {intl.formatMessage(messages.downloadApp)}
+            <FontAwesomeIcon icon={faArrowRight} className="cohort-registration-success-page__dashboard-arrow" aria-hidden />
+          </button>
+        )}
 
         <p className="cohort-registration-success-page__support">
           {intl.formatMessage(messages.needHelp)}
           {' '}
           <a
             href={`mailto:${enrollment.supportEmail}`}
-            className="cohort-registration-success-page__support-link"
+            className="text-primary btn btn-link p-0 cohort-registration-success-page__support-link"
           >
             {enrollment.supportEmail}
           </a>

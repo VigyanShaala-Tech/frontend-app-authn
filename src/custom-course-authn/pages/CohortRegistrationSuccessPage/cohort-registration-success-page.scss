@@ -70,7 +70,7 @@
 
   &__title {
     text-align: center;
-    font-size: #{cohort-fluid-rem(1.375, 1.5)};
+    font-size: 1.5rem;
     font-weight: 700;
     color: #2c4869;
     margin: 0 0 #{cohort-fluid(4, 6)};
@@ -79,7 +79,7 @@
 
   &__subtitle {
     text-align: center;
-    font-size: var(--cohort-font-body, #{cohort-fluid-rem(0.8125, 0.875)});
+    font-size: 0.875rem;
     color: #4a5568;
     margin: 0 0 #{cohort-fluid(16, 20)};
     line-height: 1.5;
@@ -114,14 +114,14 @@
   }
 
   &__course-label {
-    font-size: var(--cohort-font-small);
+    font-size: 0.75rem;
     color: #69ab4a;
     font-weight: 500;
     margin: 0;
   }
 
   &__course-title {
-    font-size: var(--cohort-font-body);
+    font-size: 0.875rem;
     font-weight: 700;
     color: #2c4869;
     margin: 0;
@@ -131,7 +131,7 @@
   }
 
   &__course-date {
-    font-size: var(--cohort-font-small);
+    font-size: 0.75rem;
     color: #4a5568;
     margin: #{cohort-fluid(2, 4)} 0 0;
     display: flex;
@@ -160,7 +160,7 @@
   }
 
   &__email-text {
-    font-size: var(--cohort-font-small);
+    font-size: 0.75rem;
     color: #4a5568;
     line-height: 1.5;
     margin: 0;
@@ -168,13 +168,9 @@
 
   &__email-link {
     color: #69ab4a;
+    font-size: 0.75rem;
     font-weight: 600;
     word-break: break-all;
-  }
-
-  &__email-hint {
-    color: #718096;
-    margin: #{cohort-fluid(2, 4)} 0 0;
   }
 
   &__dashboard-btn {
@@ -220,6 +216,7 @@
     justify-content: center;
     gap: #{cohort-fluid(8, 10)};
     text-decoration: none;
+    cursor: pointer;
     transition: background-color 0.15s ease;
 
     &:hover {
@@ -231,18 +228,21 @@
 
   &__support {
     text-align: center;
-    font-size: var(--cohort-font-small);
+    font-size: 0.75rem;
     color: #718096;
     margin: #{cohort-fluid(16, 20)} 0 0;
     line-height: 1.5;
   }
 
   &__support-link {
-    color: #69ab4a;
+    font-size: inherit;
+    font-weight: 500;
     text-decoration: none;
+    vertical-align: baseline;
 
-    &:hover {
-      text-decoration: underline;
+    &:hover,
+    &:focus {
+      text-decoration: none;
     }
   }
 

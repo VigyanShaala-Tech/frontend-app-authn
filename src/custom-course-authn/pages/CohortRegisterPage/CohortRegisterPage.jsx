@@ -23,11 +23,13 @@ import CohortSubmitErrorAlert from '../../components/CohortSubmitErrorAlert/Coho
 import {
   buildCohortFormSubmittedPath,
 } from '../../data/constants';
+import cohortApiMessages from '../../messages/cohortApiMessages';
 import {
   checkCohortEligibility,
   fetchCohortRegistrationForm,
   prepareCohortAuth,
 } from '../../services/cohortRegistrationService';
+import { extractApiMessage, resolveCohortMessage } from '../../utils/cohortApiMessage';
 import {
   getCascadeChangedLevelIndex,
   getCascadeLevelValidationKey,
@@ -92,9 +94,13 @@ const CohortRegisterPage = () => {
         }
         setFormConfig(data);
         setFormValues(buildInitialFormValues(data.result || []));
-      } catch {
+      } catch (error) {
         if (mounted) {
-          setLoadError(intl.formatMessage(messages.loadError));
+          setLoadError(resolveCohortMessage(
+            extractApiMessage(error),
+            messages.loadError,
+            intl.formatMessage,
+          ));
         }
       } finally {
         if (mounted) {
@@ -194,7 +200,7 @@ const CohortRegisterPage = () => {
       : field.name;
 
     if (!isCascadeLevel) {
-      const localResult = validateFieldLocally(field, activeValues);
+      const localResult = validateFieldLocally(field, activeValues, intl.formatMessage);
       if (!localResult.valid) {
         setFieldErrors((prev) => ({ ...prev, [validationKey]: localResult.message }));
         setValidationStatus((prev) => ({
@@ -245,17 +251,25 @@ const CohortRegisterPage = () => {
         return;
       }
 
+      const eligibilityMessage = result.valid
+        ? ''
+        : resolveCohortMessage(
+          result.message,
+          cohortApiMessages.eligibilityRejected,
+          intl.formatMessage,
+        );
+
       setValidationStatus((prev) => ({
         ...prev,
         [validationKey]: {
           valid: result.valid,
-          message: result.message || '',
+          message: eligibilityMessage,
           loading: false,
         },
       }));
 
       if (!result.valid) {
-        setFieldErrors((prev) => ({ ...prev, [validationKey]: result.message }));
+        setFieldErrors((prev) => ({ ...prev, [validationKey]: eligibilityMessage }));
         return;
       }
 
@@ -274,12 +288,16 @@ const CohortRegisterPage = () => {
         ...prev,
         [validationKey]: {
           valid: false,
-          message: 'Validation failed. Please try again.',
+          message: resolveCohortMessage(
+            '',
+            cohortApiMessages.eligibilityValidationFailed,
+            intl.formatMessage,
+          ),
           loading: false,
         },
       }));
     }
-  }, [formValues, slug, steps]);
+  }, [formValues, intl, slug, steps]);
 
   const canProceed = useMemo(() => {
     if (!currentStep) {
@@ -313,7 +331,11 @@ const CohortRegisterPage = () => {
         setSubmitError((prev) => ({
           type: resolveSubmitErrorCode(response.status),
           count: prev.count + 1,
-          message: response.message || '',
+          message: resolveCohortMessage(
+            response.message,
+            cohortApiMessages.prepareAuthFailed,
+            intl.formatMessage,
+          ),
         }));
         return;
       }
@@ -330,7 +352,11 @@ const CohortRegisterPage = () => {
       setSubmitError((prev) => ({
         type: INTERNAL_SERVER_ERROR,
         count: prev.count + 1,
-        message: '',
+        message: resolveCohortMessage(
+          '',
+          cohortApiMessages.prepareAuthFailed,
+          intl.formatMessage,
+        ),
       }));
     } finally {
       setSubmitting(false);

@@ -26,16 +26,6 @@ const messages = defineMessages({
     defaultMessage: 'Please wait...',
     description: 'Loading label while signup request is in progress',
   },
-  signupError: {
-    id: 'custom.course.authn.success.signup.error',
-    defaultMessage: 'Signup failed. Please try again.',
-    description: 'Generic signup failure message',
-  },
-  googleNotAvailable: {
-    id: 'custom.course.authn.success.signup.google.unavailable',
-    defaultMessage: 'Google sign-up is not available right now.',
-    description: 'Message when Google provider is not configured',
-  },
   emailSentTitle: {
     id: 'custom.course.authn.success.email.sent.title',
     defaultMessage: 'Check your inbox',
@@ -78,7 +68,7 @@ const messages = defineMessages({
   },
   termsLink: {
     id: 'custom.course.authn.success.terms.link',
-    defaultMessage: 'Terms',
+    defaultMessage: 'Terms of Service',
     description: 'Terms link text',
   },
   termsAnd: {

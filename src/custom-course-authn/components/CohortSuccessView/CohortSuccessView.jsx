@@ -6,9 +6,7 @@ import { faGoogle } from '@fortawesome/free-brands-svg-icons';
 import { faEnvelope } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import PropTypes from 'prop-types';
-import { useNavigate } from 'react-router-dom';
 
-import { buildCohortVerifyEmailPath } from '../../data/constants';
 import { setCohortGoogleOAuthSlug } from '../../utils/cohortGoogleOAuthSession';
 import messages from './messages';
 
@@ -19,20 +17,29 @@ const CohortSuccessView = ({
   googleLoginUrl,
   email,
   slug,
+  onEmailSignup,
+  onGoogleSignup,
+  emailSubmitting,
+  googleSubmitting,
 }) => {
   const intl = useIntl();
-  const navigate = useNavigate();
-  const marketingBaseUrl = getConfig().MARKETING_SITE_BASE_URL || '';
+  const catalogBaseUrl = getConfig().CATALOG_MICROFRONTEND_URL || '';
+  const termsUrl = `${catalogBaseUrl}terms`;
+  const privacyUrl = `${catalogBaseUrl}privacy`;
 
-  const handleGoogleSignup = () => {
-    if (googleLoginUrl) {
-      setCohortGoogleOAuthSlug(slug);
-      window.location.href = googleLoginUrl;
+  const handleGoogleSignup = async () => {
+    if (!onGoogleSignup || googleSubmitting) {
+      return;
     }
+
+    setCohortGoogleOAuthSlug(slug);
+    await onGoogleSignup();
   };
 
   const handleEmailSignup = () => {
-    navigate(buildCohortVerifyEmailPath(slug, email));
+    if (onEmailSignup && !emailSubmitting) {
+      onEmailSignup();
+    }
   };
 
   return (
@@ -53,26 +60,38 @@ const CohortSuccessView = ({
           <button
             type="button"
             className="cohort-success-view__google-btn"
+            disabled={googleSubmitting || emailSubmitting}
             onClick={handleGoogleSignup}
           >
             <FontAwesomeIcon icon={faGoogle} className="cohort-success-view__btn-icon" aria-hidden />
-            <span>{intl.formatMessage(messages.signUpGoogle)}</span>
+            <span>
+              {googleSubmitting
+                ? intl.formatMessage(messages.signupLoading)
+                : intl.formatMessage(messages.signUpGoogle)}
+            </span>
           </button>
         )}
         <button
           type="button"
           className="cohort-success-view__email-btn"
+          disabled={emailSubmitting || googleSubmitting}
           onClick={handleEmailSignup}
         >
           <FontAwesomeIcon icon={faEnvelope} className="cohort-success-view__btn-icon" aria-hidden />
-          <span>{intl.formatMessage(messages.signUpEmail)}</span>
+          <span>
+            {emailSubmitting
+              ? intl.formatMessage(messages.signupLoading)
+              : intl.formatMessage(messages.signUpEmail)}
+          </span>
         </button>
       </div>
       <p className="cohort-success-view__terms">
         {intl.formatMessage(messages.termsPrefix)}
         {' '}
         <a
-          href={`${marketingBaseUrl}/terms`}
+          href={termsUrl}
+          target="_blank"
+          rel="noopener noreferrer"
           className="text-primary btn btn-link p-0 cohort-success-view__terms-link"
         >
           {intl.formatMessage(messages.termsLink)}
@@ -81,7 +100,9 @@ const CohortSuccessView = ({
         {intl.formatMessage(messages.termsAnd)}
         {' '}
         <a
-          href={`${marketingBaseUrl}/privacy`}
+          href={privacyUrl}
+          target="_blank"
+          rel="noopener noreferrer"
           className="text-primary btn btn-link p-0 cohort-success-view__terms-link"
         >
           {intl.formatMessage(messages.privacyLink)}
@@ -97,12 +118,20 @@ CohortSuccessView.propTypes = {
   googleLoginUrl: PropTypes.string,
   email: PropTypes.string,
   slug: PropTypes.string.isRequired,
+  onEmailSignup: PropTypes.func,
+  onGoogleSignup: PropTypes.func,
+  emailSubmitting: PropTypes.bool,
+  googleSubmitting: PropTypes.bool,
 };
 
 CohortSuccessView.defaultProps = {
   thanksMessage: '',
   googleLoginUrl: '',
   email: '',
+  onEmailSignup: null,
+  onGoogleSignup: null,
+  emailSubmitting: false,
+  googleSubmitting: false,
 };
 
 export default CohortSuccessView;

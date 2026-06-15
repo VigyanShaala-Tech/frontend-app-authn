@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 
 import { getConfig } from '@edx/frontend-platform';
 import { useIntl } from '@edx/frontend-platform/i18n';
@@ -6,29 +6,41 @@ import { faCircleCheck, faEye, faEyeSlash, faLock } from '@fortawesome/free-soli
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 
+import resetPasswordMessages from '../../../reset-password/custommessages';
 import { buildCohortRegistrationSuccessPath } from '../../data/constants';
 import CohortLoadingSpinner from '../../components/CohortLoadingSpinner/CohortLoadingSpinner';
+import CohortSubmitErrorAlert from '../../components/CohortSubmitErrorAlert/CohortSubmitErrorAlert';
+import cohortApiMessages from '../../messages/cohortApiMessages';
 import {
+  activateCohortEmail,
   submitCohortSetPassword,
-  validateCohortActivation,
 } from '../../services/cohortRegistrationService';
+import { resolveCohortMessage } from '../../utils/cohortApiMessage';
+import { setCohortEnrollmentSession } from '../../utils/cohortEnrollmentSession';
+import {
+  validateCohortConfirmPassword,
+  validateCohortPasswordFromBackend,
+  validateCohortPasswordLocally,
+} from '../../utils/cohortPasswordValidation';
 
 import messages from './messages';
 
 import '../CohortRegisterPage/cohort-register-page.scss';
 import './cohort-set-password-page.scss';
 
-const MIN_PASSWORD_LENGTH = 8;
-
 const CohortPasswordField = ({
   id,
+  name,
   label,
   value,
   showPassword,
   isInvalid,
+  errorMessage,
   placeholder,
   toggleLabel,
   onChange,
+  onBlur,
+  onFocus,
   onToggle,
 }) => (
   <div>
@@ -41,11 +53,14 @@ const CohortPasswordField = ({
       <FontAwesomeIcon icon={faLock} className="cohort-set-password-page__input-icon" aria-hidden />
       <input
         id={id}
+        name={name}
         type={showPassword ? 'text' : 'password'}
         className={`cohort-set-password-page__input ${isInvalid ? 'is-invalid' : ''}`}
         placeholder={placeholder}
         value={value}
         onChange={(event) => onChange(event.target.value)}
+        onBlur={onBlur}
+        onFocus={onFocus}
         autoComplete="new-password"
       />
       <button
@@ -57,6 +72,9 @@ const CohortPasswordField = ({
         <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} aria-hidden />
       </button>
     </div>
+    {errorMessage && (
+      <p className="cohort-set-password-page__field-error" role="alert">{errorMessage}</p>
+    )}
   </div>
 );
 
@@ -72,36 +90,53 @@ const CohortSetPasswordPage = () => {
 
   const [loading, setLoading] = useState(true);
   const [activationError, setActivationError] = useState('');
-  const [pageTitle, setPageTitle] = useState('Registration Records Access');
+  const [displayName, setDisplayName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [formError, setFormError] = useState('');
+  const [fieldErrors, setFieldErrors] = useState({ password: '', confirmPassword: '' });
+  const [submitError, setSubmitError] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     let mounted = true;
 
     const loadActivation = async () => {
+      if (!activationKey || !slug) {
+        setActivationError(intl.formatMessage(messages.activationError));
+        setLoading(false);
+        return;
+      }
+
       setLoading(true);
       setActivationError('');
       try {
-        const result = await validateCohortActivation(slug, activationKey, emailFallback);
+        const result = await activateCohortEmail(slug, activationKey);
         if (!mounted) {
           return;
         }
+        if (result.alreadyCompleted && result.redirectUrl) {
+          window.location.assign(result.redirectUrl);
+          return;
+        }
         if (!result.valid) {
-          setActivationError(result.message || intl.formatMessage(messages.activationError));
+          setActivationError(resolveCohortMessage(
+            result.message,
+            messages.activationError,
+            intl.formatMessage,
+          ));
           return;
         }
         setEmail(result.email || emailFallback);
-        if (result.pageTitle) {
-          setPageTitle(result.pageTitle);
-        }
+        setDisplayName(result.name || '');
       } catch {
         if (mounted) {
-          setActivationError(intl.formatMessage(messages.activationError));
+          setActivationError(resolveCohortMessage(
+            '',
+            messages.activationError,
+            intl.formatMessage,
+          ));
         }
       } finally {
         if (mounted) {
@@ -114,31 +149,87 @@ const CohortSetPasswordPage = () => {
     return () => { mounted = false; };
   }, [activationKey, emailFallback, intl, slug]);
 
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-    setFormError('');
+  const clearFieldError = useCallback((fieldName) => {
+    setFieldErrors((prev) => ({ ...prev, [fieldName]: '' }));
+    setSubmitError('');
+  }, []);
 
-    if (password.length < MIN_PASSWORD_LENGTH) {
-      setFormError(intl.formatMessage(messages.passwordTooShort));
+  const handlePasswordBlur = useCallback(async () => {
+    const localError = validateCohortPasswordLocally(password, intl.formatMessage);
+    if (localError) {
+      setFieldErrors((prev) => ({ ...prev, password: localError }));
       return;
     }
-    if (password !== confirmPassword) {
-      setFormError(intl.formatMessage(messages.passwordsDoNotMatch));
+
+    const backendError = await validateCohortPasswordFromBackend(password);
+    setFieldErrors((prev) => ({ ...prev, password: backendError }));
+  }, [intl, password]);
+
+  const handleConfirmPasswordBlur = useCallback(() => {
+    const error = validateCohortConfirmPassword(
+      confirmPassword,
+      password,
+      intl.formatMessage,
+      resetPasswordMessages,
+    );
+    setFieldErrors((prev) => ({ ...prev, confirmPassword: error }));
+  }, [confirmPassword, intl, password]);
+
+  const validateForm = useCallback(async () => {
+    const passwordError = validateCohortPasswordLocally(password, intl.formatMessage);
+    const confirmError = validateCohortConfirmPassword(
+      confirmPassword,
+      password,
+      intl.formatMessage,
+      resetPasswordMessages,
+    );
+
+    if (passwordError || confirmError) {
+      setFieldErrors({
+        password: passwordError,
+        confirmPassword: confirmError,
+      });
+      return false;
+    }
+
+    const backendError = await validateCohortPasswordFromBackend(password);
+    if (backendError) {
+      setFieldErrors({
+        password: backendError,
+        confirmPassword: '',
+      });
+      return false;
+    }
+
+    setFieldErrors({ password: '', confirmPassword: '' });
+    return true;
+  }, [confirmPassword, intl, password]);
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    setSubmitError('');
+
+    const isValid = await validateForm();
+    if (!isValid) {
       return;
     }
 
     setSubmitting(true);
     try {
-      const result = await submitCohortSetPassword(slug, {
-        activation_key: activationKey,
+      const result = await submitCohortSetPassword({
         password,
-        confirm_password: confirmPassword,
-        email,
+        confirmPassword,
       });
       if (!result.success) {
-        setFormError(result.message || intl.formatMessage(messages.submitError));
+        setSubmitError(resolveCohortMessage(
+          result.message,
+          cohortApiMessages.setPasswordFailed,
+          intl.formatMessage,
+        ));
         return;
       }
+
+      setCohortEnrollmentSession(slug, result);
       navigate(
         buildCohortRegistrationSuccessPath(slug, {
           activationKey,
@@ -147,7 +238,11 @@ const CohortSetPasswordPage = () => {
         { state: { enrollment: result } },
       );
     } catch {
-      setFormError(intl.formatMessage(messages.submitError));
+      setSubmitError(resolveCohortMessage(
+        '',
+        cohortApiMessages.setPasswordFailed,
+        intl.formatMessage,
+      ));
     } finally {
       setSubmitting(false);
     }
@@ -159,13 +254,15 @@ const CohortSetPasswordPage = () => {
 
   return (
     <div className="cohort-register-page cohort-set-password-page">
-      <div className="cohort-register-page__container">
-        <div className="cohort-set-password-page__card">
+      <div className="cohort-set-password-page__card">
+        <div className="cohort-register-page__container">
           <div className="cohort-register-page__header">
             {logoUrl && (
               <img src={logoUrl} alt="VigyanShaala" className="cohort-register-page__logo" />
             )}
-            <h1 className="cohort-register-page__title">{pageTitle}</h1>
+            <h1 className="cohort-register-page__title">
+              {intl.formatMessage(messages.pageTitle)}
+            </h1>
           </div>
 
           <div className="cohort-register-page__content">
@@ -191,7 +288,9 @@ const CohortSetPasswordPage = () => {
                   {intl.formatMessage(messages.thankYouTitle)}
                 </h2>
                 <p className="cohort-set-password-page__intro">
-                  {intl.formatMessage(messages.thankYouIntro)}
+                  {displayName
+                    ? intl.formatMessage(messages.thankYouIntroNamed, { name: displayName })
+                    : intl.formatMessage(messages.thankYouIntro)}
                   {' '}
                   {email && (
                     <span className="cohort-set-password-page__email">{email}</span>
@@ -202,29 +301,45 @@ const CohortSetPasswordPage = () => {
                 <form className="cohort-set-password-page__form" onSubmit={handleSubmit} noValidate>
                   <CohortPasswordField
                     id="cohort-set-password"
+                    name="password"
                     label={intl.formatMessage(messages.setPasswordLabel)}
                     value={password}
                     showPassword={showPassword}
-                    isInvalid={!!formError}
+                    isInvalid={!!fieldErrors.password}
+                    errorMessage={fieldErrors.password}
                     placeholder={intl.formatMessage(messages.passwordPlaceholder)}
                     toggleLabel={togglePasswordLabel}
-                    onChange={setPassword}
+                    onChange={(value) => {
+                      setPassword(value);
+                      clearFieldError('password');
+                    }}
+                    onBlur={handlePasswordBlur}
+                    onFocus={() => clearFieldError('password')}
                     onToggle={() => setShowPassword((prev) => !prev)}
                   />
                   <CohortPasswordField
                     id="cohort-confirm-password"
+                    name="confirmPassword"
                     label={intl.formatMessage(messages.confirmPasswordLabel)}
                     value={confirmPassword}
                     showPassword={showPassword}
-                    isInvalid={!!formError}
+                    isInvalid={!!fieldErrors.confirmPassword}
+                    errorMessage={fieldErrors.confirmPassword}
                     placeholder={intl.formatMessage(messages.passwordPlaceholder)}
                     toggleLabel={togglePasswordLabel}
-                    onChange={setConfirmPassword}
+                    onChange={(value) => {
+                      setConfirmPassword(value);
+                      clearFieldError('confirmPassword');
+                    }}
+                    onBlur={handleConfirmPasswordBlur}
+                    onFocus={() => clearFieldError('confirmPassword')}
                     onToggle={() => setShowPassword((prev) => !prev)}
                   />
-                  {formError && (
-                    <p className="cohort-set-password-page__error" role="alert">{formError}</p>
+
+                  {submitError && (
+                    <CohortSubmitErrorAlert message={submitError} />
                   )}
+
                   <button
                     type="submit"
                     className="cohort-set-password-page__submit-btn"

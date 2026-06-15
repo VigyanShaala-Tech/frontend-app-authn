@@ -13,6 +13,18 @@ export const buildCohortFormSubmittedPath = (slug) => (
   `/cohort-register/${slug}/form-submitted`
 );
 
+export const buildCohortSetPasswordPath = (slug, { activationKey, email } = {}) => {
+  const params = new URLSearchParams();
+  if (activationKey) {
+    params.set('activation_key', activationKey);
+  }
+  if (email) {
+    params.set('email', email);
+  }
+  const query = params.toString();
+  return `/cohort-register/${slug}/auth${query ? `?${query}` : ''}`;
+};
+
 export const buildCohortRegistrationSuccessPath = (slug, { activationKey, method = 'email' } = {}) => {
   const params = new URLSearchParams();
   if (method) {
@@ -25,8 +37,8 @@ export const buildCohortRegistrationSuccessPath = (slug, { activationKey, method
   return `/cohort-register/${slug}/auth/success${query ? `?${query}` : ''}`;
 };
 
-export const COHORT_ACTIVATION_VALIDATE_API = '/api/v1/cohort-registration/:slug/activation/';
-export const COHORT_SET_PASSWORD_API = '/api/v1/cohort-registration/:slug/set-password/';
+export const COHORT_EMAIL_ACTIVATE_API = '/api/v1/cohort-registration/email/activate/';
+export const COHORT_EMAIL_SET_PASSWORD_API = '/api/v1/cohort-registration/email/set-password/';
 
 export const buildCohortVerifyEmailPath = (slug, email) => {
   const basePath = `/cohort-register/${slug}/verify-email`;
@@ -39,9 +51,9 @@ export const buildCohortVerifyEmailPath = (slug, email) => {
 export const COHORT_REGISTRATION_FORM_API = '/api/v1/cohort-registration/:slug/form/';
 export const COHORT_CHECK_ELIGIBILITY_API = '/api/v1/cohort-registration/:slug/check-eligibility/';
 export const COHORT_PREPARE_AUTH_API = '/api/v1/cohort-registration/:slug/prepare-auth/';
-export const COHORT_EMAIL_SIGNUP_API = '/api/v1/cohort-registration/:slug/signup/email/';
-export const COHORT_GOOGLE_SIGNUP_API = '/api/v1/cohort-registration/:slug/signup/google/';
+export const COHORT_GOOGLE_START_API = '/api/v1/cohort-registration/google/start/';
 export const COHORT_GOOGLE_COMPLETE_API = '/api/v1/cohort-registration/google/complete/';
+export const COHORT_EMAIL_START_API = '/api/v1/cohort-registration/email/start/';
 
 export const OTHER_OPTION_VALUE = '__other__';
 
