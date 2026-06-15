@@ -24,6 +24,14 @@ const normalizeField = (field) => {
     dependsOn,
     options,
     optionsByParent,
+    maxSelections: (() => {
+      const raw = field.maxSelections ?? field.maxselections;
+      if (raw === null || raw === undefined || raw === '') {
+        return null;
+      }
+      const parsed = Number(raw);
+      return Number.isFinite(parsed) && parsed > 0 ? parsed : null;
+    })(),
   };
 };
 

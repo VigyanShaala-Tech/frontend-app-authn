@@ -43,6 +43,8 @@ const CustomSearchDropdown = ({
   placeholder,
   multiple,
   isInvalid,
+  maxSelections,
+  onMaxSelectionsExceeded,
 }) => {
   const { formatMessage } = useIntl();
   const [isOpen, setIsOpen] = useState(false);
@@ -164,10 +166,16 @@ const CustomSearchDropdown = ({
 
   const handleSelect = (option) => {
     if (multiple) {
-      const selectedOptions = normalizedValue.includes(option.value)
-        ? normalizedValue.filter((selectedOption) => selectedOption !== option.value)
-        : [...normalizedValue, option.value];
-      onChange(selectedOptions);
+      const isSelected = normalizedValue.includes(option.value);
+      if (isSelected) {
+        onChange(normalizedValue.filter((selectedOption) => selectedOption !== option.value));
+        return;
+      }
+      if (maxSelections && normalizedValue.length >= maxSelections) {
+        onMaxSelectionsExceeded?.();
+        return;
+      }
+      onChange([...normalizedValue, option.value]);
       return;
     }
     onChange(option.value);
@@ -248,13 +256,18 @@ const CustomSearchDropdown = ({
               const isSelected = multiple
                 ? normalizedValue.includes(option.value)
                 : normalizedValue === option.value;
+              const isAtMax = multiple
+                && maxSelections
+                && normalizedValue.length >= maxSelections
+                && !isSelected;
 
               return (
                 <button
                   key={option.key}
                   type="button"
-                  className={`custom-search-dropdown__option ${isSelected ? 'is-selected' : ''}`}
+                  className={`custom-search-dropdown__option ${isSelected ? 'is-selected' : ''} ${isAtMax ? 'is-disabled' : ''}`}
                   onClick={() => handleSelect(option)}
+                  disabled={isAtMax}
                 >
                   {multiple && (
                     <input type="checkbox" readOnly checked={isSelected} />
@@ -291,6 +304,8 @@ CustomSearchDropdown.propTypes = {
   placeholder: PropTypes.string,
   multiple: PropTypes.bool,
   isInvalid: PropTypes.bool,
+  maxSelections: PropTypes.number,
+  onMaxSelectionsExceeded: PropTypes.func,
 };
 
 CustomSearchDropdown.defaultProps = {
@@ -299,6 +314,8 @@ CustomSearchDropdown.defaultProps = {
   placeholder: '',
   multiple: false,
   isInvalid: false,
+  maxSelections: null,
+  onMaxSelectionsExceeded: undefined,
 };
 
 export default CustomSearchDropdown;

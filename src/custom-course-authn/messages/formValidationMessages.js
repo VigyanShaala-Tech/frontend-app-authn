@@ -46,6 +46,11 @@ const formValidationMessages = defineMessages({
     defaultMessage: 'Value must be at most {max}.',
     description: 'Shown when number is above maximum',
   },
+  multiselectMaxSelections: {
+    id: 'custom.course.authn.validation.multiselect.max.selections',
+    defaultMessage: 'You can only select {maxSelections} option(s).',
+    description: 'Shown when multiselect selection exceeds maxSelections limit',
+  },
 });
 
 export default formValidationMessages;
