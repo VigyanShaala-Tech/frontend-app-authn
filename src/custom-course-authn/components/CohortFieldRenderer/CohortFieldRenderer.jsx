@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from 'react';
 
+import { useIntl } from '@edx/frontend-platform/i18n';
 import PropTypes from 'prop-types';
+
+import formValidationMessages from '../../messages/formValidationMessages';
 
 import {
   fieldHasOtherOption,
@@ -59,7 +62,9 @@ const CohortFieldRenderer = ({
   validationStatus,
   onChange,
   onBlur,
+  onFieldError,
 }) => {
+  const intl = useIntl();
   if (field.type === 'hidden') {
     if (field.hiddenMessage) {
       return (
@@ -242,6 +247,18 @@ const CohortFieldRenderer = ({
             multiple
             isInvalid={!!error}
             placeholder={field.placeholder}
+            maxSelections={field.maxSelections}
+            onMaxSelectionsExceeded={() => {
+              if (!field.maxSelections || !onFieldError) {
+                return;
+              }
+              onFieldError(
+                field.name,
+                intl.formatMessage(formValidationMessages.multiselectMaxSelections, {
+                  maxSelections: field.maxSelections,
+                }),
+              );
+            }}
             onChange={(vals) => handleChange(field.name, vals)}
           />
         );
@@ -391,6 +408,7 @@ CohortFieldRenderer.propTypes = {
       step: PropTypes.number,
     }),
     isEligibilityField: PropTypes.bool,
+    maxSelections: PropTypes.number,
     options: PropTypes.arrayOf(PropTypes.shape({
       id: PropTypes.string,
       value: PropTypes.string,
@@ -421,10 +439,12 @@ CohortFieldRenderer.propTypes = {
   })).isRequired,
   onChange: PropTypes.func.isRequired,
   onBlur: PropTypes.func.isRequired,
+  onFieldError: PropTypes.func,
 };
 
 CohortFieldRenderer.defaultProps = {
   allFields: [],
+  onFieldError: undefined,
 };
 
 export default CohortFieldRenderer;

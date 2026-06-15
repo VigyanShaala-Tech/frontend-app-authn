@@ -23,6 +23,17 @@ export const validateFieldLocally = (field, formValues, formatMessage) => {
 
   const value = formValues[field.name];
 
+  if (field.type === 'multiselect' && Array.isArray(value) && field.maxSelections) {
+    if (value.length > field.maxSelections) {
+      return {
+        valid: false,
+        message: formatMessage(formValidationMessages.multiselectMaxSelections, {
+          maxSelections: field.maxSelections,
+        }),
+      };
+    }
+  }
+
   if (field.type === 'email' && value && !EMAIL_REGEX.test(value)) {
     return {
       valid: false,

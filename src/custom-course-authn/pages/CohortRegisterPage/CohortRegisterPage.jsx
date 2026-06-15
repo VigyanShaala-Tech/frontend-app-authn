@@ -186,6 +186,10 @@ const CohortRegisterPage = () => {
     });
   }, [formValues, steps]);
 
+  const handleFieldError = useCallback((name, message) => {
+    setFieldErrors((prev) => ({ ...prev, [name]: message }));
+  }, []);
+
   const runFieldValidation = useCallback(async (field, valueOverride, levelKey) => {
     const isCascadeLevel = field.type === 'cascade_select' && levelKey;
 
@@ -442,6 +446,7 @@ const CohortRegisterPage = () => {
                     validationStatus={validationStatus}
                     onChange={handleFieldChange}
                     onBlur={runFieldValidation}
+                    onFieldError={handleFieldError}
                   />
                 ))}
 
