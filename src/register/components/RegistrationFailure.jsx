@@ -19,12 +19,14 @@ import messages from '../messages';
 const RegistrationFailureMessage = (props) => {
   const { formatMessage } = useIntl();
   const {
-    context, errorCode, failureCount,
+    context, errorCode, failureCount, scrollToTop,
   } = props;
 
   useEffect(() => {
-    windowScrollTo({ left: 0, top: 0, behavior: 'smooth' });
-  }, [errorCode, failureCount]);
+    if (scrollToTop) {
+      windowScrollTo({ left: 0, top: 0, behavior: 'smooth' });
+    }
+  }, [errorCode, failureCount, scrollToTop]);
 
   if (!errorCode) {
     return null;
@@ -53,7 +55,8 @@ const RegistrationFailureMessage = (props) => {
       errorMessage = formatMessage(messages['registration.forbidden.username']);
       break;
     default:
-      errorMessage = formatMessage(messages['registration.empty.form.submission.error']);
+      errorMessage = context.errorMessage
+        || formatMessage(messages['registration.empty.form.submission.error']);
       break;
   }
 
@@ -69,6 +72,7 @@ RegistrationFailureMessage.defaultProps = {
   context: {
     errorMessage: null,
   },
+  scrollToTop: true,
 };
 
 RegistrationFailureMessage.propTypes = {
@@ -78,6 +82,7 @@ RegistrationFailureMessage.propTypes = {
   }),
   errorCode: PropTypes.string.isRequired,
   failureCount: PropTypes.number.isRequired,
+  scrollToTop: PropTypes.bool,
 };
 
 export default RegistrationFailureMessage;

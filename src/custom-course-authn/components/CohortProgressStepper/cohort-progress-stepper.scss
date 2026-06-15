@@ -1,0 +1,115 @@
+@import '../../styles/cohort-breakpoints';
+
+.cohort-progress-stepper {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  justify-content: center;
+  gap: #{cohort-fluid(4, 8)};
+  margin-bottom: #{cohort-fluid(16, 24)};
+  width: 100%;
+  min-width: 0;
+  padding-inline: #{cohort-fluid(2, 8)};
+
+  @include cohort-up($cohort-bp-md) {
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-start;
+    column-gap: 0;
+    row-gap: #{cohort-fluid(12, 18)};
+  }
+
+  &__item {
+    display: flex;
+    align-items: center;
+    flex: 1 1 0;
+    gap: #{cohort-fluid(4, 6)};
+    max-width: 100%;
+    min-width: 0;
+
+    @include cohort-up($cohort-bp-md) {
+      flex: 1 1 calc(33.333% - #{cohort-fluid(4, 8)});
+      min-width: calc(33.333% - #{cohort-fluid(4, 8)});
+      max-width: 100%;
+      padding-right: #{cohort-fluid(4, 8)};
+    }
+
+    // No connector after last step in each row (every 3rd) or final step
+    @include cohort-up($cohort-bp-md) {
+      &:nth-child(3n),
+      &:last-child {
+        .cohort-progress-stepper__line {
+          display: none;
+        }
+      }
+    }
+  }
+
+  &__circle {
+    width: #{cohort-fluid(24, 28)};
+    height: #{cohort-fluid(24, 28)};
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: #{cohort-fluid-rem(0.625, 0.75)};
+    font-weight: 600;
+    border: 2px solid #e2e8f0;
+    background: #fff;
+    color: #718096;
+    flex-shrink: 0;
+
+    &--active {
+      border-color: #69ab4a;
+      color: #69ab4a;
+    }
+
+    &--done {
+      border-color: #69ab4a;
+      background: #69ab4a;
+      color: #fff;
+    }
+  }
+
+  &__label {
+    display: none;
+    font-size: #{cohort-fluid-rem(0.625, 0.75)};
+    font-weight: 500;
+    color: #718096;
+    line-height: 1.2;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 0;
+    flex: 0 1 auto;
+
+    @include cohort-up($cohort-bp-md) {
+      display: block;
+      flex: 0 1 auto;
+      max-width: 100%;
+    }
+
+    &--active {
+      color: #2c4869;
+    }
+  }
+
+  &__line {
+    display: block;
+    flex: 1 1 auto;
+    min-width: #{cohort-fluid(8, 16)};
+    height: 2px;
+    background: #e2e8f0;
+    align-self: center;
+
+    @include cohort-up($cohort-bp-md) {
+      flex: 1 1 auto;
+      min-width: #{cohort-fluid(12, 24)};
+      margin-left: #{cohort-fluid(2, 4)};
+    }
+
+    &--done {
+      background: #69ab4a;
+    }
+  }
+}
