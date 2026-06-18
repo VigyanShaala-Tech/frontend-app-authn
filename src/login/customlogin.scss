@@ -20,16 +20,20 @@
 .custom-login-tabs-container {
   .tab-buttons {
     display: flex;
-    background: #f5f7f4;
+    background: #F5F7F4;
     border-radius: 8px;
-    padding: 0.35rem;
-    gap: 0.75rem;
+    padding: 0.25rem;
+    gap: 0.5rem;
     overflow: hidden;
+    margin-bottom: 1.5rem !important;
 
     @media (max-width: 480px) {
       padding: 0.4rem 0.5rem;
       gap: 0.5rem;
       flex-wrap: wrap;
+    }
+    button{
+      height: 2.5rem !important;
     }
   }
 
@@ -38,8 +42,8 @@
     min-width: 0;
     padding: 0.65rem 1.2rem;
     font-weight: 500;
-    font-size: 1rem;
-    line-height: 1.4;
+    font-size: 0.875rem;
+    line-height: 1.25rem;
     background: transparent;
     border: none;
     border-radius: 6px;
@@ -47,14 +51,16 @@
     transition: all 0.18s ease;
     white-space: nowrap;
     text-align: center;
+    color: #718096;
 
     &:hover {
-      background: rgba(255, 255, 255, 0.7);
+      color: #101828;
     }
 
     &.active {
       background: white;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      color: #2d3748;
+      box-shadow: 0 1px 2px rgb(16 24 40 / 10%);
       font-weight: 600;
     }
 
@@ -66,28 +72,241 @@
 }
 
 .logincomponentcontainer{
+    .vs-form-layout {
+      display: grid;
+      row-gap: 1.5rem;
+    }
+
+    .vs-input-group {
+      position: relative;
+      height: 78px;
+      min-height: 78px;
+      box-sizing: border-box;
+
+      .vs-input-icon {
+        position: absolute;
+        left: 1rem;
+        top: 3.28rem;
+        transform: translateY(-50%);
+        color: #718096;
+        z-index: 3;
+        width: 1.25rem;
+        height: 1.25rem;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        line-height: 1;
+        font-size: 1rem;
+        pointer-events: none;
+      }
+
+      .pgn__form-group {
+        margin-bottom: 0 !important;
+        height: 78px;
+        min-height: 78px;
+      }
+
+      .pgn__form-label {
+        display: block;
+        font-size: 0.875rem;
+        height: 20px;
+        line-height: 20px;
+        font-weight: 500;
+        margin-bottom: 8px;
+      }
+
+      .form-group__form-field .form-control {
+        height: 50px !important;
+        min-height: 50px !important;
+        border: 1px solid #d0d5dd !important;
+        border-radius: 6px !important;
+        background: #e8f0fe !important;
+        padding-top: 12px !important;
+        padding-bottom: 12px !important;
+        padding-left: 2.75rem !important;
+        box-shadow: none !important;
+        font-size: 0.95rem;
+      }
+
+      .pgn__icon-btn {
+        border: none !important;
+        background: transparent !important;
+        color: #718096 !important;
+        height: 50px !important;
+        min-height: 50px !important;
+        width: 40px !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        padding: 0 !important;
+        line-height: 1 !important;
+
+        svg {
+          display: block !important;
+          margin: 0 auto !important;
+        }
+      }
+
+      &.vs-input-group-email {
+        .vs-input-icon {
+          top: 3.4rem;
+        }
+      }
+    }
+
+    .vs-otp-form {
+      display: grid;
+      row-gap: 1.5rem;
+
+      .vs-otp-field {
+        margin-bottom: 0 !important;
+      }
+
+      .vs-otp-label {
+        display: block;
+        height: 20px;
+        line-height: 20px;
+        font-size: 0.875rem;
+        font-weight: 500;
+        margin-bottom: 8px;
+      }
+
+      .react-international-phone-input-container {
+        height: 50px;
+      }
+
+      .react-international-phone-country-selector button,
+      .react-international-phone-input,
+      .vs-otp-field .form-control {
+        height: 50px !important;
+        min-height: 50px !important;
+        border-radius: 6px !important;
+      }
+
+      .vs-otp-field .form-control {
+        border: 1px solid #d0d5dd !important;
+        background: #e8f0fe !important;
+      }
+    }
+
+    .vs-forgot-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      min-height: 24px;
+      gap: 0.75rem;
+    }
+
+    .vs-remember-checkbox {
+      margin-bottom: 0 !important;
+
+      label {
+        margin-bottom: 0 !important;
+        color: #718096;
+        font-size: 0.875rem;
+        font-weight: 500;
+        line-height: 1.25rem;
+      }
+    }
+
+    .vs-forgot-link {
+      display: inline-flex;
+      align-items: center;
+      height: 20px;
+      line-height: 20px;
+      color: var(--pgn-color-primary-base);
+      font-size: 0.875rem;
+      font-weight: 500;
+      text-decoration: none;
+    }
+
+    .vs-forgot-link:hover {
+      text-decoration: underline;
+    }
+
+    .vs-btn-primary {
+      width: 100%;
+      min-height: 3.5rem;
+      border-radius: 8px !important;
+      font-weight: 600;
+      font-size: 16px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+
+      svg {
+        position: relative;
+        top: 2px;
+      }
+    }
+
+    .vs-auth-divider {
+      position: relative;
+      text-align: center;
+      height: 1rem;
+      margin: 1.5rem 0;
+
+      &::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 50%;
+        transform: translateY(-50%);
+        border-top: 1px solid #d0d5dd;
+      }
+
+      span {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 1;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0 0.5rem;
+        background: #fff;
+        color: #667085;
+        text-transform: uppercase;
+        font-size: 0.75rem;
+      }
+    }
+
+    .h4 {
+      display: none !important;
+    }
+
     div{
         div{
             .btn-social{
                 width: 100%;
-                height: 100%;
+                min-height: 60px;
+                height: 60px;
                 margin: 0 !important;
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                font-weight: 400;
+                gap: 0.75rem;
+                font-weight: 600;
                 text-align: center;
                 vertical-align: middle;
-                border: 1px solid #707070;
-                color: #000000;
-                padding: 0.25rem;
-                font-size: 1.125rem;
-                line-height: 1.333;
-                border-radius: 0.375rem;
-                background: none;
-                transition: transform 0.25s ease, border 0.15s ease;
+                border: 2px solid #d0d5dd;
+                color: #101828;
+                padding: 0.5rem;
+                font-size: 1rem;
+                line-height: 1.2;
+                border-radius: 6px;
+                background: #fff;
+                transition: all 0.2s ease;
                 .mr-auto{
                     margin: 0 !important;
+                }
+
+                &:hover {
+                  border-color: var(--pgn-color-primary-base);
+                  background: rgb(127 86 217 / 5%);
                 }
             }
         }
@@ -108,4 +327,8 @@
             }
         }
     }
+}
+.pgn__form-control-decorator-group.has-appended-node.has-trailing-element.form-group__form-field{
+  display: flex !important;
+  align-items: center !important;
 }

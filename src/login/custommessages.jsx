@@ -39,8 +39,13 @@ const messages = defineMessages({
   },
   'forgot.password': {
     id: 'forgot.password',
-    defaultMessage: 'Forgot password',
+    defaultMessage: 'Forgot Password?',
     description: 'Button text for forgot password',
+  },
+  'remember.me': {
+    id: 'remember.me',
+    defaultMessage: 'Remember me',
+    description: 'Label for remember me checkbox on custom login page',
   },
   'institution.login.button': {
     id: 'institution.login.button',

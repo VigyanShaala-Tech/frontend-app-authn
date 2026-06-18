@@ -66,6 +66,16 @@ const messages = defineMessages({
     defaultMessage: 'Check your inbox for reset link',
     description: 'Benefit-style text next to envelope icon in forgot password section',
   },
+  'set_password.header': {
+    id: 'set_password.header',
+    defaultMessage: 'Create a New Password',
+    description: 'Header text for set password page left panel',
+  },
+  'set_password.paragraph': {
+    id: 'set_password.paragraph',
+    defaultMessage: 'Choose a strong password to secure your account and get back to learning.',
+    description: 'Description text for set password page left panel',
+  },
 
   // Avatar alt text (recommended to translate for accessibility)
   'avatar.alt': {

@@ -17,6 +17,8 @@ const CustomLargeLayout = () => {
     component = 'registration';
   } else if (pathname.includes('/authn/login')) {
     component = 'login';
+  } else if (pathname.includes('/authn/password_reset_confirm')) {
+    component = 'setpassword';
   } else if (pathname.includes('/authn/reset')) {
     component = 'forgotpassword';
   }
@@ -52,7 +54,7 @@ const CustomLargeLayout = () => {
               <div key={index} className="d-flex mt-2 align-items-center">
                 <FontAwesomeIcon
                   icon={faCheck}
-                  className="w-4 h-4 p-2 rounded-full mr-3 text-white bg-light-color"
+                  className="w-3 h-3 rounded-full mr-3 text-white bg-light-color"
                 />
                 <span className="list-item">
                   {formatMessage(messages[messageId])}
@@ -114,6 +116,19 @@ const CustomLargeLayout = () => {
               {formatMessage(messages['forgot_password.check_inbox'])}
             </span>
           </div>
+        </div>
+      );
+    }
+
+    if (component === 'setpassword') {
+      return (
+        <div className="set-password-left-container">
+          <h1 className="message-header text-white">
+            {formatMessage(messages['set_password.header'])}
+          </h1>
+          <p className="message-describe">
+            {formatMessage(messages['set_password.paragraph'])}
+          </p>
         </div>
       );
     }

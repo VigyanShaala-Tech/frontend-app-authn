@@ -1,7 +1,10 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {
+  faArrowRight, faEnvelope, faLock, faUser,
+} from '@fortawesome/free-solid-svg-icons';
 import { getConfig } from '@edx/frontend-platform';
-import { getAuthenticatedHttpClient } from '@edx/frontend-platform/auth';
 import { sendPageEvent, sendTrackEvent } from '@edx/frontend-platform/analytics';
 import { useIntl } from '@edx/frontend-platform/i18n';
 import { Form, Spinner, StatefulButton } from '@openedx/paragon';
@@ -43,9 +46,6 @@ import {
   isHostAvailableInQueryParams,
   setCookie,
 } from '../data/utils';
-import { PhoneInput } from 'react-international-phone';
-import 'react-international-phone/style.css';
-import { parsePhoneNumberFromString } from 'libphonenumber-js';
 import './customregistration.scss';
 
 const CustomRegistrationPage = ({ handleInstitutionLogin, institutionLogin }) => {
@@ -87,6 +87,7 @@ const CustomRegistrationPage = ({ handleInstitutionLogin, institutionLogin }) =>
   const secondaryProviders = useSelector(
     (state) => state.commonComponents.thirdPartyAuthContext.secondaryProviders
   );
+  const hasThirdPartyAuthOptions = !currentProvider && (providers.length > 0 || secondaryProviders.length > 0);
   const pipelineUserDetails = useSelector(
     (state) => state.commonComponents.thirdPartyAuthContext.pipelineUserDetails
   );
@@ -102,7 +103,6 @@ const CustomRegistrationPage = ({ handleInstitutionLogin, institutionLogin }) =>
     password: '',
     confirm_password: '',
     user_role: '',
-    phone_number: '',
     terms_of_service: false,
     ...backedUpFormData.formFields,
   });
@@ -117,216 +117,10 @@ const CustomRegistrationPage = ({ handleInstitutionLogin, institutionLogin }) =>
   const [temporaryErrors, setTemporaryErrors] = useState({ ...backedUpFormData.errors });
   const [registrationComplete, setRegistrationComplete] = useState(false);
 
-  const [otpState, setOtpState] = useState({
-    sending: false,
-    verifying: false,
-    resending: false,
-    otpSent: false,
-    otpVerified: false,
-    otpCode: '',
-    verificationKey: '',
-    resendIn: 0,
-    expiresIn: 0,
-    serverMessage: '',
-  });
-
   const { cta, host } = queryParams;
   const buttonLabel = cta
     ? formatMessage(messages['create.account.cta.button'], { label: cta })
     : formatMessage(messages['create.account.for.free.button']);
-
-  const [isPhoneValid, setIsPhoneValid] = useState(false);
-  const [selectedCountry, setSelectedCountry] = useState("in");
-  const [nationalNumber, setNationalNumber] = useState("");
-  const [isPhoneTouched, setIsPhoneTouched] = useState(false);
-  const [showNumberfield, setShowNumberField] = useState(false);
-
-  useEffect(() => {
-    if (otpState.resendIn <= 0) return;
-    const timer = setInterval(() => {
-      setOtpState((prev) => ({
-        ...prev,
-        resendIn: prev.resendIn > 0 ? prev.resendIn - 1 : 0,
-      }));
-    }, 1000);
-    return () => clearInterval(timer);
-  }, [otpState.resendIn]);
-
-  const sendOtp = async () => {
-    const phone = formFields.phone_number?.trim();
-    if (!phone) {
-      setErrors((prev) => ({
-        ...prev,
-        phone_number: formatMessage(messages['registration.phone.number.required.error']),
-      }));
-      return;
-    }
-
-    setOtpState((prev) => ({ ...prev, sending: true, serverMessage: '' }));
-
-    try {
-      const httpClient = getAuthenticatedHttpClient();
-      const response = await httpClient.post(
-        `${getConfig().LMS_BASE_URL}/otp/send/`,
-        { contact_identifier: phone }
-      );
-
-      const data = response.data;
-
-      if (!data.success) {
-        const backendMessage = data.message || formatMessage(messages['registration.otp.send.failed']);
-        if (data.errors && typeof data.errors === 'object') {
-          setErrors((prev) => ({ ...prev, ...data.errors }));
-        } else {
-          setOtpState((prev) => ({ ...prev, serverMessage: backendMessage }));
-        }
-        setOtpState((prev) => ({ ...prev, sending: false }));
-        return;
-      }
-
-      setOtpState((prev) => ({
-        ...prev,
-        sending: false,
-        otpSent: true,
-        otpVerified: false,
-        verificationKey: data.verification_key,
-        resendIn: data.resend_after_seconds || 30,
-        expiresIn: data.expires_in_seconds || 300,
-        serverMessage: data.message || formatMessage(messages['registration.otp.sent.success']),
-      }));
-    } catch (err) {
-      console.error('OTP send error:', err);
-      setOtpState((prev) => ({
-        ...prev,
-        sending: false,
-        serverMessage: err.response?.data?.message?.trim() || formatMessage(messages['registration.network.error']),
-      }));
-    }
-  };
-
-  const resendOtp = async () => {
-    const phone = formFields.phone_number?.trim();
-    setOtpState((prev) => ({ ...prev, resending: true, serverMessage: '' }));
-
-    try {
-      const httpClient = getAuthenticatedHttpClient();
-      const response = await httpClient.post(
-        `${getConfig().LMS_BASE_URL}/otp/resend/`,
-        { contact_identifier: phone }
-      );
-
-      const data = response.data;
-
-      if (!data.success) {
-        const backendMessage = data.message || formatMessage(messages['registration.otp.resend.failed']);
-        if (data.errors && typeof data.errors === 'object') {
-          setErrors((prev) => ({ ...prev, ...data.errors }));
-        } else {
-          setOtpState((prev) => ({ ...prev, serverMessage: backendMessage }));
-        }
-        setOtpState((prev) => ({ ...prev, resending: false }));
-        return;
-      }
-
-      setOtpState((prev) => ({
-        ...prev,
-        resending: false,
-        otpSent: true,
-        otpVerified: false,
-        verificationKey: data.verification_key,
-        resendIn: data.resend_after_seconds || 30,
-        serverMessage: data.message || formatMessage(messages['registration.otp.resent.success']),
-      }));
-    } catch (err) {
-      console.error('OTP resend error:', err);
-      setOtpState((prev) => ({
-        ...prev,
-        resending: false,
-        serverMessage: err.response?.data?.message?.trim() || formatMessage(messages['registration.network.error']),
-      }));
-    }
-  };
-
-  const verifyOtp = async () => {
-    const phone = formFields.phone_number?.trim();
-    const code = otpState.otpCode?.trim();
-
-    if (!code) {
-      setOtpState((prev) => ({
-        ...prev,
-        serverMessage: formatMessage(messages['registration.otp.required.error']),
-      }));
-      return;
-    }
-
-    setOtpState((prev) => ({ ...prev, verifying: true, serverMessage: '' }));
-
-    try {
-      const httpClient = getAuthenticatedHttpClient();
-      const response = await httpClient.post(
-        `${getConfig().LMS_BASE_URL}/otp/verify/`,
-        {
-          contact_identifier: phone,
-          otp_code: code,
-          verification_key: otpState.verificationKey,
-        }
-      );
-
-      const data = response.data;
-
-      if (!data.success) {
-        const backendMessage = data.message || formatMessage(messages['registration.otp.invalid']);
-        if (data.errors && typeof data.errors === 'object') {
-          setErrors((prev) => ({ ...prev, ...data.errors }));
-        } else {
-          setOtpState((prev) => ({ ...prev, serverMessage: backendMessage }));
-        }
-        setOtpState((prev) => ({ ...prev, verifying: false }));
-        return;
-      }
-
-      setOtpState((prev) => ({
-        ...prev,
-        verifying: false,
-        otpVerified: true,
-        serverMessage: data.message || formatMessage(messages['registration.phone.verified.internal']),
-      }));
-    } catch (err) {
-      console.error('OTP verify error:', err);
-      setOtpState((prev) => ({
-        ...prev,
-        verifying: false,
-        serverMessage: err.response?.data?.message?.trim() || formatMessage(messages['registration.network.error']),
-      }));
-    }
-  };
-
-  // ────────────────────────────────────────────────
-  //   Rest of your component remains unchanged
-  // ────────────────────────────────────────────────
-
-  useEffect(() => {
-    const fetchOtpStatus = async () => {
-      try {
-        const httpClient = getAuthenticatedHttpClient();
-        const response = await httpClient.get(
-          `${getConfig().LMS_BASE_URL}/otp/status/`
-        );
-
-        if (response?.data?.otp_enabled) {
-          setShowNumberField(true);
-        } else {
-          setShowNumberField(false);
-        }
-
-      } catch (err) {
-        console.error("OTP verify error:", err);
-        setShowNumberField(false)
-      }
-    };
-
-    fetchOtpStatus();
-  }, []);
 
   useEffect(() => {
     if (!formStartTime) {
@@ -420,21 +214,6 @@ const CustomRegistrationPage = ({ handleInstitutionLogin, institutionLogin }) =>
       }
     }
 
-    if (name === 'phone_number') {
-      setOtpState({
-        sending: false,
-        verifying: false,
-        resending: false,
-        otpSent: false,
-        otpVerified: false,
-        otpCode: '',
-        verificationKey: '',
-        resendIn: 0,
-        expiresIn: 0,
-        serverMessage: '',
-      });
-    }
-
     if (!value && ['name', 'email', 'password', 'confirm_password'].includes(name)) {
       setErrors((prev) => ({
         ...prev,
@@ -457,50 +236,6 @@ const CustomRegistrationPage = ({ handleInstitutionLogin, institutionLogin }) =>
     }
   };
 
-  const handlePhoneChange = (value) => {
-    const phoneNumber = parsePhoneNumberFromString(value);
-
-    let isValid = false;
-    let country = selectedCountry;
-    let national = '';
-
-    if (phoneNumber) {
-      isValid = phoneNumber.isValid();
-      country = phoneNumber.country?.toLowerCase() || selectedCountry;
-      national = phoneNumber.nationalNumber || '';
-    } else if (value && value.startsWith('+')) {
-      national = value.replace(/^\+\d*/, '').trim();
-    }
-
-    setSelectedCountry(country);
-    setNationalNumber(national);
-    setIsPhoneValid(isValid);
-    setIsPhoneTouched(national.length > 0);
-    setFormFields((prev) => ({ ...prev, phone_number: value }));
-
-    setOtpState({
-      sending: false,
-      verifying: false,
-      resending: false,
-      otpSent: false,
-      otpVerified: false,
-      otpCode: '',
-      verificationKey: '',
-      resendIn: 0,
-      expiresIn: 0,
-      serverMessage: '',
-    });
-
-    setErrors((prev) => ({ ...prev, phone_number: '' }));
-
-    if (national.length > 0 && !isValid) {
-      setErrors((prev) => ({
-        ...prev,
-        phone_number: formatMessage(messages['registration.phone.number.invalid.error']),
-      }));
-    }
-  };
-
   const handleErrorChange = (fieldName, error) => {
     if (registrationEmbedded) {
       setTemporaryErrors((prev) => ({ ...prev, [fieldName]: error }));
@@ -514,7 +249,6 @@ const CustomRegistrationPage = ({ handleInstitutionLogin, institutionLogin }) =>
 
   const registerUser = () => {
     const totalRegistrationTime = (Date.now() - formStartTime) / 1000;
-    const phoneProvided = isPhoneTouched && nationalNumber.trim().length > 0;
 
     let payload = {
       name: (formFields.name || '').trim(),
@@ -522,8 +256,6 @@ const CustomRegistrationPage = ({ handleInstitutionLogin, institutionLogin }) =>
       username: (formFields.username || formFields.email || '').trim(),
       user_role: formFields.user_role || '',
       terms_of_service: formFields.terms_of_service,
-      phone_number: phoneProvided ? (formFields.phone_number || '').trim() : null,
-      verification_key: phoneProvided ? (otpState.verificationKey || null) : null,
     };
 
     if (currentProvider) {
@@ -538,12 +270,6 @@ const CustomRegistrationPage = ({ handleInstitutionLogin, institutionLogin }) =>
     if (!payload.email) customErrors.email = formatMessage(messages['empty.email.field.error']);
     if (!payload.user_role) customErrors.user_role = formatMessage(messages['registration.user.role.required.error']);
     if (!payload.terms_of_service) customErrors.terms_of_service = formatMessage(messages['registration.terms.required.error']);
-
-    if (phoneProvided) {
-      if (!isPhoneValid || nationalNumber.trim().length < 8) {
-        customErrors.phone_number = formatMessage(messages['registration.phone.number.invalid.error']);
-      }
-    }
 
     if (!currentProvider) {
       if (!formFields.password?.trim()) {
@@ -575,14 +301,6 @@ const CustomRegistrationPage = ({ handleInstitutionLogin, institutionLogin }) =>
 
     if (!standardIsValid || Object.keys(customErrors).length > 0) {
       setErrorCode((prev) => ({ type: FORM_SUBMISSION_ERROR, count: prev.count + 1 }));
-      return;
-    }
-
-    if (phoneProvided && !otpState.otpVerified) {
-      setOtpState((prev) => ({
-        ...prev,
-        serverMessage: formatMessage(messages['registration.verify.phone.first']),
-      }));
       return;
     }
 
@@ -668,146 +386,92 @@ const CustomRegistrationPage = ({ handleInstitutionLogin, institutionLogin }) =>
               context={{ provider: currentProvider, errorMessage: thirdPartyAuthErrorMessage }}
             />
 
+            {!registrationEmbedded && hasThirdPartyAuthOptions && (
+              <div className="custom-auth-tpa">
+                <ThirdPartyAuth
+                  currentProvider={currentProvider}
+                  providers={providers}
+                  secondaryProviders={secondaryProviders}
+                  handleInstitutionLogin={handleInstitutionLogin}
+                  thirdPartyAuthApiStatus={thirdPartyAuthApiStatus}
+                />
+                <div className="reg-auth-divider"><span>Or</span></div>
+              </div>
+            )}
+
             <Form id="registration-form" name="registration-form" noValidate onSubmit={handleSubmit}>
               <div className="row">
                 <div className="col-md-6">
-                  <CustomNameField
-                    name="name"
-                    value={formFields.name}
-                    handleChange={handleOnChange}
-                    handleErrorChange={handleErrorChange}
-                    errorMessage={errors.name}
-                    helpText={[formatMessage(messages['help.text.name'])]}
-                    label={formatMessage(messages['registration.fullname.label'])}
-                    placeholder={formatMessage(messages['registration.fullname.placeholder'])}
-                  />
+                  <div className="reg-input-group">
+                    <span className="reg-input-icon" aria-hidden="true">
+                      <FontAwesomeIcon icon={faUser} />
+                    </span>
+                    <CustomNameField
+                      name="name"
+                      value={formFields.name}
+                      handleChange={handleOnChange}
+                      handleErrorChange={handleErrorChange}
+                      errorMessage={errors.name}
+                      helpText={[formatMessage(messages['help.text.name'])]}
+                      label={formatMessage(messages['registration.fullname.label'])}
+                      placeholder={formatMessage(messages['registration.fullname.placeholder'])}
+                    />
+                  </div>
                 </div>
                 <div className="col-md-6">
-                  <CustomEmailField
-                    disabled={!!currentProvider}
-                    readOnly={!!currentProvider}
-                    name="email"
-                    value={formFields.email}
-                    handleChange={handleOnChange}
-                    handleErrorChange={handleErrorChange}
-                    errorMessage={errors.email || errors.username}
-                    helpText={[formatMessage(messages['help.text.email'])]}
-                    label={formatMessage(messages['registration.email.label'])}
-                    placeholder={formatMessage(messages['registration.email.placeholder'])}
-                  />
+                  <div className="reg-input-group reg-input-group-email">
+                    <span className="reg-input-icon" aria-hidden="true">
+                      <FontAwesomeIcon icon={faEnvelope} />
+                    </span>
+                    <CustomEmailField
+                      disabled={!!currentProvider}
+                      readOnly={!!currentProvider}
+                      name="email"
+                      value={formFields.email}
+                      handleChange={handleOnChange}
+                      handleErrorChange={handleErrorChange}
+                      errorMessage={errors.email || errors.username}
+                      helpText={[formatMessage(messages['help.text.email'])]}
+                      label={formatMessage(messages['registration.email.label'])}
+                      placeholder={formatMessage(messages['registration.email.placeholder'])}
+                    />
+                  </div>
                 </div>
               </div>
-              { showNumberfield && 
-                <Form.Group className="mb-4">
-                  <Form.Label className="fw-medium mb-2">
-                    {formatMessage(messages['registration.phone.number.label'])}
-                  </Form.Label>
-                  <div className="d-flex gap-2">
-                    <div className="flex-grow-1 position-relative">
-                      <PhoneInput
-                        defaultCountry={"in"}
-                        value={formFields.phone_number ?? null}
-                        onChange={handlePhoneChange}
-                        name="phone_number"
-                        inputClass={classNames('form-control', { 'is-invalid': !!errors.phone_number })}
-                        countrySelectorClass="form-select"
-                        enableSearch={true}
-                        placeholder={formatMessage(messages['registration.phone.number.label'])}
-                        style={{ width: '100% !important' }}
-                        isInvalid={!!errors.phone_number}
-                      />
-                    </div>
-
-                    <button
-                      type="button"
-                      className="btn btn-outline-primary h-100 react-international-phone-input-button"
-                      onClick={otpState.otpSent ? resendOtp : sendOtp}
-                      disabled={
-                        !(isPhoneTouched && isPhoneValid && !otpState.otpVerified) ||
-                        otpState.sending ||
-                        otpState.resending ||
-                        (otpState.otpSent && otpState.resendIn > 0)
-                      }
-                    >
-                      {otpState.otpSent
-                        ? otpState.resending
-                          ? formatMessage(messages['registration.otp.resending'])
-                          : otpState.resendIn > 0
-                          ? `${formatMessage(messages['registration.otp.resend.button'])} (${otpState.resendIn}${formatMessage(messages['registration.otp.second'])})`
-                          : formatMessage(messages['registration.otp.resend.button'])
-                        : otpState.sending
-                        ? formatMessage(messages['registration.otp.sending'])
-                        : formatMessage(messages['registration.otp.send.button'])}
-                    </button>
-                  </div>
-
-                  {errors.phone_number && (
-                    <Form.Text className="text-danger mt-1">{errors.phone_number}</Form.Text>
-                  )}
-                </Form.Group>
-              }
-
-              {otpState.otpSent && !otpState.otpVerified && (
-                <Form.Group className="mb-4">
-                  <Form.Label className="fw-medium mb-2">
-                    {formatMessage(messages['registration.otp.enter.label'])}
-                  </Form.Label>
-                  <div className="d-flex">
-                    <Form.Control
-                      name="otp_code"
-                      type="text"
-                      value={otpState.otpCode}
-                      onChange={(e) => setOtpState((prev) => ({ ...prev, otpCode: e.target.value }))}
-                      placeholder={formatMessage(messages['registration.otp.placeholder'])}
-                      className="mr-2"
-                    />
-                    <button
-                      type="button"
-                      className="btn btn-primary text-white"
-                      onClick={verifyOtp}
-                      disabled={!otpState.otpCode || otpState.verifying}
-                    >
-                      {otpState.verifying
-                        ? formatMessage(messages['registration.otp.verifying'])
-                        : formatMessage(messages['registration.otp.verify.button'])}
-                    </button>
-                  </div>
-                </Form.Group>
-              )}
-
-              {otpState.otpVerified && (
-                <div className="alert alert-success mb-4">
-                  {otpState.serverMessage}
-                </div>
-              )}
-
-              {otpState.serverMessage && !otpState.otpVerified && (
-                <div className="alert alert-danger mb-4">{otpState.serverMessage}</div>
-              )}
 
               {!currentProvider && (
                 <div className="row">
                   <div className="col-md-6">
-                    <CustomPasswordField
-                      name="password"
-                      value={formFields.password}
-                      handleChange={handleOnChange}
-                      handleErrorChange={handleErrorChange}
-                      errorMessage={errors.password}
-                      label={formatMessage(messages['registration.password.label'])}
-                      placeholder={formatMessage(messages['registration.password.placeholder'])}
-                    />
+                    <div className="reg-input-group">
+                      <span className="reg-input-icon" aria-hidden="true">
+                        <FontAwesomeIcon icon={faLock} />
+                      </span>
+                      <CustomPasswordField
+                        name="password"
+                        value={formFields.password}
+                        handleChange={handleOnChange}
+                        handleErrorChange={handleErrorChange}
+                        errorMessage={errors.password}
+                        label={formatMessage(messages['registration.password.label'])}
+                        placeholder={formatMessage(messages['registration.password.placeholder'])}
+                      />
+                    </div>
                   </div>
                   <div className="col-md-6">
-                    <CustomPasswordField
-                      name="confirm_password"
-                      value={formFields.confirm_password || ''}
-                      handleChange={handleOnChange}
-                      handleErrorChange={handleErrorChange}
-                      errorMessage={errors.confirm_password}
-                      label={formatMessage(messages['registration.confirm.password.label'])}
-                      placeholder={formatMessage(messages['registration.confirm.password.placeholder'])}
-                    />
+                    <div className="reg-input-group">
+                      <span className="reg-input-icon" aria-hidden="true">
+                        <FontAwesomeIcon icon={faLock} />
+                      </span>
+                      <CustomPasswordField
+                        name="confirm_password"
+                        value={formFields.confirm_password || ''}
+                        handleChange={handleOnChange}
+                        handleErrorChange={handleErrorChange}
+                        errorMessage={errors.confirm_password}
+                        label={formatMessage(messages['registration.confirm.password.label'])}
+                        placeholder={formatMessage(messages['registration.confirm.password.placeholder'])}
+                      />
+                    </div>
                   </div>
                 </div>
               )}
@@ -865,18 +529,16 @@ const CustomRegistrationPage = ({ handleInstitutionLogin, institutionLogin }) =>
                 variant="primary"
                 className="register-button mt-4 mb-4 w-100 text-white"
                 state={submitState}
-                labels={{ default: buttonLabel, pending: '' }}
+                labels={{
+                  default: (
+                    <>
+                      {buttonLabel}
+                      <FontAwesomeIcon icon={faArrowRight} className="ml-2" />
+                    </>
+                  ),
+                  pending: '',
+                }}
               />
-
-              {!registrationEmbedded && (
-                <ThirdPartyAuth
-                  currentProvider={currentProvider}
-                  providers={providers}
-                  secondaryProviders={secondaryProviders}
-                  handleInstitutionLogin={handleInstitutionLogin}
-                  thirdPartyAuthApiStatus={thirdPartyAuthApiStatus}
-                />
-              )}
             </Form>
           </div>
         )}

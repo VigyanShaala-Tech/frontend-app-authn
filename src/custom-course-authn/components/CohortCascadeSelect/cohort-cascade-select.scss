@@ -1,0 +1,35 @@
+@import '../../styles/cohort-breakpoints';
+
+.cohort-cascade-select {
+  display: flex;
+  flex-direction: column;
+  gap: #{cohort-fluid(12, 16)};
+  width: 100%;
+
+  &__level {
+    display: flex;
+    flex-direction: column;
+    gap: #{cohort-fluid(6, 8)};
+    width: 100%;
+  }
+
+  &__level-label {
+    font-size: var(--cohort-font-small, #{cohort-fluid-rem(0.75, 0.8125)});
+    font-weight: 600;
+    color: #4a5568;
+    margin: 0;
+  }
+
+  &__other-group {
+    display: flex;
+    flex-direction: column;
+    gap: #{cohort-fluid(12, 16)};
+    width: 100%;
+  }
+
+  &__dropdown-disabled {
+    opacity: 0.6;
+    pointer-events: none;
+    width: 100%;
+  }
+}

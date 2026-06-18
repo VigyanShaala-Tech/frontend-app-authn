@@ -32,7 +32,7 @@ const FormGroup = (props) => {
     >
       {/* Fixed label — shown when not using floating */}
       {!shouldFloat && (
-        <Form.Label htmlFor={props.name} className="fw-medium mb-1">
+        <Form.Label htmlFor={props.name} className="fw-medium mb-2">
           {props.label || props.name}
         </Form.Label>
       )}

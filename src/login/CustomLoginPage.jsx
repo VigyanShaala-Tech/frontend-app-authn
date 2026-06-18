@@ -7,6 +7,8 @@ import { injectIntl, useIntl } from '@edx/frontend-platform/i18n';
 import {
   Form, StatefulButton,
 } from '@openedx/paragon';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faArrowRight, faEnvelope, faLock } from '@fortawesome/free-solid-svg-icons';
 import PropTypes from 'prop-types';
 import { Helmet } from 'react-helmet';
 import Skeleton from 'react-loading-skeleton';
@@ -216,6 +218,7 @@ const CustomLoginPage = (props) => {
     const payload = {
       email_or_username: formData.emailOrUsername,
       password: formData.password,
+      remember_me: formData.rememberMe ? 'yes' : 'no',
       ...queryParams,
     };
 
@@ -223,8 +226,13 @@ const CustomLoginPage = (props) => {
   };
 
   const handleOnChange = (event) => {
-    const { name, value } = event.target;
-    setFormFields(prevState => ({ ...prevState, [name]: value }));
+    const {
+      name, value, type, checked,
+    } = event.target;
+    setFormFields(prevState => ({
+      ...prevState,
+      [name]: type === 'checkbox' ? checked : value,
+    }));
   };
 
   const handleOnFocus = (event) => {
@@ -448,6 +456,7 @@ const CustomLoginPage = (props) => {
   };
 
   const { provider, skipHintedLogin } = getTpaProvider(tpaHint, providers, secondaryProviders);
+  const hasThirdPartyAuthOptions = !currentProvider && (providers.length > 0 || secondaryProviders.length > 0);
 
   if (tpaHint) {
     if (thirdPartyAuthApiStatus === PENDING_STATE) {
@@ -484,11 +493,6 @@ const CustomLoginPage = (props) => {
         finishAuthUrl={finishAuthUrl}
       />
       <div className="mw-xs mt-3 mb-2">
-        <LoginFailureMessage
-          errorCode={errorCode.type}
-          errorCount={errorCode.count}
-          context={errorCode.context}
-        />
         <ThirdPartyAuthAlert
           currentProvider={currentProvider}
           platformName={platformName}
@@ -497,6 +501,20 @@ const CustomLoginPage = (props) => {
           messageType={activationMsgType}
         />
         {showResetPasswordSuccessBanner && <ResetPasswordSuccess />}
+
+        {hasThirdPartyAuthOptions && (
+          <div className="custom-auth-tpa">
+            <ThirdPartyAuth
+              currentProvider={currentProvider}
+              providers={providers}
+              secondaryProviders={secondaryProviders}
+              handleInstitutionLogin={handleInstitutionLogin}
+              thirdPartyAuthApiStatus={thirdPartyAuthApiStatus}
+              isLoginPage
+            />
+            <div className="vs-auth-divider"><span>Or</span></div>
+          </div>
+        )}
 
         <div className="custom-login-tabs-container mb-4">
           <div className="tab-buttons">
@@ -522,63 +540,89 @@ const CustomLoginPage = (props) => {
           <div className="tab-content mt-4">
             {activeTab === 'username' && (
               <div className="tab-pane active">
-                <Form id="sign-in-form" name="sign-in-form">
-                  <CustomFormGroup
-                    name="emailOrUsername"
-                    value={formFields.emailOrUsername}
-                    autoComplete="on"
-                    handleChange={handleOnChange}
-                    handleFocus={handleOnFocus}
-                    errorMessage={errors.emailOrUsername}
-                    label={formatMessage(messages['login.user.identity.label'])}
-                    placeholder={formatMessage(messages['login.user.identity.placeholder'])}
-                  />
+                <Form id="sign-in-form" name="sign-in-form" className="vs-form-layout">
+                  <div className="vs-input-group vs-input-group-email">
+                    <span className="vs-input-icon" aria-hidden="true">
+                      <FontAwesomeIcon icon={faEnvelope} />
+                    </span>
+                    <CustomFormGroup
+                      name="emailOrUsername"
+                      value={formFields.emailOrUsername}
+                      autoComplete="on"
+                      handleChange={handleOnChange}
+                      handleFocus={handleOnFocus}
+                      errorMessage={errors.emailOrUsername}
+                      label={formatMessage(messages['login.user.identity.label'])}
+                      placeholder={formatMessage(messages['login.user.identity.placeholder'])}
+                    />
+                  </div>
 
-                  <CustomPasswordField
-                    name="password"
-                    value={formFields.password}
-                    autoComplete="off"
-                    showScreenReaderText={false}
-                    showRequirements={false}
-                    handleChange={handleOnChange}
-                    handleFocus={handleOnFocus}
-                    errorMessage={errors.password}
-                    label={formatMessage(messages['login.password.label'])}
-                    placeholder={formatMessage(messages['login.password.placeholder'])}
-                  />
+                  <div className="vs-input-group vs-input-group-password">
+                    <span className="vs-input-icon" aria-hidden="true">
+                      <FontAwesomeIcon icon={faLock} />
+                    </span>
+                    <CustomPasswordField
+                      name="password"
+                      value={formFields.password}
+                      autoComplete="off"
+                      showScreenReaderText={false}
+                      showRequirements={false}
+                      handleChange={handleOnChange}
+                      handleFocus={handleOnFocus}
+                      errorMessage={errors.password}
+                      label={formatMessage(messages['login.password.label'])}
+                      placeholder={formatMessage(messages['login.password.placeholder'])}
+                    />
+                  </div>
+
+                  <div className="vs-forgot-row">
+                    <Form.Checkbox
+                      id="remember-me"
+                      name="rememberMe"
+                      className="vs-remember-checkbox"
+                      checked={!!formFields.rememberMe}
+                      onChange={handleOnChange}
+                    >
+                      {formatMessage(messages['remember.me'])}
+                    </Form.Checkbox>
+                    <Link
+                      id="forgot-password"
+                      className="vs-forgot-link"
+                      to={updatePathWithQueryParams(RESET_PAGE)}
+                      onClick={trackForgotPasswordLinkClick}
+                    >
+                      {formatMessage(messages['forgot.password'])}
+                    </Link>
+                  </div>
 
                   <StatefulButton
                     name="sign-in"
                     id="sign-in"
                     type="submit"
                     variant="primary"
-                    className="login-button-width text-white"
+                    className="login-button-width text-white vs-btn-primary"
                     state={submitState}
                     labels={{
-                      default: formatMessage(messages['sign.in.button']),
+                      default: (
+                        <>
+                          {formatMessage(messages['sign.in.button'])}
+                          <FontAwesomeIcon icon={faArrowRight} className="ml-2" />
+                        </>
+                      ),
                       pending: formatMessage(messages['sign.in.button']) + '...',
                     }}
                     onClick={handleUsernameSubmit}
                     onMouseDown={(e) => e.preventDefault()}
                   />
-
-                  <Link
-                    id="forgot-password"
-                    className="btn btn-link font-weight-500 text-body"
-                    to={updatePathWithQueryParams(RESET_PAGE)}
-                    onClick={trackForgotPasswordLinkClick}
-                  >
-                    {formatMessage(messages['forgot.password'])}
-                  </Link>
                 </Form>
               </div>
             )}
 
             {activeTab === 'otp' && showNumberfield && (
               <div className="tab-pane active">
-                <Form noValidate>
-                  <Form.Group className="mb-4">
-                    <Form.Label className="fw-medium mb-2">
+                <Form noValidate className="vs-form-layout vs-otp-form">
+                  <Form.Group className="vs-otp-field">
+                    <Form.Label className="vs-otp-label">
                       {formatMessage(messages['login.phone.number.label'])}
                     </Form.Label>
                     <PhoneInput
@@ -613,14 +657,29 @@ const CustomLoginPage = (props) => {
 
                   <StatefulButton
                     variant="primary"
-                    className="w-100 mb-4 text-white"
+                    className="w-100 text-white vs-btn-primary"
                     state={otpState.sending || otpState.resending ? 'pending' : 'default'}
                     labels={{
                       default: otpState.otpSent
                         ? (otpState.resendIn > 0
-                            ? formatMessage(messages['login.otp.resend.countdown'], { seconds: otpState.resendIn })
-                            : formatMessage(messages['login.otp.resend.button']))
-                        : formatMessage(messages['login.otp.send.button']),
+                            ? (
+                              <>
+                                {formatMessage(messages['login.otp.resend.countdown'], { seconds: otpState.resendIn })}
+                                <FontAwesomeIcon icon={faArrowRight} className="ml-2" />
+                              </>
+                            )
+                            : (
+                              <>
+                                {formatMessage(messages['login.otp.resend.button'])}
+                                <FontAwesomeIcon icon={faArrowRight} className="ml-2" />
+                              </>
+                            ))
+                        : (
+                          <>
+                            {formatMessage(messages['login.otp.send.button'])}
+                            <FontAwesomeIcon icon={faArrowRight} className="ml-2" />
+                          </>
+                        ),
                       pending: otpState.sending
                         ? formatMessage(messages['login.otp.sending'])
                         : formatMessage(messages['login.otp.resending']),
@@ -631,8 +690,8 @@ const CustomLoginPage = (props) => {
 
                   {otpState.otpSent && (
                     <>
-                      <Form.Group className="mb-4">
-                        <Form.Label className="fw-medium mb-2">
+                      <Form.Group className="vs-otp-field">
+                        <Form.Label className="vs-otp-label">
                           {formatMessage(messages['login.otp.enter.label'])}
                         </Form.Label>
                         <Form.Control
@@ -656,10 +715,15 @@ const CustomLoginPage = (props) => {
 
                       <StatefulButton
                         variant="primary"
-                        className="w-100 text-white"
+                        className="w-100 text-white vs-btn-primary"
                         state={otpState.verifying ? 'pending' : 'default'}
                         labels={{
-                          default: formatMessage(messages['login.otp.verify.button']),
+                          default: (
+                            <>
+                              {formatMessage(messages['login.otp.verify.button'])}
+                              <FontAwesomeIcon icon={faArrowRight} className="ml-2" />
+                            </>
+                          ),
                           pending: formatMessage(messages['login.otp.verifying']),
                         }}
                         disabled={otpState.verifying || !otpState.otpCode.trim()}
@@ -679,26 +743,62 @@ const CustomLoginPage = (props) => {
           </div>
         </div>
 
-        <ThirdPartyAuth
-          currentProvider={currentProvider}
-          providers={providers}
-          secondaryProviders={secondaryProviders}
-          handleInstitutionLogin={handleInstitutionLogin}
-          thirdPartyAuthApiStatus={thirdPartyAuthApiStatus}
-          isLoginPage
+        <LoginFailureMessage
+          errorCode={errorCode.type}
+          errorCount={errorCode.count}
+          context={errorCode.context}
         />
       </div>
     </>
   );
 };
 
-// PropTypes and defaultProps same as original LoginPage
 CustomLoginPage.propTypes = {
-  // ... (same as provided in the original LoginPage)
+  institutionLogin: PropTypes.bool,
+  handleInstitutionLogin: PropTypes.func.isRequired,
+  backedUpFormData: PropTypes.shape({
+    formFields: PropTypes.shape({
+      emailOrUsername: PropTypes.string,
+      password: PropTypes.string,
+      rememberMe: PropTypes.bool,
+    }),
+    errors: PropTypes.shape({
+      emailOrUsername: PropTypes.string,
+      password: PropTypes.string,
+      phone: PropTypes.string,
+      otpCode: PropTypes.string,
+    }),
+  }).isRequired,
+  loginErrorCode: PropTypes.string,
+  loginErrorContext: PropTypes.object,
+  loginResult: PropTypes.shape({
+    success: PropTypes.bool,
+    redirectUrl: PropTypes.string,
+  }).isRequired,
+  shouldBackupState: PropTypes.bool.isRequired,
+  showResetPasswordSuccessBanner: PropTypes.bool,
+  submitState: PropTypes.string.isRequired,
+  backupFormState: PropTypes.func.isRequired,
+  dismissPasswordResetBanner: PropTypes.func.isRequired,
+  loginRequest: PropTypes.func.isRequired,
+  getTPADataFromBackend: PropTypes.func.isRequired,
+  loginRequestSuccess: PropTypes.func.isRequired,
+  thirdPartyAuthApiStatus: PropTypes.string.isRequired,
+  thirdPartyAuthContext: PropTypes.shape({
+    providers: PropTypes.arrayOf(PropTypes.object),
+    currentProvider: PropTypes.string,
+    secondaryProviders: PropTypes.arrayOf(PropTypes.object),
+    finishAuthUrl: PropTypes.string,
+    platformName: PropTypes.string,
+    errorMessage: PropTypes.string,
+  }).isRequired,
 };
 
 CustomLoginPage.defaultProps = {
-  // ... (same as provided in the original LoginPage)
+  institutionLogin: false,
+  loginErrorCode: '',
+  loginErrorContext: {},
+  showResetPasswordSuccessBanner: false,
 };
 
 const mapStateToProps = state => {
