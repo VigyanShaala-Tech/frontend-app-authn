@@ -75,6 +75,8 @@ const CohortRegisterPage = () => {
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState({ type: '', count: 0, message: '' });
   const eligibilityRequestIdsRef = useRef({});
+  const runFieldValidationRef = useRef(null);
+  const allFieldsRef = useRef([]);
 
   const steps = useMemo(() => {
     const rawSteps = formConfig?.result || [];
@@ -97,11 +99,15 @@ const CohortRegisterPage = () => {
   const eligibilityNote = formConfig?.eligibilityNote || '';
 
   // Apply pre-fill answers from a previous submission, skipping the email lookup
-  // key and any field already locked for the authenticated user.
+  // key and any field already locked for the authenticated user. After values
+  // settle, automatically runs eligibility validation for any eligibility field
+  // that received a pre-filled value so the Next button state is immediately correct.
   const applyPrefillAnswers = useCallback((answers) => {
     if (!answers || typeof answers !== 'object') {
       return;
     }
+
+    // Update formValues. Keep the updater pure — no side effects inside it.
     setFormValues((prev) => {
       const next = { ...prev };
       Object.entries(answers).forEach(([fieldName, value]) => {
@@ -124,6 +130,29 @@ const CohortRegisterPage = () => {
       });
       return next;
     });
+
+    // After React commits the new formValues (render + effects), trigger eligibility
+    // validation for pre-filled eligibility fields.
+    //
+    // setTimeout(0) is a macrotask — it fires after React's render cycle and the
+    // no-dep useEffect that refreshes runFieldValidationRef have both completed.
+    // This guarantees runFieldValidationRef.current holds a fresh closure whose
+    // formValues already contains the pre-filled values.
+    //
+    // We derive the fields to check directly from `answers` (captured in this
+    // closure) so we don't rely on any side effects inside the state updater above.
+    setTimeout(() => {
+      const eligibilityFields = (allFieldsRef.current || []).filter((f) => {
+        if (!f.isEligibilityField) { return false; }
+        const v = answers[f.name];
+        return v != null && v !== '' && !(Array.isArray(v) && v.length === 0);
+      });
+      eligibilityFields.forEach((field) => {
+        if (runFieldValidationRef.current) {
+          runFieldValidationRef.current(field);
+        }
+      });
+    }, 0);
   }, [authenticatedUser]);
 
   useEffect(() => {
@@ -380,6 +409,13 @@ const CohortRegisterPage = () => {
       }));
     }
   }, [applyPrefillAnswers, formValues, intl, slug, steps]);
+
+  // Keep refs pointing to the latest versions so setTimeout callbacks always
+  // call the freshest closures (avoids stale formValues / allFields captures).
+  useEffect(() => {
+    runFieldValidationRef.current = runFieldValidation;
+    allFieldsRef.current = allFields;
+  });
 
   const canProceed = useMemo(() => {
     if (!currentStep) {
