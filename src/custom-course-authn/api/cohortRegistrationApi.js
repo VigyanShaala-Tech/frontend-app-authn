@@ -8,6 +8,7 @@ import {
   COHORT_EMAIL_START_API,
   COHORT_GOOGLE_COMPLETE_API,
   COHORT_GOOGLE_START_API,
+  COHORT_PREFILL_API,
   COHORT_PREPARE_AUTH_API,
   COHORT_REGISTRATION_FORM_API,
 } from '../data/constants';
@@ -34,6 +35,12 @@ export const fetchCohortRegistrationFormApi = async (slug) => {
 export const checkCohortEligibilityApi = async (slug, payload) => {
   const url = buildCohortApiUrl(COHORT_CHECK_ELIGIBILITY_API, slug);
   const { data } = await getClient().post(url, payload, getPublicRequestConfig());
+  return data;
+};
+
+export const prefillCohortFormApi = async (slug, email) => {
+  const url = buildCohortApiUrl(COHORT_PREFILL_API, slug);
+  const { data } = await getClient().post(url, { email }, getPublicRequestConfig());
   return data;
 };
 

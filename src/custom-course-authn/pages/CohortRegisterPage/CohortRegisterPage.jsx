@@ -28,6 +28,7 @@ import cohortApiMessages from '../../messages/cohortApiMessages';
 import {
   checkCohortEligibility,
   fetchCohortRegistrationForm,
+  prefillCohortForm,
   prepareCohortAuth,
 } from '../../services/cohortRegistrationService';
 import { extractApiMessage, resolveCohortMessage } from '../../utils/cohortApiMessage';
@@ -93,6 +94,37 @@ const CohortRegisterPage = () => {
   const currentStep = steps[currentStepIndex];
   const logoUrl = getConfig().LOGO_URL;
   const pageTitle = formConfig?.pageTitle || '';
+  const eligibilityNote = formConfig?.eligibilityNote || '';
+
+  // Apply pre-fill answers from a previous submission, skipping the email lookup
+  // key and any field already locked for the authenticated user.
+  const applyPrefillAnswers = useCallback((answers) => {
+    if (!answers || typeof answers !== 'object') {
+      return;
+    }
+    setFormValues((prev) => {
+      const next = { ...prev };
+      Object.entries(answers).forEach(([fieldName, value]) => {
+        if (fieldName === 'email') {
+          return; // the email was the lookup key — don't overwrite
+        }
+        // Skip identity fields already locked for authenticated users.
+        if (authenticatedUser && APPLICANT_IDENTITY_FIELD_NAMES.includes(fieldName)) {
+          return;
+        }
+        // Only pre-fill genuinely empty slots so we never overwrite what the user typed.
+        const current = next[fieldName];
+        const isEmpty = current === undefined
+          || current === ''
+          || current === null
+          || (Array.isArray(current) && current.length === 0);
+        if (isEmpty) {
+          next[fieldName] = value;
+        }
+      });
+      return next;
+    });
+  }, [authenticatedUser]);
 
   useEffect(() => {
     if (!slug) {
@@ -117,6 +149,16 @@ const CohortRegisterPage = () => {
           initialValues.email = authenticatedUser.email || initialValues.email;
         }
         setFormValues(initialValues);
+        // For logged-in users the email field is pre-filled and readonly so no blur
+        // event fires. Trigger prefill here so their previous submission answers are
+        // applied as soon as the form loads.
+        if (authenticatedUser?.email && mounted) {
+          prefillCohortForm(slug, authenticatedUser.email).then((result) => {
+            if (mounted && result.hasPrefill) {
+              applyPrefillAnswers(result.answers);
+            }
+          }).catch(() => {}); // silent — prefill is best-effort
+        }
       } catch (error) {
         if (mounted) {
           setLoadError(resolveCohortMessage(
@@ -133,7 +175,7 @@ const CohortRegisterPage = () => {
     };
     loadForm();
     return () => { mounted = false; };
-  }, [slug, intl, authenticatedUser]);
+  }, [slug, intl, authenticatedUser, applyPrefillAnswers]);
 
   const handleFieldChange = useCallback((name, value) => {
     setSubmitError((prev) => (prev.type ? { type: '', count: prev.count, message: '' } : prev));
@@ -250,6 +292,19 @@ const CohortRegisterPage = () => {
       return next;
     });
 
+    // For the built-in email field: fire a best-effort prefill call on blur so that
+    // field values from the user's most recent submission are auto-populated.
+    if (field.name === 'email' && !isCascadeLevel) {
+      const emailValue = (activeValues[field.name] || '').trim();
+      if (emailValue && emailValue.includes('@')) {
+        prefillCohortForm(slug, emailValue).then((result) => {
+          if (result.hasPrefill) {
+            applyPrefillAnswers(result.answers);
+          }
+        }).catch(() => {}); // silent — prefill is best-effort
+      }
+    }
+
     if (!field.isEligibilityField) {
       return;
     }
@@ -324,7 +379,7 @@ const CohortRegisterPage = () => {
         },
       }));
     }
-  }, [formValues, intl, slug, steps]);
+  }, [applyPrefillAnswers, formValues, intl, slug, steps]);
 
   const canProceed = useMemo(() => {
     if (!currentStep) {
@@ -427,6 +482,9 @@ const CohortRegisterPage = () => {
             <img src={logoUrl} alt="VigyanShaala" className="cohort-register-page__logo" />
           )}
           <h1 className="cohort-register-page__title">{pageTitle}</h1>
+          {eligibilityNote && (
+            <CohortInfoSections html={eligibilityNote} />
+          )}
         </div>
 
         {steps.length > 0 && (

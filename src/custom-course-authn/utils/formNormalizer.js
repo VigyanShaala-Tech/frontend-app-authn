@@ -47,5 +47,6 @@ export const normalizeFormResponse = (data) => ({
   pageTitle: data.pagetitle || data.pageTitle,
   templateId: data.templateid || data.templateId,
   infoSections: data.infosections || data.infoSections,
+  eligibilityNote: data.eligibility_note || data.eligibilityNote || '',
   result: (data.result || []).map(normalizeStep),
 });

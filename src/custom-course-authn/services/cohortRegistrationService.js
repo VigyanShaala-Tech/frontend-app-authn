@@ -3,6 +3,7 @@ import {
   checkCohortEligibilityApi,
   completeCohortGoogleAuthApi,
   fetchCohortRegistrationFormApi,
+  prefillCohortFormApi,
   prepareCohortAuthApi,
   startCohortEmailRegistrationApi,
   startCohortGoogleAuthApi,
@@ -14,6 +15,18 @@ import { normalizeFormResponse } from '../utils/formNormalizer';
 export const fetchCohortRegistrationForm = async (slug) => {
   const data = await fetchCohortRegistrationFormApi(slug);
   return normalizeFormResponse(data);
+};
+
+export const prefillCohortForm = async (slug, email) => {
+  try {
+    const data = await prefillCohortFormApi(slug, email);
+    return {
+      hasPrefill: Boolean(data.prefill),
+      answers: (data.prefill && data.answers) ? data.answers : {},
+    };
+  } catch {
+    return { hasPrefill: false, answers: {} };
+  }
 };
 
 export const checkCohortEligibility = async (slug, formPayload, triggerField) => {
