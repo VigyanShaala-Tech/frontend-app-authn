@@ -3,6 +3,7 @@ import {
   checkCohortEligibilityApi,
   completeCohortGoogleAuthApi,
   fetchCohortRegistrationFormApi,
+  prefillCohortFormApi,
   prepareCohortAuthApi,
   startCohortEmailRegistrationApi,
   startCohortGoogleAuthApi,
@@ -14,6 +15,18 @@ import { normalizeFormResponse } from '../utils/formNormalizer';
 export const fetchCohortRegistrationForm = async (slug) => {
   const data = await fetchCohortRegistrationFormApi(slug);
   return normalizeFormResponse(data);
+};
+
+export const prefillCohortForm = async (slug, email) => {
+  try {
+    const data = await prefillCohortFormApi(slug, email);
+    return {
+      hasPrefill: Boolean(data.prefill),
+      answers: (data.prefill && data.answers) ? data.answers : {},
+    };
+  } catch {
+    return { hasPrefill: false, answers: {} };
+  }
 };
 
 export const checkCohortEligibility = async (slug, formPayload, triggerField) => {
@@ -35,6 +48,7 @@ export const prepareCohortAuth = async (slug, payload) => {
         success: false,
         message: extractApiMessage(data),
         status: data.status,
+        userAlreadyExists: Boolean(data.useralreadyexists),
       };
     }
     const loginOptions = data.loginoptions || data.loginOptions || {};
@@ -42,12 +56,16 @@ export const prepareCohortAuth = async (slug, payload) => {
       success: true,
       thanksMessage: data.thanksmessage || data.thanksMessage || '',
       loginOptions,
+      userAlreadyExists: Boolean(data.useralreadyexists),
+      isLoggedIn: Boolean(data.isloggedin),
+      redirectUrl: data.redirecturl || data.redirectUrl || '',
     };
   } catch (error) {
     return {
       success: false,
       message: extractApiMessage(error),
       status: error?.response?.status,
+      userAlreadyExists: Boolean(error?.response?.data?.useralreadyexists),
     };
   }
 };

@@ -4,6 +4,7 @@ import { getConfig } from '@edx/frontend-platform';
 import { useIntl } from '@edx/frontend-platform/i18n';
 import { useNavigate, useParams } from 'react-router-dom';
 
+import { LOGIN_PAGE } from '../../../data/constants';
 import CohortLoadingSpinner from '../../components/CohortLoadingSpinner/CohortLoadingSpinner';
 import CohortSuccessView from '../../components/CohortSuccessView/CohortSuccessView';
 import CohortSubmitErrorAlert from '../../components/CohortSubmitErrorAlert/CohortSubmitErrorAlert';
@@ -52,6 +53,11 @@ const CohortFormSubmittedPage = () => {
       return;
     }
 
+    if (sessionData?.userAlreadyExists) {
+      navigate(LOGIN_PAGE);
+      return;
+    }
+
     setEmailSubmitting(true);
 
     const result = await startCohortEmailRegistration();
@@ -82,7 +88,7 @@ const CohortFormSubmittedPage = () => {
         },
       },
     );
-  }, [emailSubmitting, intl, navigate, sessionData?.email, slug]);
+  }, [emailSubmitting, intl, navigate, sessionData?.email, sessionData?.userAlreadyExists, slug]);
 
   const handleGoogleSignup = useCallback(async () => {
     if (googleSubmitting || !slug) {
@@ -146,6 +152,7 @@ const CohortFormSubmittedPage = () => {
             googleLoginUrl={sessionData.googleLoginUrl}
             email={sessionData.email}
             slug={slug}
+            userAlreadyExists={sessionData.userAlreadyExists}
             onEmailSignup={handleEmailSignup}
             onGoogleSignup={handleGoogleSignup}
             emailSubmitting={emailSubmitting}

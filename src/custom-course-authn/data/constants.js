@@ -50,6 +50,7 @@ export const buildCohortVerifyEmailPath = (slug, email) => {
 
 export const COHORT_REGISTRATION_FORM_API = '/api/v1/cohort-registration/:slug/form/';
 export const COHORT_CHECK_ELIGIBILITY_API = '/api/v1/cohort-registration/:slug/check-eligibility/';
+export const COHORT_PREFILL_API = '/api/v1/cohort-registration/:slug/prefill/';
 export const COHORT_PREPARE_AUTH_API = '/api/v1/cohort-registration/:slug/prepare-auth/';
 export const COHORT_GOOGLE_START_API = '/api/v1/cohort-registration/google/start/';
 export const COHORT_GOOGLE_COMPLETE_API = '/api/v1/cohort-registration/google/complete/';

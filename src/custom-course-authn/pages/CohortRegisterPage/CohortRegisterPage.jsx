@@ -3,6 +3,7 @@ import React, {
 } from 'react';
 
 import { getConfig } from '@edx/frontend-platform';
+import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
 import { useIntl } from '@edx/frontend-platform/i18n';
 import { faArrowLeft } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -27,6 +28,7 @@ import cohortApiMessages from '../../messages/cohortApiMessages';
 import {
   checkCohortEligibility,
   fetchCohortRegistrationForm,
+  prefillCohortForm,
   prepareCohortAuth,
 } from '../../services/cohortRegistrationService';
 import { extractApiMessage, resolveCohortMessage } from '../../utils/cohortApiMessage';
@@ -39,10 +41,13 @@ import {
 import { buildInitialFormValues, buildSubmitPayload } from '../../utils/fieldUtils';
 import { setCohortFormSubmittedSession } from '../../utils/cohortFormSubmittedSession';
 import { isStepValid, validateFieldLocally } from '../../utils/formValidation';
+import { resolveAbsoluteRedirectUrl } from '../../utils/redirectUtils';
 
 import messages from './messages';
 
 import './cohort-register-page.scss';
+
+const APPLICANT_IDENTITY_FIELD_NAMES = ['full_name', 'email'];
 
 const resolveSubmitErrorCode = (status) => {
   if (status === 403) {
@@ -58,6 +63,7 @@ const CohortRegisterPage = () => {
   const { slug } = useParams();
   const intl = useIntl();
   const navigate = useNavigate();
+  const authenticatedUser = getAuthenticatedUser();
 
   const [formConfig, setFormConfig] = useState(null);
   const [loadError, setLoadError] = useState('');
@@ -69,12 +75,85 @@ const CohortRegisterPage = () => {
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState({ type: '', count: 0, message: '' });
   const eligibilityRequestIdsRef = useRef({});
+  const runFieldValidationRef = useRef(null);
+  const allFieldsRef = useRef([]);
 
-  const steps = useMemo(() => formConfig?.result || [], [formConfig]);
+  const steps = useMemo(() => {
+    const rawSteps = formConfig?.result || [];
+    if (!authenticatedUser) {
+      return rawSteps;
+    }
+    return rawSteps.map((step) => ({
+      ...step,
+      fields: step.fields.map((field) => (
+        APPLICANT_IDENTITY_FIELD_NAMES.includes(field.name)
+          ? { ...field, disabled: true }
+          : field
+      )),
+    }));
+  }, [formConfig, authenticatedUser]);
   const allFields = useMemo(() => steps.flatMap((step) => step.fields), [steps]);
   const currentStep = steps[currentStepIndex];
   const logoUrl = getConfig().LOGO_URL;
   const pageTitle = formConfig?.pageTitle || '';
+  const eligibilityNote = formConfig?.eligibilityNote || '';
+
+  // Apply pre-fill answers from a previous submission, skipping the email lookup
+  // key and any field already locked for the authenticated user. After values
+  // settle, automatically runs eligibility validation for any eligibility field
+  // that received a pre-filled value so the Next button state is immediately correct.
+  const applyPrefillAnswers = useCallback((answers) => {
+    if (!answers || typeof answers !== 'object') {
+      return;
+    }
+
+    // Update formValues. Keep the updater pure — no side effects inside it.
+    setFormValues((prev) => {
+      const next = { ...prev };
+      Object.entries(answers).forEach(([fieldName, value]) => {
+        if (fieldName === 'email') {
+          return; // the email was the lookup key — don't overwrite
+        }
+        // Skip identity fields already locked for authenticated users.
+        if (authenticatedUser && APPLICANT_IDENTITY_FIELD_NAMES.includes(fieldName)) {
+          return;
+        }
+        // Only pre-fill genuinely empty slots so we never overwrite what the user typed.
+        const current = next[fieldName];
+        const isEmpty = current === undefined
+          || current === ''
+          || current === null
+          || (Array.isArray(current) && current.length === 0);
+        if (isEmpty) {
+          next[fieldName] = value;
+        }
+      });
+      return next;
+    });
+
+    // After React commits the new formValues (render + effects), trigger eligibility
+    // validation for pre-filled eligibility fields.
+    //
+    // setTimeout(0) is a macrotask — it fires after React's render cycle and the
+    // no-dep useEffect that refreshes runFieldValidationRef have both completed.
+    // This guarantees runFieldValidationRef.current holds a fresh closure whose
+    // formValues already contains the pre-filled values.
+    //
+    // We derive the fields to check directly from `answers` (captured in this
+    // closure) so we don't rely on any side effects inside the state updater above.
+    setTimeout(() => {
+      const eligibilityFields = (allFieldsRef.current || []).filter((f) => {
+        if (!f.isEligibilityField) { return false; }
+        const v = answers[f.name];
+        return v != null && v !== '' && !(Array.isArray(v) && v.length === 0);
+      });
+      eligibilityFields.forEach((field) => {
+        if (runFieldValidationRef.current) {
+          runFieldValidationRef.current(field);
+        }
+      });
+    }, 0);
+  }, [authenticatedUser]);
 
   useEffect(() => {
     if (!slug) {
@@ -93,7 +172,22 @@ const CohortRegisterPage = () => {
           return;
         }
         setFormConfig(data);
-        setFormValues(buildInitialFormValues(data.result || []));
+        const initialValues = buildInitialFormValues(data.result || []);
+        if (authenticatedUser) {
+          initialValues.full_name = authenticatedUser.name || initialValues.full_name;
+          initialValues.email = authenticatedUser.email || initialValues.email;
+        }
+        setFormValues(initialValues);
+        // For logged-in users the email field is pre-filled and readonly so no blur
+        // event fires. Trigger prefill here so their previous submission answers are
+        // applied as soon as the form loads.
+        if (authenticatedUser?.email && mounted) {
+          prefillCohortForm(slug, authenticatedUser.email).then((result) => {
+            if (mounted && result.hasPrefill) {
+              applyPrefillAnswers(result.answers);
+            }
+          }).catch(() => {}); // silent — prefill is best-effort
+        }
       } catch (error) {
         if (mounted) {
           setLoadError(resolveCohortMessage(
@@ -110,7 +204,7 @@ const CohortRegisterPage = () => {
     };
     loadForm();
     return () => { mounted = false; };
-  }, [slug, intl]);
+  }, [slug, intl, authenticatedUser, applyPrefillAnswers]);
 
   const handleFieldChange = useCallback((name, value) => {
     setSubmitError((prev) => (prev.type ? { type: '', count: prev.count, message: '' } : prev));
@@ -227,6 +321,19 @@ const CohortRegisterPage = () => {
       return next;
     });
 
+    // For the built-in email field: fire a best-effort prefill call on blur so that
+    // field values from the user's most recent submission are auto-populated.
+    if (field.name === 'email' && !isCascadeLevel) {
+      const emailValue = (activeValues[field.name] || '').trim();
+      if (emailValue && emailValue.includes('@')) {
+        prefillCohortForm(slug, emailValue).then((result) => {
+          if (result.hasPrefill) {
+            applyPrefillAnswers(result.answers);
+          }
+        }).catch(() => {}); // silent — prefill is best-effort
+      }
+    }
+
     if (!field.isEligibilityField) {
       return;
     }
@@ -301,7 +408,14 @@ const CohortRegisterPage = () => {
         },
       }));
     }
-  }, [formValues, intl, slug, steps]);
+  }, [applyPrefillAnswers, formValues, intl, slug, steps]);
+
+  // Keep refs pointing to the latest versions so setTimeout callbacks always
+  // call the freshest closures (avoids stale formValues / allFields captures).
+  useEffect(() => {
+    runFieldValidationRef.current = runFieldValidation;
+    allFieldsRef.current = allFields;
+  });
 
   const canProceed = useMemo(() => {
     if (!currentStep) {
@@ -344,12 +458,18 @@ const CohortRegisterPage = () => {
         return;
       }
 
+      if (response.isLoggedIn) {
+        window.location.assign(resolveAbsoluteRedirectUrl(response.redirectUrl));
+        return;
+      }
+
       const submitPayload = buildSubmitPayload(steps, formValues);
       setCohortFormSubmittedSession(slug, {
         thanksMessage: response.thanksMessage,
         googleLoginUrl: response.loginOptions?.google || '',
         email: submitPayload.email || formValues.email || '',
         pageTitle,
+        userAlreadyExists: response.userAlreadyExists,
       });
       navigate(buildCohortFormSubmittedPath(slug), { replace: true });
     } catch {
@@ -398,6 +518,9 @@ const CohortRegisterPage = () => {
             <img src={logoUrl} alt="VigyanShaala" className="cohort-register-page__logo" />
           )}
           <h1 className="cohort-register-page__title">{pageTitle}</h1>
+          {eligibilityNote && (
+            <CohortInfoSections html={eligibilityNote} />
+          )}
         </div>
 
         {steps.length > 0 && (

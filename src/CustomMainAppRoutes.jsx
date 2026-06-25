@@ -97,7 +97,7 @@ const CustomMainAppRoutes = () => (
     <Route
       path={COHORT_REGISTER_PAGE}
       element={(
-        <CohortUnAuthOnlyRoute>
+        <CohortUnAuthOnlyRoute allowAuthenticated>
           <CohortRegisterPage />
         </CohortUnAuthOnlyRoute>
       )}
