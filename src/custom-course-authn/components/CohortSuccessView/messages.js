@@ -21,6 +21,16 @@ const messages = defineMessages({
     defaultMessage: 'Sign up via Email',
     description: 'Email signup button label',
   },
+  signInEmail: {
+    id: 'custom.course.authn.success.signin.email',
+    defaultMessage: 'Sign in using Email',
+    description: 'Email sign-in button label shown when the applicant already has an account',
+  },
+  existingUserThanksMessage: {
+    id: 'custom.course.authn.success.existing.user.thanks',
+    defaultMessage: 'Congratulations! Your registration form has been submitted. Please continue with your email and login.',
+    description: 'Thank-you message shown when the applicant already has an account and is not logged in',
+  },
   signupLoading: {
     id: 'custom.course.authn.success.signup.loading',
     defaultMessage: 'Please wait...',

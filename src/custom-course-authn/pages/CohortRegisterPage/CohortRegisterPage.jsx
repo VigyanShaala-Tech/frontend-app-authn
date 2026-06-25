@@ -3,6 +3,7 @@ import React, {
 } from 'react';
 
 import { getConfig } from '@edx/frontend-platform';
+import { getAuthenticatedUser } from '@edx/frontend-platform/auth';
 import { useIntl } from '@edx/frontend-platform/i18n';
 import { faArrowLeft } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -39,10 +40,13 @@ import {
 import { buildInitialFormValues, buildSubmitPayload } from '../../utils/fieldUtils';
 import { setCohortFormSubmittedSession } from '../../utils/cohortFormSubmittedSession';
 import { isStepValid, validateFieldLocally } from '../../utils/formValidation';
+import { resolveAbsoluteRedirectUrl } from '../../utils/redirectUtils';
 
 import messages from './messages';
 
 import './cohort-register-page.scss';
+
+const APPLICANT_IDENTITY_FIELD_NAMES = ['full_name', 'email'];
 
 const resolveSubmitErrorCode = (status) => {
   if (status === 403) {
@@ -58,6 +62,7 @@ const CohortRegisterPage = () => {
   const { slug } = useParams();
   const intl = useIntl();
   const navigate = useNavigate();
+  const authenticatedUser = getAuthenticatedUser();
 
   const [formConfig, setFormConfig] = useState(null);
   const [loadError, setLoadError] = useState('');
@@ -70,7 +75,20 @@ const CohortRegisterPage = () => {
   const [submitError, setSubmitError] = useState({ type: '', count: 0, message: '' });
   const eligibilityRequestIdsRef = useRef({});
 
-  const steps = useMemo(() => formConfig?.result || [], [formConfig]);
+  const steps = useMemo(() => {
+    const rawSteps = formConfig?.result || [];
+    if (!authenticatedUser) {
+      return rawSteps;
+    }
+    return rawSteps.map((step) => ({
+      ...step,
+      fields: step.fields.map((field) => (
+        APPLICANT_IDENTITY_FIELD_NAMES.includes(field.name)
+          ? { ...field, disabled: true }
+          : field
+      )),
+    }));
+  }, [formConfig, authenticatedUser]);
   const allFields = useMemo(() => steps.flatMap((step) => step.fields), [steps]);
   const currentStep = steps[currentStepIndex];
   const logoUrl = getConfig().LOGO_URL;
@@ -93,7 +111,12 @@ const CohortRegisterPage = () => {
           return;
         }
         setFormConfig(data);
-        setFormValues(buildInitialFormValues(data.result || []));
+        const initialValues = buildInitialFormValues(data.result || []);
+        if (authenticatedUser) {
+          initialValues.full_name = authenticatedUser.name || initialValues.full_name;
+          initialValues.email = authenticatedUser.email || initialValues.email;
+        }
+        setFormValues(initialValues);
       } catch (error) {
         if (mounted) {
           setLoadError(resolveCohortMessage(
@@ -110,7 +133,7 @@ const CohortRegisterPage = () => {
     };
     loadForm();
     return () => { mounted = false; };
-  }, [slug, intl]);
+  }, [slug, intl, authenticatedUser]);
 
   const handleFieldChange = useCallback((name, value) => {
     setSubmitError((prev) => (prev.type ? { type: '', count: prev.count, message: '' } : prev));
@@ -344,12 +367,18 @@ const CohortRegisterPage = () => {
         return;
       }
 
+      if (response.isLoggedIn) {
+        window.location.assign(resolveAbsoluteRedirectUrl(response.redirectUrl));
+        return;
+      }
+
       const submitPayload = buildSubmitPayload(steps, formValues);
       setCohortFormSubmittedSession(slug, {
         thanksMessage: response.thanksMessage,
         googleLoginUrl: response.loginOptions?.google || '',
         email: submitPayload.email || formValues.email || '',
         pageTitle,
+        userAlreadyExists: response.userAlreadyExists,
       });
       navigate(buildCohortFormSubmittedPath(slug), { replace: true });
     } catch {

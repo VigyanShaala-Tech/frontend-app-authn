@@ -17,6 +17,7 @@ const CohortSuccessView = ({
   googleLoginUrl,
   email,
   slug,
+  userAlreadyExists,
   onEmailSignup,
   onGoogleSignup,
   emailSubmitting,
@@ -48,9 +49,11 @@ const CohortSuccessView = ({
         <span className="cohort-success-view__check-icon" aria-hidden>✓</span>
       </div>
       <h3 className="cohort-success-view__title">
-        {thanksMessage || intl.formatMessage(messages.eligibleTitle)}
+        {userAlreadyExists
+          ? intl.formatMessage(messages.existingUserThanksMessage)
+          : thanksMessage || intl.formatMessage(messages.eligibleTitle)}
       </h3>
-      {!thanksMessage && (
+      {!userAlreadyExists && !thanksMessage && (
         <p className="cohort-success-view__subtitle">
           {intl.formatMessage(messages.eligibleSubtitle)}
         </p>
@@ -81,7 +84,7 @@ const CohortSuccessView = ({
           <span>
             {emailSubmitting
               ? intl.formatMessage(messages.signupLoading)
-              : intl.formatMessage(messages.signUpEmail)}
+              : intl.formatMessage(userAlreadyExists ? messages.signInEmail : messages.signUpEmail)}
           </span>
         </button>
       </div>
@@ -118,6 +121,7 @@ CohortSuccessView.propTypes = {
   googleLoginUrl: PropTypes.string,
   email: PropTypes.string,
   slug: PropTypes.string.isRequired,
+  userAlreadyExists: PropTypes.bool,
   onEmailSignup: PropTypes.func,
   onGoogleSignup: PropTypes.func,
   emailSubmitting: PropTypes.bool,
@@ -128,6 +132,7 @@ CohortSuccessView.defaultProps = {
   thanksMessage: '',
   googleLoginUrl: '',
   email: '',
+  userAlreadyExists: false,
   onEmailSignup: null,
   onGoogleSignup: null,
   emailSubmitting: false,
