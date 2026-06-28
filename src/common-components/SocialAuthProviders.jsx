@@ -32,7 +32,7 @@ const SocialAuthProviders = (props) => {
     >
       {provider.iconImage ? (
         <div aria-hidden="true">
-          <img className="btn-tpa__image-icon" src={provider.iconImage} alt={`icon ${provider.name}`} />
+          <img className="btn-tpa__image-icon" src={getConfig().LMS_BASE_URL + provider.iconImage} alt={`icon ${provider.name}`} />
         </div>
       )
         : (
