@@ -167,11 +167,11 @@ const CustomLogistration = ({
                         />
                         <p>
                           {formatMessage(messages['logistration.signin.terms.agreement'])} 
-                          <Hyperlink variant="muted" destination={`${getConfig().CATALOG_MICROFRONTEND_URL}terms`} target="_blank" className='ml-2 mr-2'>
+                          <Hyperlink variant="muted" destination={`${getConfig().CATALOG_MICROFRONTEND_URL}terms`} target="_blank" className='ml-1 mr-1'>
                             {formatMessage(messages['logistration.signin.terms.agreement.term'])}
                           </Hyperlink>
                           {formatMessage(messages['logistration.signin.terms.agreement.and'])} 
-                          <Hyperlink variant="muted" destination={`${getConfig().CATALOG_MICROFRONTEND_URL}privacy`} target="_blank" className='ml-2'>
+                          <Hyperlink variant="muted" destination={`${getConfig().CATALOG_MICROFRONTEND_URL}privacy`} target="_blank" className='ml-1'>
                             {formatMessage(messages['logistration.signin.terms.agreement.privacy'])}
                           </Hyperlink>
                         </p>
