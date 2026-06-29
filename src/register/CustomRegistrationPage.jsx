@@ -339,12 +339,12 @@ const CustomRegistrationPage = ({ handleInstitutionLogin, institutionLogin }) =>
         </Helmet>
 
         {registrationComplete ? (
-          registrationResult.authenticatedUser.is_third_party_user ? (
+          registrationResult.authenticatedUser?.isThirdPartyUser ? (
             <RedirectLogistration
               host={host}
               authenticatedUser={registrationResult.authenticatedUser}
               success={registrationResult.success}
-              redirectUrl={registrationResult.redirect_url}
+              redirectUrl={registrationResult.redirectUrl}
               finishAuthUrl={finishAuthUrl}
               optionalFields={optionalFields}
               registrationEmbedded={registrationEmbedded}
@@ -358,7 +358,7 @@ const CustomRegistrationPage = ({ handleInstitutionLogin, institutionLogin }) =>
               <h4 className="text-success mb-3">{formatMessage(messages['registration.success.title'])}</h4>
               <div className="alert alert-success mb-4">
                 {formatMessage(messages['registration.success.check.email.before'])}
-                <strong>{formFields.email}</strong>
+                <strong className="ml-1 mr-1">{formFields.email}</strong>
                 {formatMessage(messages['registration.success.check.email.after'])}
               </div>
             </div>
