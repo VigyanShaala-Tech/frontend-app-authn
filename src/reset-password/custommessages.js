@@ -43,7 +43,7 @@ const customMessages = defineMessages({
   },
   'back.to.sign.in': {
     id: 'back.to.sign.in',
-    defaultMessage: 'Back to Sign In',
+    defaultMessage: 'Back to Log In',
     description: 'Back to login link text on custom reset password page',
   },
   'password.validation.message': {

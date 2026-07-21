@@ -10,7 +10,7 @@ const messages = defineMessages({
   // logistration strings
   'logistration.sign.in': {
     id: 'logistration.sign.in',
-    defaultMessage: 'Sign In',
+    defaultMessage: 'Log In',
     description: 'Text that appears on the tab to switch between login and register',
   },
   'logistration.register': {
@@ -21,23 +21,23 @@ const messages = defineMessages({
   // enterprise sso strings
   'enterprisetpa.title.heading': {
     id: 'enterprisetpa.title.heading',
-    defaultMessage: 'Would you like to sign in using your {providerName} credentials?',
+    defaultMessage: 'Would you like to log in using your {providerName} credentials?',
     description: 'Header text used in enterprise third party authentication',
   },
   'enterprisetpa.login.button.text': {
     id: 'enterprisetpa.login.button.text',
-    defaultMessage: 'Show me other ways to sign in or register',
+    defaultMessage: 'Show me other ways to log in or register',
     description: 'Button text for login',
   },
   'enterprisetpa.login.button.text.public.account.creation.disabled': {
     id: 'enterprisetpa.login.button.text.public.account.creation.disabled',
-    defaultMessage: 'Show me other ways to sign in',
+    defaultMessage: 'Show me other ways to log in',
     description: 'Button text for login when account creation is disabled',
   },
   // social auth providers
   'sso.sign.in.with': {
     id: 'sso.sign.in.with',
-    defaultMessage: 'Sign in with {providerName}',
+    defaultMessage: 'Log in with {providerName}',
     description: 'Screen reader text that appears before social auth provider name',
   },
   'sso.create.account.using': {
@@ -86,7 +86,7 @@ const messages = defineMessages({
     id: 'login.third.party.auth.account.not.linked',
     defaultMessage: 'You have successfully signed into {currentProvider}, but your {currentProvider} '
                     + 'account does not have a linked {platformName} account. To link your accounts, '
-                    + 'sign in now using your {platformName} password.',
+                    + 'log in now using your {platformName} password.',
     description: 'Message that appears on login page if user has successfully authenticated with social '
                   + 'auth but no associated platform account exists',
   },
@@ -124,7 +124,7 @@ const messages = defineMessages({
   },
   'login.other.options.heading': {
     id: 'login.other.options.heading',
-    defaultMessage: 'Or sign in with:',
+    defaultMessage: 'Or log in with:',
     description: 'Text that appears above other sign in options like social auth buttons',
   },
   'enterprise.login.btn.text': {
@@ -144,7 +144,7 @@ const messages = defineMessages({
   },
   'logistration.signin.terms.agreement': {
     id: 'logistration.signin.terms.agreement',
-    defaultMessage: 'By signing in, you agree to our',
+    defaultMessage: 'By logging in, you agree to our',
     description: 'Footer legal agreement text shown on login form',
   },
   'logistration.signin.terms.agreement.term': {
@@ -164,7 +164,7 @@ const messages = defineMessages({
   },
   'logistration.sign.in': {
     id: 'logistration.sign.in',
-    defaultMessage: 'Sign In',
+    defaultMessage: 'Log In',
     description: 'Text that appears on the tab / header for sign in',
   },
   'logistration.already.have.account': {
