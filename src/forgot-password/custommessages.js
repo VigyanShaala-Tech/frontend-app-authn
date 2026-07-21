@@ -74,7 +74,7 @@ const messages = defineMessages({
   },
   'need.help.sign.in.text': {
     id: 'need.help.sign.in.text',
-    defaultMessage: 'Need help signing in?',
+    defaultMessage: 'Need help logging in?',
     description: 'Sign in help link on forgot password page',
   },
   'additional.help.text': {
@@ -84,7 +84,7 @@ const messages = defineMessages({
   },
   'sign.in.text': {
     id: 'sign.in.text',
-    defaultMessage: 'Back to Sign In',
+    defaultMessage: 'Back to Log In',
     description: 'login page link on password page',
   },
   'forgot.password.remember.prompt': {
@@ -94,7 +94,7 @@ const messages = defineMessages({
   },
   'forgot.password.sign.in.link': {
     id: 'forgot.password.sign.in.link',
-    defaultMessage: 'Sign In',
+    defaultMessage: 'Log In',
     description: 'Sign-in link label on custom forgot password page',
   },
   'extend.field.errors': {
