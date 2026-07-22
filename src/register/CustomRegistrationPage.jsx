@@ -103,6 +103,7 @@ const CustomRegistrationPage = ({ handleInstitutionLogin, institutionLogin }) =>
     password: '',
     confirm_password: '',
     user_role: '',
+    gender: '',
     terms_of_service: false,
     ...backedUpFormData.formFields,
   });
@@ -228,6 +229,13 @@ const CustomRegistrationPage = ({ handleInstitutionLogin, institutionLogin }) =>
       }));
     }
 
+    if (name === 'gender' && !value) {
+      setErrors((prev) => ({
+        ...prev,
+        gender: formatMessage(messages['registration.gender.required.error']),
+      }));
+    }
+
     if (name === 'terms_of_service' && !value) {
       setErrors((prev) => ({
         ...prev,
@@ -255,6 +263,7 @@ const CustomRegistrationPage = ({ handleInstitutionLogin, institutionLogin }) =>
       email: (formFields.email || '').trim(),
       username: (formFields.username || formFields.email || '').trim(),
       user_role: formFields.user_role || '',
+      gender: formFields.gender || '',
       terms_of_service: formFields.terms_of_service,
     };
 
@@ -269,6 +278,7 @@ const CustomRegistrationPage = ({ handleInstitutionLogin, institutionLogin }) =>
     if (!payload.name) customErrors.name = formatMessage(messages['empty.name.field.error']);
     if (!payload.email) customErrors.email = formatMessage(messages['empty.email.field.error']);
     if (!payload.user_role) customErrors.user_role = formatMessage(messages['registration.user.role.required.error']);
+    if (!payload.gender) customErrors.gender = formatMessage(messages['registration.gender.required.error']);
     if (!payload.terms_of_service) customErrors.terms_of_service = formatMessage(messages['registration.terms.required.error']);
 
     if (!currentProvider) {
@@ -475,6 +485,42 @@ const CustomRegistrationPage = ({ handleInstitutionLogin, institutionLogin }) =>
                   </div>
                 </div>
               )}
+
+              <Form.Group className="mb-4 gender-option">
+                <Form.Label className="fw-medium mb-2">
+                  {formatMessage(messages['registration.gender.label'])}
+                </Form.Label>
+
+                <div className="gender-radio-options">
+                  {[
+                    { value: 'm', label: formatMessage(messages['registration.gender.option.male']) },
+                    { value: 'f', label: formatMessage(messages['registration.gender.option.female']) },
+                    { value: 'o', label: formatMessage(messages['registration.gender.option.prefer_not_to_say']) },
+                  ].map((option) => (
+                    <label
+                      key={option.value}
+                      className={classNames('gender-radio-label', {
+                        'is-selected': formFields.gender === option.value,
+                      })}
+                    >
+                      <input
+                        type="radio"
+                        name="gender"
+                        value={option.value}
+                        checked={formFields.gender === option.value}
+                        onChange={handleOnChange}
+                        required
+                      />
+                      <span className="gender-radio-indicator" aria-hidden="true" />
+                      <span className="gender-radio-text">{option.label}</span>
+                    </label>
+                  ))}
+                </div>
+
+                {errors.gender && (
+                  <Form.Text className="text-danger mt-2">{errors.gender}</Form.Text>
+                )}
+              </Form.Group>
 
               <Form.Group className="mb-4 user-role-option">
                 <Form.Label className="fw-medium mb-2">

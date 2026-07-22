@@ -241,7 +241,7 @@
                 box-sizing: border-box;
                 display: flex !important;
                 justify-content: center !important;
-                align-items: center !important;
+                align-items: flex-start !important;
 
                 .main-wrapper {
                     display: flex !important;
@@ -250,15 +250,28 @@
                     width: 100% !important;
                     max-width: 28rem !important;
                     min-width: 0 !important;
-                    margin: 0 auto !important;
+                    margin: auto !important;
                     flex: 0 1 auto !important;
                 }
 
-                .main-content {
+                .main-content,
+                .custom-forgot-main-content,
+                .custom-reset-main-content {
                     width: 100% !important;
-                    max-width: 28rem !important;
+                    max-width: 100% !important;
                     min-width: 0 !important;
                     margin: 0 auto !important;
+                }
+
+                .custom-forgot-wrapper,
+                .custom-reset-wrapper,
+                .mw-xs.custom-forgot-wrapper,
+                .mw-xs.custom-reset-wrapper,
+                .custom-forgot-alert-page,
+                .custom-forgot-alert-card {
+                    width: 100% !important;
+                    max-width: 100% !important;
+                    min-width: 0 !important;
                 }
             }
         }
@@ -319,13 +332,30 @@
                     max-width: 28rem !important;
                     min-width: 0 !important;
                     margin: auto !important;
+                    display: flex !important;
+                    flex-direction: column !important;
+                    justify-content: center !important;
+                    align-items: stretch !important;
                 }
 
-                .main-content {
+                .main-content,
+                .custom-forgot-main-content,
+                .custom-reset-main-content {
                     width: 100% !important;
-                    max-width: 28rem !important;
+                    max-width: 100% !important;
                     min-width: 0 !important;
                     margin: 0 auto !important;
+                }
+
+                .custom-forgot-wrapper,
+                .custom-reset-wrapper,
+                .mw-xs.custom-forgot-wrapper,
+                .mw-xs.custom-reset-wrapper,
+                .custom-forgot-alert-page,
+                .custom-forgot-alert-card {
+                    width: 100% !important;
+                    max-width: 100% !important;
+                    min-width: 0 !important;
                 }
             }
         }

@@ -140,9 +140,9 @@ const CustomResetPasswordPage = (props) => {
             {formatMessage(customMessages['reset.password.page.title'], { siteName: getConfig().SITE_NAME })}
           </title>
         </Helmet>
-        <div className="d-flex justify-content-center flex-column">
+        <div className="main-wrapper d-flex align-items-center justify-content-center">
           <div id="main-content" className="main-content custom-reset-main-content">
-            <div className="mw-xs custom-reset-wrapper">
+            <div className="mw-xs custom-reset-wrapper w-100">
               <Link className="reset-back-link" to={updatePathWithQueryParams(LOGIN_PAGE)}>
                 <FontAwesomeIcon icon={faArrowLeft} />
                 <span>{formatMessage(customMessages['back.to.sign.in'])}</span>
