@@ -227,6 +227,31 @@ const messages = defineMessages({
     defaultMessage: 'I am a',
     description: 'Label for user role select field',
   },
+  'registration.gender.label': {
+    id: 'registration.gender.label',
+    defaultMessage: 'Gender',
+    description: 'Label for gender field on registration form',
+  },
+  'registration.gender.option.male': {
+    id: 'registration.gender.option.male',
+    defaultMessage: 'Male',
+    description: 'Male gender option label',
+  },
+  'registration.gender.option.female': {
+    id: 'registration.gender.option.female',
+    defaultMessage: 'Female',
+    description: 'Female gender option label',
+  },
+  'registration.gender.option.prefer_not_to_say': {
+    id: 'registration.gender.option.prefer_not_to_say',
+    defaultMessage: 'Prefer not to say',
+    description: 'Prefer not to say gender option label',
+  },
+  'registration.gender.required.error': {
+    id: 'registration.gender.required.error',
+    defaultMessage: 'Please select a gender',
+    description: 'Error message when gender is not selected',
+  },
   'registration.user.role.option.student': {
     id: 'registration.user.role.option.student',
     defaultMessage: 'Student',

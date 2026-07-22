@@ -6,7 +6,20 @@ import { getConfig } from '@edx/frontend-platform';
 import { useIntl } from '@edx/frontend-platform/i18n';
 import { Hyperlink, Image } from '@openedx/paragon';
 
+import drNehaVarshneyImg from '../../../assets/images/our-tribe/dr-neha-varshney.jpg';
+import jamunaVigneshImg from '../../../assets/images/our-tribe/jamuna-vignesh.jpg';
+import priyankaKajalImg from '../../../assets/images/our-tribe/priyanka-kajal.jpg';
+import shilpiMitraImg from '../../../assets/images/our-tribe/shilpi-mitra.jpg';
+import swathiBisanaImg from '../../../assets/images/our-tribe/swathi-bisana.jpg';
 import messages from './custommessages';
+
+const OUR_TRIBE_AVATARS = [
+  { src: priyankaKajalImg, alt: 'Priyanka Kajal' },
+  { src: drNehaVarshneyImg, alt: 'Dr. Neha Varshney' },
+  { src: swathiBisanaImg, alt: 'Swathi Bisana' },
+  { src: shilpiMitraImg, alt: 'Shilpi Mitra' },
+  { src: jamunaVigneshImg, alt: 'Jamuna Vignesh' },
+];
 
 const CustomLargeLayout = () => {
   const pathname = window.location.pathname;
@@ -31,13 +44,7 @@ const CustomLargeLayout = () => {
     'register.benefit.join_community',
   ];
 
-  const avatars = [
-    'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=60&h=60&fit=crop',
-    'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=60&h=60&fit=crop',
-    'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=60&h=60&fit=crop',
-    'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=60&h=60&fit=crop',
-    'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=60&h=60&fit=crop',
-  ];
+  const avatars = OUR_TRIBE_AVATARS;
 
   const renderContent = () => {
     if (component === 'registration') {
@@ -79,13 +86,13 @@ const CustomLargeLayout = () => {
             <div className="avatars-container d-flex justify-content-left align-items-center">
               {avatars.map((avatar, index) => (
                 <div
-                  key={index}
+                  key={avatar.alt}
                   className="avatar-item rounded-circle overflow-hidden border border-white shadow-sm"
                   style={{ zIndex: avatars.length - index }}
                 >
                   <img
-                    src={avatar}
-                    alt={`Student ${index + 1}`}
+                    src={avatar.src}
+                    alt={avatar.alt}
                     className="w-100 h-100 object-cover"
                   />
                 </div>
