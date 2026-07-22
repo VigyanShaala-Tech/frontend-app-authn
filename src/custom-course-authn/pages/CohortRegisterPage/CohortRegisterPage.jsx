@@ -570,6 +570,7 @@ const CohortRegisterPage = () => {
                     onChange={handleFieldChange}
                     onBlur={runFieldValidation}
                     onFieldError={handleFieldError}
+                    slug={slug}
                   />
                 ))}
 

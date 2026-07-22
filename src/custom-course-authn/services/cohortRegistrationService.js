@@ -8,6 +8,7 @@ import {
   startCohortEmailRegistrationApi,
   startCohortGoogleAuthApi,
   submitCohortSetPasswordApi,
+  uploadCohortFileApi,
 } from '../api/cohortRegistrationApi';
 import { extractApiMessage } from '../utils/cohortApiMessage';
 import { normalizeFormResponse } from '../utils/formNormalizer';
@@ -67,6 +68,26 @@ export const prepareCohortAuth = async (slug, payload) => {
       status: error?.response?.status,
       userAlreadyExists: Boolean(error?.response?.data?.useralreadyexists),
     };
+  }
+};
+
+export const uploadCohortFile = async (slug, fieldKey, file) => {
+  try {
+    const data = await uploadCohortFileApi(slug, fieldKey, file);
+    if (data.success === false) {
+      return { success: false, message: extractApiMessage(data) };
+    }
+    return {
+      success: true,
+      answer: {
+        uploadId: data.uploadId,
+        fileName: data.fileName,
+        fileSize: data.fileSize,
+        contentType: data.contentType || '',
+      },
+    };
+  } catch (error) {
+    return { success: false, message: extractApiMessage(error) };
   }
 };
 
