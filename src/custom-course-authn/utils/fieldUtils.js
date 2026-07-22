@@ -132,6 +132,10 @@ export const getFieldDisplayValue = (field, formValues) => {
   return value ?? '';
 };
 
+export const isFileUploadAnswer = (value) => (
+  Boolean(value) && typeof value === 'object' && !(value instanceof File) && Boolean(value.uploadId)
+);
+
 export const isFieldFilled = (field, formValues) => {
   if (!isFieldShown(field, formValues) || !isInputFieldType(field.type)) {
     return true;
@@ -147,7 +151,7 @@ export const isFieldFilled = (field, formValues) => {
     return value === true || value === 'true' || value === 'Yes' || value === field.checkedValue;
   }
   if (field.type === 'file' || field.type === 'image') {
-    return value instanceof File;
+    return isFileUploadAnswer(value);
   }
   if (field.type === 'range' || field.type === 'color') {
     return value !== undefined && value !== null && String(value).length > 0;
@@ -181,7 +185,7 @@ const shouldIncludePayloadValue = (field, value) => {
       && Object.values(value).some((item) => String(item ?? '').trim().length > 0);
   }
   if (field.type === 'file' || field.type === 'image') {
-    return value instanceof File;
+    return isFileUploadAnswer(value);
   }
   if (field.type === 'checkbox') {
     return value === true || value === 'true' || value === 'Yes' || value === field.checkedValue

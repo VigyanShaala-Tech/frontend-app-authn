@@ -51,6 +51,61 @@ const formValidationMessages = defineMessages({
     defaultMessage: 'You can only select {maxSelections} option(s).',
     description: 'Shown when multiselect selection exceeds maxSelections limit',
   },
+  textMinLength: {
+    id: 'custom.course.authn.validation.text.min.length',
+    defaultMessage: 'Enter at least {minLen} characters.',
+    description: 'Shown when a text/textarea answer is shorter than the configured minimum length',
+  },
+  textMaxLength: {
+    id: 'custom.course.authn.validation.text.max.length',
+    defaultMessage: 'Enter at most {maxLen} characters.',
+    description: 'Shown when a text/textarea answer is longer than the configured maximum length',
+  },
+  textLengthHintBoth: {
+    id: 'custom.course.authn.validation.text.length.hint.both',
+    defaultMessage: 'Must be between {minLen} and {maxLen} characters.',
+    description: 'Helper text shown below a text/textarea field with both min and max length configured',
+  },
+  textLengthHintMin: {
+    id: 'custom.course.authn.validation.text.length.hint.min',
+    defaultMessage: 'Must be at least {minLen} characters.',
+    description: 'Helper text shown below a text/textarea field with a min length configured',
+  },
+  textLengthHintMax: {
+    id: 'custom.course.authn.validation.text.length.hint.max',
+    defaultMessage: 'Must be at most {maxLen} characters.',
+    description: 'Helper text shown below a text/textarea field with a max length configured',
+  },
+  fileAcceptHint: {
+    id: 'custom.course.authn.validation.file.accept.hint',
+    defaultMessage: 'Accepted formats: {accept}',
+    description: 'Helper text shown below a file field listing accepted file types',
+  },
+  fileMaxSizeHint: {
+    id: 'custom.course.authn.validation.file.max.size.hint',
+    defaultMessage: 'Max size: {maxSizeMB} MB',
+    description: 'Helper text shown below a file field with the maximum upload size',
+  },
+  fileFormatNotAllowed: {
+    id: 'custom.course.authn.validation.file.format.not.allowed',
+    defaultMessage: 'This file type is not allowed. Accepted formats: {accept}',
+    description: 'Shown when the selected file extension/type does not match the allowed list',
+  },
+  fileTooLarge: {
+    id: 'custom.course.authn.validation.file.too.large',
+    defaultMessage: 'File is too large. Maximum size is {maxSizeMB} MB.',
+    description: 'Shown when the selected file exceeds the configured maximum size',
+  },
+  fileUploading: {
+    id: 'custom.course.authn.validation.file.uploading',
+    defaultMessage: 'Uploading…',
+    description: 'Shown while a file field upload request is in progress',
+  },
+  fileUploadFailed: {
+    id: 'custom.course.authn.validation.file.upload.failed',
+    defaultMessage: 'File upload failed. Please try again.',
+    description: 'Shown when the file upload request fails',
+  },
 });
 
 export default formValidationMessages;

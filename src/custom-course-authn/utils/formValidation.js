@@ -58,6 +58,25 @@ export const validateFieldLocally = (field, formValues, formatMessage) => {
     }
   }
 
+  if ((field.type === 'text' || field.type === 'textarea') && value) {
+    const minLen = field.validation?.minLength;
+    const maxLen = field.validation?.maxLength;
+    const customMessage = field.validation?.message;
+    const length = String(value).trim().length;
+    if (minLen != null && length < minLen) {
+      return {
+        valid: false,
+        message: customMessage || formatMessage(formValidationMessages.textMinLength, { minLen }),
+      };
+    }
+    if (maxLen != null && length > maxLen) {
+      return {
+        valid: false,
+        message: customMessage || formatMessage(formValidationMessages.textMaxLength, { maxLen }),
+      };
+    }
+  }
+
   if ((field.type === 'tel' || field.type === 'telephone') && value) {
     const digits = String(value).replace(/\D/g, '');
     const minLen = field.validation?.minLength;
