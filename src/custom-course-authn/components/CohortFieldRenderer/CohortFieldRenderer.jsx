@@ -41,7 +41,7 @@ const isFileAccepted = (file, accept) => {
 };
 
 const buildValidationHint = (field, intl) => {
-  if ((field.type === 'text' || field.type === 'textarea') && field.validation) {
+  if ((field.type === 'text' || field.type === 'textarea' || field.type === 'number') && field.validation) {
     const { minLength, maxLength } = field.validation;
     if (minLength != null && maxLength != null) {
       return intl.formatMessage(formValidationMessages.textLengthHintBoth, {

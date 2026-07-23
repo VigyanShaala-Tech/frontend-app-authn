@@ -99,10 +99,26 @@ export const validateFieldLocally = (field, formValues, formatMessage) => {
     const numericValue = Number(value);
     const min = field.validation?.min;
     const max = field.validation?.max;
+    const minLen = field.validation?.minLength;
+    const maxLen = field.validation?.maxLength;
+    const customMessage = field.validation?.message;
     if (Number.isNaN(numericValue)) {
       return {
         valid: false,
         message: formatMessage(formValidationMessages.invalidNumber),
+      };
+    }
+    const length = String(value).trim().length;
+    if (minLen != null && length < minLen) {
+      return {
+        valid: false,
+        message: customMessage || formatMessage(formValidationMessages.textMinLength, { minLen }),
+      };
+    }
+    if (maxLen != null && length > maxLen) {
+      return {
+        valid: false,
+        message: customMessage || formatMessage(formValidationMessages.textMaxLength, { maxLen }),
       };
     }
     if (min !== undefined && numericValue < min) {
