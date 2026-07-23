@@ -12,6 +12,7 @@ import {
   COHORT_PREFILL_API,
   COHORT_PREPARE_AUTH_API,
   COHORT_REGISTRATION_FORM_API,
+  COHORT_RESUME_API,
 } from '../data/constants';
 
 const getLmsBaseUrl = () => getConfig().LMS_BASE_URL || '';
@@ -48,6 +49,12 @@ export const prefillCohortFormApi = async (slug, email) => {
 export const prepareCohortAuthApi = async (slug, payload) => {
   const url = buildCohortApiUrl(COHORT_PREPARE_AUTH_API, slug);
   const { data } = await getClient().post(url, payload, getPublicRequestConfig());
+  return data;
+};
+
+export const resumeCohortRegistrationApi = async (slug, token) => {
+  const url = buildCohortApiUrl(COHORT_RESUME_API, slug);
+  const { data } = await getClient().post(url, { token }, getPublicRequestConfig());
   return data;
 };
 

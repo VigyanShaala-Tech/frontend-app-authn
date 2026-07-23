@@ -5,6 +5,7 @@ import {
   fetchCohortRegistrationFormApi,
   prefillCohortFormApi,
   prepareCohortAuthApi,
+  resumeCohortRegistrationApi,
   startCohortEmailRegistrationApi,
   startCohortGoogleAuthApi,
   submitCohortSetPasswordApi,
@@ -67,6 +68,36 @@ export const prepareCohortAuth = async (slug, payload) => {
       message: extractApiMessage(error),
       status: error?.response?.status,
       userAlreadyExists: Boolean(error?.response?.data?.useralreadyexists),
+    };
+  }
+};
+
+export const resumeCohortRegistration = async (slug, token) => {
+  try {
+    const data = await resumeCohortRegistrationApi(slug, token);
+    if (data.success === false) {
+      return {
+        success: false,
+        message: extractApiMessage(data),
+        status: data.status,
+      };
+    }
+    const loginOptions = data.loginoptions || data.loginOptions || {};
+    return {
+      success: true,
+      thanksMessage: data.thanksmessage || data.thanksMessage || '',
+      loginOptions,
+      userAlreadyExists: Boolean(data.useralreadyexists),
+      isLoggedIn: Boolean(data.isloggedin),
+      redirectUrl: data.redirecturl || data.redirectUrl || '',
+      pageTitle: data.pagetitle || data.pageTitle || '',
+      email: data.email || '',
+    };
+  } catch (error) {
+    return {
+      success: false,
+      message: extractApiMessage(error),
+      status: error?.response?.status,
     };
   }
 };
