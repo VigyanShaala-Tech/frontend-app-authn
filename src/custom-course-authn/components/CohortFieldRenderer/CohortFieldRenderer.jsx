@@ -314,7 +314,7 @@ const CohortFieldRenderer = ({
                 }),
               );
             }}
-            onChange={(vals) => handleChange(field.name, vals)}
+            onChange={(vals) => handleChange(field.name, vals, field.isEligibilityField)}
           />
         );
 
