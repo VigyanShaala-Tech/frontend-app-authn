@@ -36,6 +36,16 @@ const messages = defineMessages({
     defaultMessage: 'Email:',
     description: 'Email label on personal info step',
   },
+  resuming: {
+    id: 'custom.course.authn.page.resuming',
+    defaultMessage: 'Resuming your registration...',
+    description: 'Loading state while resolving a resume-registration link',
+  },
+  startFresh: {
+    id: 'custom.course.authn.page.start.fresh',
+    defaultMessage: 'Start a new registration',
+    description: 'Link shown when a resume-registration link is invalid or expired',
+  },
 });
 
 export default messages;
