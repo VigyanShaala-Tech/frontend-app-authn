@@ -40,6 +40,14 @@
     margin-bottom: #{cohort-fluid(6, 8)};
     line-height: 1.3;
     overflow-wrap: anywhere;
+
+    p {
+      margin: 0;
+
+      & + p {
+        margin-top: #{cohort-fluid(6, 8)};
+      }
+    }
   }
 
   &__subtitle {
