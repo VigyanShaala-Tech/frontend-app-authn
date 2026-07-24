@@ -69,15 +69,145 @@ export const getDependentOptions = (field, formValues, parentField) => {
 
 export const isFieldVisible = () => true;
 
+// --- "Show fields when condition matches" eligibility rules -------------------------------
+// The backend attaches a `visibleWhen` condition list (see cohort_management_form.services
+// _mark_field_visibility_conditions) to any field targeted by an active field_visibility
+// rule. Evaluated entirely client-side — mirrors rule_matches() so the field reacts live as
+// the trigger field changes, with no extra round trip per keystroke.
+
+const RULE_EXPECTED_ALL = '__all__';
+
+const isDynamicToday = (value) => {
+  const token = String(value == null ? '' : value).trim().toLowerCase();
+  return token === '__today__' || token === 'today';
+};
+
+const resolveConditionExpectedValue = (value) => (
+  isDynamicToday(value) ? new Date().toISOString().slice(0, 10) : value
+);
+
+const conditionExpectedIsAll = (expected) => {
+  if (expected === RULE_EXPECTED_ALL) {
+    return true;
+  }
+  // eslint-disable-next-line no-underscore-dangle -- mirrors the backend's __all__ sentinel key
+  if (expected && typeof expected === 'object' && !Array.isArray(expected) && expected.__all__ === true) {
+    return true;
+  }
+  if (typeof expected === 'string' && ['__all__', 'all'].includes(expected.trim().toLowerCase())) {
+    return true;
+  }
+  return false;
+};
+
+// yyyy-mm-dd (native <input type="date"> value) or dd-mm-yyyy / dd/mm/yyyy (Control Hub
+// "Expected value" input) — matches the backend's supported formats exactly.
+const coerceConditionDate = (value) => {
+  if (value == null || value === '') {
+    return null;
+  }
+  const text = String(value).trim();
+  let m = text.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (m) {
+    return Date.UTC(Number(m[1]), Number(m[2]) - 1, Number(m[3]));
+  }
+  m = text.match(/^(\d{2})[-/](\d{2})[-/](\d{4})$/);
+  if (m) {
+    return Date.UTC(Number(m[3]), Number(m[2]) - 1, Number(m[1]));
+  }
+  return null;
+};
+
+const coerceConditionNumber = (value) => {
+  if (value == null || value === '') {
+    return null;
+  }
+  const n = Number(value);
+  return Number.isFinite(n) ? n : null;
+};
+
+const conditionValueMatchesItem = (actual, expectedItem) => {
+  const resolved = resolveConditionExpectedValue(expectedItem);
+  const actualDate = coerceConditionDate(actual);
+  const expectedDate = coerceConditionDate(resolved);
+  if (actualDate != null && expectedDate != null) {
+    return actualDate === expectedDate;
+  }
+  return String(actual).trim().toLowerCase() === String(expectedItem).trim().toLowerCase();
+};
+
+const compareConditionOrdered = (actual, operator, expected) => {
+  const resolved = resolveConditionExpectedValue(expected);
+  const actualDate = coerceConditionDate(actual);
+  const expectedDate = coerceConditionDate(resolved);
+  if (actualDate != null && expectedDate != null) {
+    if (operator === 'gte') { return actualDate >= expectedDate; }
+    if (operator === 'lte') { return actualDate <= expectedDate; }
+    if (operator === 'gt') { return actualDate > expectedDate; }
+    if (operator === 'lt') { return actualDate < expectedDate; }
+    return false;
+  }
+  const actualNum = coerceConditionNumber(actual);
+  const expectedNum = coerceConditionNumber(resolved);
+  if (actualNum == null || expectedNum == null) {
+    return false;
+  }
+  if (operator === 'gte') { return actualNum >= expectedNum; }
+  if (operator === 'lte') { return actualNum <= expectedNum; }
+  if (operator === 'gt') { return actualNum > expectedNum; }
+  if (operator === 'lt') { return actualNum < expectedNum; }
+  return false;
+};
+
+const conditionMatches = (actual, operator, expected) => {
+  const isEmpty = actual == null || actual === '' || (Array.isArray(actual) && actual.length === 0);
+  if (isEmpty) {
+    return false;
+  }
+  if (conditionExpectedIsAll(expected)) {
+    return operator !== 'not_in';
+  }
+
+  if (Array.isArray(actual)) {
+    const actualSet = new Set(actual.map((v) => String(v).trim().toLowerCase()));
+    const expectedList = Array.isArray(expected) ? expected : [expected];
+    const expectedSet = new Set(expectedList.map((v) => String(v).trim().toLowerCase()));
+    const overlaps = [...actualSet].some((v) => expectedSet.has(v));
+    if (operator === 'eq' || operator === 'in') { return overlaps; }
+    if (operator === 'ne' || operator === 'not_in') { return !overlaps; }
+    return false;
+  }
+
+  if (['eq', 'ne', 'in', 'not_in'].includes(operator)) {
+    const expectedList = Array.isArray(expected) ? expected : [expected];
+    const anyMatch = expectedList.some((item) => conditionValueMatchesItem(actual, item));
+    return (operator === 'eq' || operator === 'in') ? anyMatch : !anyMatch;
+  }
+
+  return compareConditionOrdered(actual, operator, expected);
+};
+
+// Fields with no visibleWhen conditions are always shown (identical to today's behavior).
+// A field targeted by more than one field_visibility rule is shown when ANY condition
+// matches (OR), mirroring compute_field_visibility() server-side.
+const isFieldVisibleByConditions = (field, formValues) => {
+  const conditions = field.visibleWhen;
+  if (!Array.isArray(conditions) || conditions.length === 0) {
+    return true;
+  }
+  return conditions.some((condition) => (
+    conditionMatches(formValues[condition.field], condition.operator, condition.expectedValue)
+  ));
+};
+
 export const isFieldShown = (field, formValues) => {
   if (field.type === 'hidden') {
     return false;
   }
-  if (!field.dependsOn) {
-    return true;
+  if (field.dependsOn && !formValues[field.dependsOn]) {
+    return false;
   }
-  const parentValue = formValues[field.dependsOn];
-  return Boolean(parentValue);
+  return isFieldVisibleByConditions(field, formValues);
 };
 
 export const getInitialFieldValue = (field) => {
