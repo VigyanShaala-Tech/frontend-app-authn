@@ -364,11 +364,15 @@ const CustomRegistrationPage = ({ handleInstitutionLogin, institutionLogin }) =>
               }
             />
           ) : (
-            <div className="mw-xs mt-5 text-center p-4 bg-light border rounded">
-              <h4 className="text-success mb-3">{formatMessage(messages['registration.success.title'])}</h4>
-              <div className="alert alert-success mb-4">
+            <div className="registration-success-card mw-xs mt-5 text-center p-4 bg-light border rounded">
+              <h4 className="text-success mb-3 registration-success-title">
+                {formatMessage(messages['registration.success.title'])}
+              </h4>
+              <div className="alert alert-success mb-4 registration-success-alert">
                 {formatMessage(messages['registration.success.check.email.before'])}
-                <strong className="ml-1 mr-1">{formFields.email}</strong>
+                <strong className="registration-success-email data-hj-suppress ml-1 mr-1">
+                  {formFields.email}
+                </strong>
                 {formatMessage(messages['registration.success.check.email.after'])}
               </div>
             </div>
