@@ -112,6 +112,47 @@
             border: 2px solid #E2E8F0 !important;
         }
     }
+
+    // Keep registration alerts/success copy inside the panel; wrap long emails
+    .alert {
+        max-width: 100%;
+        min-width: 0;
+        box-sizing: border-box;
+        overflow-wrap: anywhere;
+        word-break: break-word;
+        white-space: normal;
+    }
+
+    .registration-success-card {
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+        box-sizing: border-box;
+        overflow-wrap: anywhere;
+        word-break: break-word;
+    }
+
+    .registration-success-title {
+        overflow-wrap: anywhere;
+        word-break: break-word;
+    }
+
+    .registration-success-alert {
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+        box-sizing: border-box;
+        overflow-wrap: anywhere;
+        word-break: break-word;
+        white-space: normal;
+        text-align: center;
+    }
+
+    .registration-success-email {
+        display: inline;
+        overflow-wrap: anywhere;
+        word-break: break-all;
+    }
 }
 
 @media (max-width: 480px) {
