@@ -235,9 +235,33 @@
       justify-content: center;
       gap: 0.5rem;
 
-      svg {
+      // Offset only the default-state arrow icon — do not touch pending spinner SVG
+      .btn-label-default svg.ml-2,
+      .pgn__stateful-btn-state-default svg.ml-2 {
         position: relative;
         top: 2px;
+      }
+
+      // Stabilize pending spinner: no vertical offset, rotate around center only
+      &.pgn__stateful-btn-state-pending {
+        .pgn__icon {
+          position: static !important;
+          top: auto !important;
+          display: inline-flex !important;
+          align-items: center !important;
+          justify-content: center !important;
+          line-height: 1 !important;
+        }
+
+        .pgn__icon svg,
+        svg.svg-inline--fa.fa-spinner,
+        svg.svg-inline--fa.fa-spin {
+          position: static !important;
+          top: auto !important;
+          display: block !important;
+          margin: 0 !important;
+          transform-origin: center center !important;
+        }
       }
     }
 

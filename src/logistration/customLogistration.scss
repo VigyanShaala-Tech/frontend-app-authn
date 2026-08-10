@@ -57,6 +57,23 @@
                 text-decoration: none !important;
             }
         }
+
+        // Keep login alert/error copy inside panel; wrap long emails
+        .alert,
+        #account-activation-message {
+            max-width: 100%;
+            min-width: 0;
+            box-sizing: border-box;
+            overflow-wrap: anywhere;
+            word-break: break-word;
+            white-space: normal;
+        }
+
+        .alert strong,
+        #account-activation-message strong {
+            overflow-wrap: anywhere;
+            word-break: break-all;
+        }
     }
 }
 
@@ -64,4 +81,7 @@
     > .main-content {
         padding-top: 0 !important;
     }
+}
+#registration-form .pgn__hyperlink__external-icon{
+    display: none !important;
 }

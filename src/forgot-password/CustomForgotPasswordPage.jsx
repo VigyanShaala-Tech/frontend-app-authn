@@ -106,9 +106,9 @@ const CustomForgotPasswordPage = (props) => {
           { siteName: getConfig().SITE_NAME })}
         </title>
       </Helmet>
-      <div className='d-flex justify-content-center flex-column'>
+      <div className="main-wrapper d-flex align-items-center justify-content-center">
         <div id="main-content" className="main-content custom-forgot-main-content">
-          <div className="mw-xs custom-forgot-wrapper">
+          <div className="mw-xs custom-forgot-wrapper w-100">
             {showAlertView ? (
               <CustomForgotPasswordAlertView
                 email={bannerEmail}

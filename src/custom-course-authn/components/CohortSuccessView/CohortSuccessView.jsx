@@ -48,11 +48,18 @@ const CohortSuccessView = ({
       <div className="cohort-success-view__icon-wrap">
         <span className="cohort-success-view__check-icon" aria-hidden>✓</span>
       </div>
-      <h3 className="cohort-success-view__title">
-        {userAlreadyExists
-          ? intl.formatMessage(messages.existingUserThanksMessage)
-          : thanksMessage || intl.formatMessage(messages.eligibleTitle)}
-      </h3>
+      {!userAlreadyExists && thanksMessage ? (
+        <div
+          className="cohort-success-view__title"
+          dangerouslySetInnerHTML={{ __html: thanksMessage }}
+        />
+      ) : (
+        <h3 className="cohort-success-view__title">
+          {userAlreadyExists
+            ? intl.formatMessage(messages.existingUserThanksMessage)
+            : intl.formatMessage(messages.eligibleTitle)}
+        </h3>
+      )}
       {!userAlreadyExists && !thanksMessage && (
         <p className="cohort-success-view__subtitle">
           {intl.formatMessage(messages.eligibleSubtitle)}

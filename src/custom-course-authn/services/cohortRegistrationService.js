@@ -5,9 +5,11 @@ import {
   fetchCohortRegistrationFormApi,
   prefillCohortFormApi,
   prepareCohortAuthApi,
+  resumeCohortRegistrationApi,
   startCohortEmailRegistrationApi,
   startCohortGoogleAuthApi,
   submitCohortSetPasswordApi,
+  uploadCohortFileApi,
 } from '../api/cohortRegistrationApi';
 import { extractApiMessage } from '../utils/cohortApiMessage';
 import { normalizeFormResponse } from '../utils/formNormalizer';
@@ -67,6 +69,56 @@ export const prepareCohortAuth = async (slug, payload) => {
       status: error?.response?.status,
       userAlreadyExists: Boolean(error?.response?.data?.useralreadyexists),
     };
+  }
+};
+
+export const resumeCohortRegistration = async (slug, token) => {
+  try {
+    const data = await resumeCohortRegistrationApi(slug, token);
+    if (data.success === false) {
+      return {
+        success: false,
+        message: extractApiMessage(data),
+        status: data.status,
+      };
+    }
+    const loginOptions = data.loginoptions || data.loginOptions || {};
+    return {
+      success: true,
+      thanksMessage: data.thanksmessage || data.thanksMessage || '',
+      loginOptions,
+      userAlreadyExists: Boolean(data.useralreadyexists),
+      isLoggedIn: Boolean(data.isloggedin),
+      redirectUrl: data.redirecturl || data.redirectUrl || '',
+      pageTitle: data.pagetitle || data.pageTitle || '',
+      email: data.email || '',
+    };
+  } catch (error) {
+    return {
+      success: false,
+      message: extractApiMessage(error),
+      status: error?.response?.status,
+    };
+  }
+};
+
+export const uploadCohortFile = async (slug, fieldKey, file) => {
+  try {
+    const data = await uploadCohortFileApi(slug, fieldKey, file);
+    if (data.success === false) {
+      return { success: false, message: extractApiMessage(data) };
+    }
+    return {
+      success: true,
+      answer: {
+        uploadId: data.uploadId,
+        fileName: data.fileName,
+        fileSize: data.fileSize,
+        contentType: data.contentType || '',
+      },
+    };
+  } catch (error) {
+    return { success: false, message: extractApiMessage(error) };
   }
 };
 

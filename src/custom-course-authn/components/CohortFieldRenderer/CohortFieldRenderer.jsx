@@ -4,6 +4,7 @@ import { useIntl } from '@edx/frontend-platform/i18n';
 import PropTypes from 'prop-types';
 
 import formValidationMessages from '../../messages/formValidationMessages';
+import { uploadCohortFile } from '../../services/cohortRegistrationService';
 
 import {
   fieldHasOtherOption,
@@ -17,6 +18,56 @@ import CohortCascadeSelect from '../CohortCascadeSelect/CohortCascadeSelect';
 import CustomSearchDropdown from '../CustomSearchDropdown/CustomSearchDropdown';
 
 import './cohort-field-renderer.scss';
+
+const isFileAccepted = (file, accept) => {
+  const entries = String(accept || '')
+    .split(',')
+    .map((entry) => entry.trim().toLowerCase())
+    .filter(Boolean);
+  if (!entries.length) {
+    return true;
+  }
+  const fileName = (file.name || '').toLowerCase();
+  const fileType = (file.type || '').toLowerCase();
+  return entries.some((entry) => {
+    if (entry.startsWith('.')) {
+      return fileName.endsWith(entry);
+    }
+    if (entry.endsWith('/*')) {
+      return fileType.startsWith(entry.slice(0, -1));
+    }
+    return fileType === entry;
+  });
+};
+
+const buildValidationHint = (field, intl) => {
+  if ((field.type === 'text' || field.type === 'textarea' || field.type === 'number') && field.validation) {
+    const { minLength, maxLength } = field.validation;
+    if (minLength != null && maxLength != null) {
+      return intl.formatMessage(formValidationMessages.textLengthHintBoth, {
+        minLen: minLength,
+        maxLen: maxLength,
+      });
+    }
+    if (minLength != null) {
+      return intl.formatMessage(formValidationMessages.textLengthHintMin, { minLen: minLength });
+    }
+    if (maxLength != null) {
+      return intl.formatMessage(formValidationMessages.textLengthHintMax, { maxLen: maxLength });
+    }
+  }
+  if ((field.type === 'file' || field.type === 'image') && field.file) {
+    const parts = [];
+    if (field.file.accept) {
+      parts.push(intl.formatMessage(formValidationMessages.fileAcceptHint, { accept: field.file.accept }));
+    }
+    if (field.file.maxSizeMB) {
+      parts.push(intl.formatMessage(formValidationMessages.fileMaxSizeHint, { maxSizeMB: field.file.maxSizeMB }));
+    }
+    return parts.join(' · ');
+  }
+  return '';
+};
 
 const CohortImagePreview = ({ file, alt }) => {
   const [previewUrl, setPreviewUrl] = useState('');
@@ -63,8 +114,12 @@ const CohortFieldRenderer = ({
   onChange,
   onBlur,
   onFieldError,
+  slug,
 }) => {
   const intl = useIntl();
+  const [uploading, setUploading] = useState(false);
+  const [selectedFile, setSelectedFile] = useState(null);
+
   if (field.type === 'hidden') {
     if (field.hiddenMessage) {
       return (
@@ -259,7 +314,7 @@ const CohortFieldRenderer = ({
                 }),
               );
             }}
-            onChange={(vals) => handleChange(field.name, vals)}
+            onChange={(vals) => handleChange(field.name, vals, field.isEligibilityField)}
           />
         );
 
@@ -271,6 +326,8 @@ const CohortFieldRenderer = ({
             rows={field.rows || 3}
             value={value}
             placeholder={field.placeholder || ''}
+            minLength={field.validation?.minLength}
+            maxLength={field.validation?.maxLength}
             onChange={(e) => handleChange(field.name, e.target.value)}
             onBlur={() => onBlur(field)}
           />
@@ -278,26 +335,75 @@ const CohortFieldRenderer = ({
 
       case 'file':
       case 'image': {
-        const fileValue = value instanceof File ? value : null;
+        const uploadedAnswer = value && typeof value === 'object' ? value : null;
+        const acceptConfig = field.file?.accept || '';
+        const maxSizeMB = field.file?.maxSizeMB;
+
+        const handleFileSelect = async (event) => {
+          const selected = event.target.files?.[0];
+          // Reset the input so re-selecting the same file after an error fires onChange again.
+          event.target.value = '';
+          if (!selected) {
+            return;
+          }
+          if (onFieldError) {
+            onFieldError(field.name, '');
+          }
+          if (!isFileAccepted(selected, acceptConfig)) {
+            onFieldError?.(
+              field.name,
+              intl.formatMessage(formValidationMessages.fileFormatNotAllowed, { accept: acceptConfig }),
+            );
+            return;
+          }
+          if (maxSizeMB && selected.size > maxSizeMB * 1024 * 1024) {
+            onFieldError?.(
+              field.name,
+              intl.formatMessage(formValidationMessages.fileTooLarge, { maxSizeMB }),
+            );
+            return;
+          }
+
+          setUploading(true);
+          const result = await uploadCohortFile(slug, field.name, selected);
+          setUploading(false);
+
+          if (!result.success) {
+            onFieldError?.(
+              field.name,
+              result.message || intl.formatMessage(formValidationMessages.fileUploadFailed),
+            );
+            return;
+          }
+
+          setSelectedFile(field.type === 'image' ? selected : null);
+          onChange(field.name, result.answer);
+        };
 
         return (
           <>
             <input
               id={field.name}
               type="file"
+              accept={acceptConfig || undefined}
               className={`form-control ${error ? 'is-invalid' : ''}`}
-              onChange={(event) => handleChange(field.name, event.target.files?.[0] || null)}
-              onBlur={() => onBlur(field)}
+              disabled={field.disabled || uploading}
+              onChange={handleFileSelect}
             />
-            {fileValue?.name && (
+            {uploading && (
+              <p className="form-text text-muted mb-0 mt-1">
+                {intl.formatMessage(formValidationMessages.fileUploading)}
+              </p>
+            )}
+            {!uploading && uploadedAnswer?.fileName && (
               <p className="form-text text-muted mb-0 mt-1">
                 Selected:
                 {' '}
-                {fileValue.name}
+                {uploadedAnswer.fileName}
               </p>
             )}
-            {field.type === 'image' && fileValue && (
-              <CohortImagePreview file={fileValue} alt={field.label} />
+            {field.type === 'image' && selectedFile && (
+              <CohortImagePreview file={selectedFile} alt={field.label} />
             )}
           </>
         );
@@ -366,6 +472,8 @@ const CohortFieldRenderer = ({
     );
   }
 
+  const validationHint = buildValidationHint(field, intl);
+
   return (
     <div className="pgn__form-group cohort-field mb-3">
       <label className="pgn__form-label fw-medium mb-2" htmlFor={field.name}>
@@ -375,6 +483,9 @@ const CohortFieldRenderer = ({
       {field.helper && <p className="form-text text-muted mb-2">{field.helper}</p>}
       {renderInput()}
       {isValidating && <p className="form-text text-muted mb-0">Validating...</p>}
+      {!isValidating && !error && validationHint && (
+        <p className="form-text text-muted mb-0 cohort-field__validation-hint">{validationHint}</p>
+      )}
       {error && <p className="form-text text-danger mb-0">{error}</p>}
     </div>
   );
@@ -406,6 +517,11 @@ CohortFieldRenderer.propTypes = {
       min: PropTypes.number,
       max: PropTypes.number,
       step: PropTypes.number,
+      message: PropTypes.string,
+    }),
+    file: PropTypes.shape({
+      accept: PropTypes.string,
+      maxSizeMB: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     }),
     isEligibilityField: PropTypes.bool,
     maxSelections: PropTypes.number,
@@ -440,10 +556,12 @@ CohortFieldRenderer.propTypes = {
   onChange: PropTypes.func.isRequired,
   onBlur: PropTypes.func.isRequired,
   onFieldError: PropTypes.func,
+  slug: PropTypes.string,
 };
 
 CohortFieldRenderer.defaultProps = {
   allFields: [],
+  slug: '',
   onFieldError: undefined,
 };
 

@@ -8,7 +8,7 @@ import { useIntl } from '@edx/frontend-platform/i18n';
 import { faArrowLeft } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import PropTypes from 'prop-types';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 
 import RegistrationFailure from '../../../register/components/RegistrationFailure';
 import {
@@ -23,6 +23,7 @@ import CohortProgressStepper from '../../components/CohortProgressStepper/Cohort
 import CohortSubmitErrorAlert from '../../components/CohortSubmitErrorAlert/CohortSubmitErrorAlert';
 import {
   buildCohortFormSubmittedPath,
+  buildCohortRegisterPath,
 } from '../../data/constants';
 import cohortApiMessages from '../../messages/cohortApiMessages';
 import {
@@ -30,6 +31,7 @@ import {
   fetchCohortRegistrationForm,
   prefillCohortForm,
   prepareCohortAuth,
+  resumeCohortRegistration,
 } from '../../services/cohortRegistrationService';
 import { extractApiMessage, resolveCohortMessage } from '../../utils/cohortApiMessage';
 import {
@@ -64,10 +66,14 @@ const CohortRegisterPage = () => {
   const intl = useIntl();
   const navigate = useNavigate();
   const authenticatedUser = getAuthenticatedUser();
+  const [searchParams] = useSearchParams();
+  const resumeToken = searchParams.get('resume') || '';
 
   const [formConfig, setFormConfig] = useState(null);
   const [loadError, setLoadError] = useState('');
   const [loading, setLoading] = useState(true);
+  const [resumeStatus, setResumeStatus] = useState(resumeToken ? 'loading' : 'idle');
+  const [resumeError, setResumeError] = useState('');
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
   const [formValues, setFormValues] = useState({});
   const [fieldErrors, setFieldErrors] = useState({});
@@ -155,7 +161,53 @@ const CohortRegisterPage = () => {
     }, 0);
   }, [authenticatedUser]);
 
+  // Resume flow: a Control Hub "resend" email link (?resume=token) skips the multi-step form
+  // entirely and drops the applicant straight into the existing post-submit funnel (Thank-you
+  // + Sign up with Google/Email), exactly where they left off before abandoning the flow.
   useEffect(() => {
+    if (!resumeToken || !slug) {
+      return undefined;
+    }
+
+    let mounted = true;
+    const runResume = async () => {
+      setResumeStatus('loading');
+      const response = await resumeCohortRegistration(slug, resumeToken);
+      if (!mounted) {
+        return;
+      }
+      if (!response.success) {
+        setResumeError(resolveCohortMessage(
+          response.message,
+          cohortApiMessages.resumeFailed,
+          intl.formatMessage,
+        ));
+        setResumeStatus('error');
+        return;
+      }
+
+      if (response.isLoggedIn) {
+        window.location.assign(resolveAbsoluteRedirectUrl(response.redirectUrl));
+        return;
+      }
+
+      setCohortFormSubmittedSession(slug, {
+        thanksMessage: response.thanksMessage,
+        googleLoginUrl: response.loginOptions?.google || '',
+        email: response.email || '',
+        pageTitle: response.pageTitle || '',
+        userAlreadyExists: response.userAlreadyExists,
+      });
+      navigate(buildCohortFormSubmittedPath(slug), { replace: true });
+    };
+    runResume();
+    return () => { mounted = false; };
+  }, [resumeToken, slug, intl, navigate]);
+
+  useEffect(() => {
+    if (resumeToken) {
+      return undefined;
+    }
     if (!slug) {
       setLoadError(intl.formatMessage(messages.loadError));
       setLoading(false);
@@ -204,7 +256,7 @@ const CohortRegisterPage = () => {
     };
     loadForm();
     return () => { mounted = false; };
-  }, [slug, intl, authenticatedUser, applyPrefillAnswers]);
+  }, [slug, intl, authenticatedUser, applyPrefillAnswers, resumeToken]);
 
   const handleFieldChange = useCallback((name, value) => {
     setSubmitError((prev) => (prev.type ? { type: '', count: prev.count, message: '' } : prev));
@@ -487,6 +539,33 @@ const CohortRegisterPage = () => {
     }
   };
 
+  if (resumeToken) {
+    if (resumeStatus === 'error') {
+      return (
+        <div className="cohort-register-page">
+          <div className="cohort-register-page__container">
+            <CohortSubmitErrorAlert message={resumeError} />
+            <p className="cohort-register-page__step-description">
+              <a href={buildCohortRegisterPath(slug)}>
+                {intl.formatMessage(messages.startFresh)}
+              </a>
+            </p>
+          </div>
+        </div>
+      );
+    }
+    return (
+      <div className="cohort-register-page">
+        <div className="cohort-register-page__container">
+          <CohortLoadingSpinner />
+          <p className="cohort-register-page__step-description">
+            {intl.formatMessage(messages.resuming)}
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   if (loading) {
     return (
       <div className="cohort-register-page">
@@ -570,6 +649,7 @@ const CohortRegisterPage = () => {
                     onChange={handleFieldChange}
                     onBlur={runFieldValidation}
                     onFieldError={handleFieldError}
+                    slug={slug}
                   />
                 ))}
 

@@ -34,7 +34,7 @@ const messages = defineMessages({
   },
   'sign.in.button': {
     id: 'sign.in.button',
-    defaultMessage: 'Sign in',
+    defaultMessage: 'Log in',
     description: 'Sign in button label that appears on login page',
   },
   'forgot.password': {
@@ -54,7 +54,7 @@ const messages = defineMessages({
   },
   'institution.login.page.title': {
     id: 'institution.login.page.title',
-    defaultMessage: 'Sign in with institution/campus credentials',
+    defaultMessage: 'Log in with institution/campus credentials',
     description: 'Heading of institution page',
   },
   'institution.login.page.sub.heading': {
@@ -102,7 +102,7 @@ const messages = defineMessages({
   },
   'account.activation.success.message': {
     id: 'account.activation.success.message',
-    defaultMessage: 'You will now receive email updates and alerts from us related to the courses you are enrolled in. Sign in to continue.',
+    defaultMessage: 'You will now receive email updates and alerts from us related to the courses you are enrolled in. Log in to continue.',
     description: 'Message show to learners when their account has been activated successfully',
   },
   'account.activation.info.message': {
@@ -128,7 +128,7 @@ const messages = defineMessages({
   },
   'account.confirmation.success.message': {
     id: 'account.confirmation.success.message',
-    defaultMessage: 'Sign in to continue.',
+    defaultMessage: 'Log in to continue.',
     description: 'Message show to learners when their account has been activated successfully',
   },
   'account.confirmation.info.message': {
@@ -158,7 +158,7 @@ const messages = defineMessages({
   },
   'login.failure.header.title': {
     id: 'login.failure.header.title',
-    defaultMessage: 'We couldn\'t sign you in.',
+    defaultMessage: 'We couldn\'t log you in.',
     description: 'Login failure header message.',
   },
   'contact.support.link': {
@@ -282,7 +282,7 @@ const messages = defineMessages({
   },
   'login.otp.verify.button': {
     id: 'login.otp.verify.button',
-    defaultMessage: 'Verify & Sign In',
+    defaultMessage: 'Verify & Log In',
     description: 'Button to verify OTP and complete login',
   },
   'login.otp.sending': {
@@ -329,12 +329,12 @@ const messages = defineMessages({
   // Google Login Tab
   'login.google.button': {
     id: 'login.google.button',
-    defaultMessage: 'Sign in with Google',
+    defaultMessage: 'Log in with Google',
     description: 'Button label for Google OAuth login',
   },
   'login.google.not.configured': {
     id: 'login.google.not.configured',
-    defaultMessage: 'Google sign-in is not available right now.',
+    defaultMessage: 'Google log-in is not available right now.',
     description: 'Message shown when Google provider is not configured/enabled',
   },
 

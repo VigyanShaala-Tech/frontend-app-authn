@@ -6,11 +6,13 @@ import {
   COHORT_EMAIL_ACTIVATE_API,
   COHORT_EMAIL_SET_PASSWORD_API,
   COHORT_EMAIL_START_API,
+  COHORT_FILE_UPLOAD_API,
   COHORT_GOOGLE_COMPLETE_API,
   COHORT_GOOGLE_START_API,
   COHORT_PREFILL_API,
   COHORT_PREPARE_AUTH_API,
   COHORT_REGISTRATION_FORM_API,
+  COHORT_RESUME_API,
 } from '../data/constants';
 
 const getLmsBaseUrl = () => getConfig().LMS_BASE_URL || '';
@@ -47,6 +49,23 @@ export const prefillCohortFormApi = async (slug, email) => {
 export const prepareCohortAuthApi = async (slug, payload) => {
   const url = buildCohortApiUrl(COHORT_PREPARE_AUTH_API, slug);
   const { data } = await getClient().post(url, payload, getPublicRequestConfig());
+  return data;
+};
+
+export const resumeCohortRegistrationApi = async (slug, token) => {
+  const url = buildCohortApiUrl(COHORT_RESUME_API, slug);
+  const { data } = await getClient().post(url, { token }, getPublicRequestConfig());
+  return data;
+};
+
+export const uploadCohortFileApi = async (slug, fieldKey, file) => {
+  const url = buildCohortApiUrl(COHORT_FILE_UPLOAD_API, slug);
+  const formData = new FormData();
+  formData.append('field_key', fieldKey);
+  formData.append('file', file);
+  const { data } = await getClient().post(url, formData, getPublicRequestConfig({
+    headers: { 'Content-Type': 'multipart/form-data' },
+  }));
   return data;
 };
 

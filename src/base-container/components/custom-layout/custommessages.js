@@ -41,7 +41,7 @@ const messages = defineMessages({
   },
   'login.paragraph': {
     id: 'login.paragraph',
-    defaultMessage: 'Sign in to continue your learning journey and access your courses.',
+    defaultMessage: 'Log in to continue your learning journey and access your courses.',
     description: 'Descriptive paragraph for login page',
   },
   'login.join_learners': {

@@ -41,6 +41,11 @@ const cohortApiMessages = defineMessages({
     defaultMessage: 'Unable to submit your registration. Please try again.',
     description: 'Fallback when prepare-auth API returns no message',
   },
+  resumeFailed: {
+    id: 'custom.course.authn.api.resume.failed',
+    defaultMessage: 'This resume link is invalid or has expired. Please start your registration again.',
+    description: 'Fallback when the resume-registration API returns no message',
+  },
   verifyEmailFallback: {
     id: 'custom.course.authn.api.verify.email.fallback',
     defaultMessage: "We've sent a verification link to {email}. Please open your email and click the link to verify and continue your registration.",

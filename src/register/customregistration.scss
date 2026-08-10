@@ -112,6 +112,47 @@
             border: 2px solid #E2E8F0 !important;
         }
     }
+
+    // Keep registration alerts/success copy inside the panel; wrap long emails
+    .alert {
+        max-width: 100%;
+        min-width: 0;
+        box-sizing: border-box;
+        overflow-wrap: anywhere;
+        word-break: break-word;
+        white-space: normal;
+    }
+
+    .registration-success-card {
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+        box-sizing: border-box;
+        overflow-wrap: anywhere;
+        word-break: break-word;
+    }
+
+    .registration-success-title {
+        overflow-wrap: anywhere;
+        word-break: break-word;
+    }
+
+    .registration-success-alert {
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+        box-sizing: border-box;
+        overflow-wrap: anywhere;
+        word-break: break-word;
+        white-space: normal;
+        text-align: center;
+    }
+
+    .registration-success-email {
+        display: inline;
+        overflow-wrap: anywhere;
+        word-break: break-all;
+    }
 }
 
 @media (max-width: 480px) {
@@ -136,6 +177,73 @@
 
     .user-role-option {
         margin-top: 0.5rem !important;
+    }
+
+    .gender-option {
+        margin-top: 0.5rem !important;
+    }
+
+    .gender-radio-options {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem 1.5rem;
+    }
+
+    .gender-radio-label {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 0;
+        cursor: pointer;
+        font-size: 0.875rem;
+        line-height: 1.25rem;
+        color: #2d3748;
+
+        input[type='radio'] {
+            position: absolute;
+            opacity: 0;
+            width: 0;
+            height: 0;
+            margin: 0;
+            pointer-events: none;
+        }
+
+        .gender-radio-indicator {
+            width: 1.125rem;
+            height: 1.125rem;
+            border-radius: 50%;
+            border: 2px solid #e2e8f0;
+            background: #fff;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            transition: border-color 0.2s ease, background-color 0.2s ease;
+
+            &::after {
+                content: '';
+                width: 0.375rem;
+                height: 0.375rem;
+                border-radius: 50%;
+                background: transparent;
+                transition: background-color 0.2s ease;
+            }
+        }
+
+        &.is-selected .gender-radio-indicator,
+        input[type='radio']:checked + .gender-radio-indicator {
+            border-color: var(--pgn-color-primary-base);
+            background: var(--pgn-color-primary-base);
+
+            &::after {
+                background: #fff;
+            }
+        }
+    }
+
+    .gender-radio-text {
+        font-size: 0.875rem;
+        line-height: 1.25rem;
     }
 
     #terms-of-service {
